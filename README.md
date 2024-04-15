@@ -10,7 +10,7 @@
 | --------------- | --------------- | --------------- |
 | 22848932 | Celyn Chew | CelynChew |
 | 23641633  | Chuen Yui Lam  | Roy-Lam  |
-|  |  |  |
+| 23251142  | Benjamin Cooper | bc163836 |
 |  |  |  |
 
 ## Architecture of the application
