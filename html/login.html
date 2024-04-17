@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="../styles/login.css"> <!-- linking login.css -->
+</head>
+<body>
+    <div class="container">
+        <h2>Login</h2> 
+        <!-- Creating form to ask user for login details -->
+        <!-- will have to add action attribute to handle submit button-->
+        <form id="login">
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            <label for="password">Password:</label>
+            <div>
+                <input type="password" id="password" name="password" required>
+                <span class="toggle-password" onclick="PasswordVisibility()">Show</span>
+            </div>
+            <input type="submit" value="Login">
+        </form>
+    </div>
+
+    <script> 
+        /* Creating function to allow for password reveal */
+        function PasswordVisibility() {
+            var passwordInput = document.getElementById("password");
+            var toggleIcon = document.querySelector(".toggle-password");
+
+            if (passwordInput.type == "password") {
+                passwordInput.type = "text";
+                toggleIcon.textContent = "Hide";
+            } else {
+                passwordInput.type = "password";
+                toggleIcon.textContent = "Show";
+            }
+        }
+    </script>
+</body>
+</html>
