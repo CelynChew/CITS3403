@@ -1,39 +1,33 @@
 <!DOCTYPE html>
 <head>
     <title>Login</title>
-    <link rel="stylesheet" href="../styles/login.css"> <!-- linking login.css -->
+    <link rel="stylesheet" href="../styles/login.css">
 </head>
 <body>
     <div class="container">
-        <h2>Login</h2> 
-        <!-- Creating form to ask user for login details -->
-        <!-- will have to add action attribute to handle submit button-->
-        <form id="login">
-            <label for="username">Username:</label>
-            <input type="text" id="username" name="username" required>
-            <label for="password">Password:</label>
-            <div>
-                <input type="password" id="password" name="password" required>
-                <span class="toggle-password" onclick="PasswordVisibility()">Show</span>
+        <h2>Login</h2>
+        <!-- will have to add action attribute to handle submit input-->
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
             </div>
-            <input type="submit" value="Login">
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <div class="password-field">
+                    <input type="password" id="password" name="password" required>
+                    <span class="toggle-password" onclick="PasswordVisibility()">Show</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Login">
+            </div>
+            <div class="form-group">
+                <p>Don't have an account? <a href="registration.html">Register</a></p>
+            </div>
         </form>
     </div>
 
-    <script> 
-        /* Creating function to allow for password reveal */
-        function PasswordVisibility() {
-            var passwordInput = document.getElementById("password");
-            var toggleIcon = document.querySelector(".toggle-password");
-
-            if (passwordInput.type == "password") {
-                passwordInput.type = "text";
-                toggleIcon.textContent = "Hide";
-            } else {
-                passwordInput.type = "password";
-                toggleIcon.textContent = "Show";
-            }
-        }
-    </script>
+    <script src="../javascript/login-register.js"></script>
 </body>
 </html>

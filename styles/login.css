@@ -30,21 +30,21 @@ input[type="text"], input[type="password"] {
 }
 
 input[type="submit"] {
-    width: 100%; /* Making the Login button stretch across the container*/
+    width: 100%; /* make the Login button stretch across the container*/
     font-size: 15px; 
     padding: 10px;
     border: none;
     background-color: #007bff;
     color: black;
-    cursor: pointer; /* Change cursor to pointer when hovering over Login button */
+    cursor: pointer; /* change cursor to pointer when hovering over Login button */
     border-radius: 4px;
-    transition-duration: 0.5s; /* Creating transition for colour change */
+    transition-duration: 0.5s; /* create transition for colour change */
 }
 
 input[type="submit"]:hover {
-    background-color: blue; /* Colour for when hovering over Login button */
+    background-color: blue; 
 }
 
 .toggle-password {
-    cursor: pointer; /* Change cursor to pointer */
+    cursor: pointer; 
 }
