@@ -1,0 +1,60 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: whitesmoke;
+}
+
+.container {
+    max-width: 400px;
+    margin: 100px auto;
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+h2 {
+    text-align: center;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+}
+
+input[type="text"],
+input[type="password"],
+button[type="submit"] {
+    width: 96%;
+    padding: 8px;
+    border: 1px solid darkgray;
+    border-radius: 4px;
+    font-size: 15px;
+}
+
+input[type="text"],
+input[type="password"] {
+    margin-bottom: 10px; /* Adjusting margin for input fields */
+}
+
+input[type="submit"] {
+    width: 100%; /* Making the Login button stretch across the container*/
+    font-size: 15px; 
+    padding: 10px;
+    border: none;
+    background-color: #007bff;
+    color: black;
+    cursor: pointer; /* Change cursor to pointer when hovering over Login button */
+    border-radius: 4px;
+    transition-duration: 0.5s; /* Creating transition for colour change */
+}
+
+input[type="submit"]:hover {
+    background-color: blue;
+}
+
+#password-match-error {
+    color: red;
+    display: none;
+    margin-top: 10px; /* Adding margin to separate error message from the button */
+    text-align: center; /* Center aligning the error message */
+}

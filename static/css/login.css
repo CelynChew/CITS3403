@@ -1,0 +1,50 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: whitesmoke;
+}
+
+.container {
+    max-width: 400px;
+    margin: 100px auto;
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4); /* Adding shadow to allow the container to pop out */
+}
+
+h2 {
+    text-align: center; /* Make sure "Login" is Center aligned */
+}
+
+label, input {
+    display: block;
+    margin-bottom: 10px;
+}
+
+input[type="text"], input[type="password"] {
+    width: 96%; /* Making the input line the same length as the Login button */
+    padding: 8px;
+    border: 1px solid darkgray;
+    border-radius: 4px;
+    font-size: 15px;
+}
+
+input[type="submit"] {
+    width: 100%; /* make the Login button stretch across the container*/
+    font-size: 15px; 
+    padding: 10px;
+    border: none;
+    background-color: #007bff;
+    color: black;
+    cursor: pointer; /* change cursor to pointer when hovering over Login button */
+    border-radius: 4px;
+    transition-duration: 0.5s; /* create transition for colour change */
+}
+
+input[type="submit"]:hover {
+    background-color: blue; 
+}
+
+.toggle-password {
+    cursor: pointer; 
+}

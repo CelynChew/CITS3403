@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<head>
+    <title>Registration</title>
+    <link rel="stylesheet" href="../static/css/register.css">
+</head>
+<body>
+    <div class="container">
+        <!-- creating a form to ask for information to put into a database -->
+        <h2>Registration</h2>
+        <form onsubmit="return register()">
+            <!-- asking for new username-->
+            <label for="uName">Username:</label>
+            <input type="text" id="uName" name="uName" required>
+            <!-- asking for user to create password -->
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <!-- asking user to retype desired password for checking -->
+            <label for="retypePassword">Retype Password:</label>
+            <input type="password" id="retypePassword" name="retypePassword" required>
+            <input type="submit" value="Register">
+            <!-- error message if passwords typed in the 2 fields are not matched -->
+            <p id="password-match-error" style="color: red; display: none;">Passwords do not match.</p>
+        </form>
+    </div>
+
+    <script src="../static/js/login-register.js"></script>
+</body>
+</html>
