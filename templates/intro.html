@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<head>
+    <title>Game - Introduction</title>
+    <link rel="stylesheet" href="../static/css/intro.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to ...!</h1>
+        <p>Short game description</p>
+        <!--Buttons that direct the users to different pages-->
+        <button class="btn" onclick="goToMarketplace()">Marketplace</button>
+        <button class="btn" onclick="startGame()">Start Game</button>
+        <button class="btn" onclick="showTutorial()">Tutorial</button>
+    </div>
+
+    <script>
+        function goToMarketplace() {
+            // Redirect to the marketplace page
+            window.location.href = "/marketplace"; 
+        }
+
+        function startGame() {
+            // Redirect to the game's page
+            window.location.href = "/game";
+        }
+
+        function showTutorial() {
+            // Show the tutorial page
+            window.location.href = "/tutorial";
+        }
+    </script>
+</body>
+</html>
