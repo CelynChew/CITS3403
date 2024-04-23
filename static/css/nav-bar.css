@@ -17,11 +17,11 @@ body {
     background-color: rgb(44, 62, 80); /* Background colour of the nav bar */
 }
 
-li {
+.menu li {
     display: inline;
 }
 
-a {
+.menu li a {
     padding: 25px;
     font-size: 18px;
     color: white; /* Text colour */
@@ -29,6 +29,6 @@ a {
     transition: background-color 0.3s;
 }
 
-a:hover {
-    background-color: rgb(52, 73, 94); /* Background colour of nvav bar on hover */
+.menu li a:hover {
+    background-color: rgb(52, 73, 94); /* Background colour of nav bar on hover */
 }
