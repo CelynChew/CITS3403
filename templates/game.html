@@ -5,34 +5,14 @@
 </head>
 <body>
     <div class="container">
-        <!--Buttons that direct the users to different pages-->
-        <button class="btn" onclick="goToIntroduction()">Introduction</button>
-        <button class="btn" onclick="goToMarketplace()">Marketplace</button>
-        <button class="btn" onclick="showTutorial()">Tutorial</button>
-        <button class="btn" onclick="LoggingOut()">Log Out</button>
+        <!-- Creating a nav bar -->
+        <ul class="menu">
+            <li><a href = "/intro">Introduction</a></li>
+            <li><a href = "/marketplace">Marketplace</a></li>
+            <li><a href = "/tutorial">Tutorial</a></li>
+            <li><a href = "/">Log Out</a></li>
+        </ul>
     </div>
-
-    <script>
-        function goToMarketplace() {
-            // Redirect to the marketplace page
-            window.location.href = "marketplace"; 
-        }
-    
-        function goToIntroduction() {
-                // Redirect to the game's page
-                window.location.href = "/intro";
-        }
-    
-        function showTutorial() {
-            // Show the tutorial page
-            window.location.href = "tutorial";
-        }
-    
-        function LoggingOut() {
-            // Show the tutorial page
-            window.location.href = "/";
-        }
-    </script>
 </body>
 </html>
 

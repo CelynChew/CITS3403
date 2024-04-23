@@ -4,35 +4,31 @@ body {
     padding: 0;
     background-color: rgb(12, 24, 33);
     color: white;
-    display: flex;
-    align-items: center;
-    height: 100vh;
 }
 
 .container {
     text-align: center;
-    position: fixed;
-    top: 0;
-    width: 100%;
 }
 
-h1 {
-    font-size: 36px;
-    margin-bottom: 20px;
+.menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 15px;
+    background-color: rgb(44, 62, 80); /* Background colour of the nav bar */
 }
 
-.btn {
-    padding: 15px 30px;
-    font-size: 20px;
-    margin: 10px;
-    background-color: teal;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+li {
+    display: inline;
+}
+
+a {
+    padding: 25px;
+    font-size: 18px;
+    color: white; /* Text colour */
+    text-decoration: none;
     transition: background-color 0.3s;
 }
 
-.btn:hover {
-    background-color: rgb(1, 91, 91);
+a:hover {
+    background-color: rgb(52, 73, 94); /* Background colour of nvav bar on hover */
 }
