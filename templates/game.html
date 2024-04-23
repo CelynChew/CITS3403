@@ -1,8 +1,39 @@
 <!DOCTYPE html>
 <head>
     <title>Game</title>
+    <link rel="stylesheet" href="../static/css/game.css">
 </head>
 <body>
+    <div class="container">
+        <!--Buttons that direct the users to different pages-->
+        <button class="btn" onclick="goToIntroduction()">Introduction</button>
+        <button class="btn" onclick="goToMarketplace()">Marketplace</button>
+        <button class="btn" onclick="showTutorial()">Tutorial</button>
+        <button class="btn" onclick="LoggingOut()">Log Out</button>
+    </div>
+
+    <script>
+        function goToMarketplace() {
+            // Redirect to the marketplace page
+            window.location.href = "/templates/marketplace.html"; 
+        }
     
+        function goToIntroduction() {
+                // Redirect to the game's page
+                window.location.href = "/templates/intro.html";
+        }
+    
+        function showTutorial() {
+            // Show the tutorial page
+            window.location.href = "/templates/tutorial.html";
+        }
+    
+        function LoggingOut() {
+            // Show the tutorial page
+            window.location.href = "/templates/login.html";
+        }
+    </script>
 </body>
 </html>
+
+
