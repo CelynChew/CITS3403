@@ -14,7 +14,6 @@ body {
     position: fixed;
     top: 0;
     width: 100%;
-    z-index: 2; /* Ensure this container is above container2 */
 }
 
 h1 {
