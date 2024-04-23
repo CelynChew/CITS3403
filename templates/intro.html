@@ -5,28 +5,35 @@
 </head>
 <body>
     <div class="container">
-        <h1>Welcome to ...!</h1>
-        <p>Short game description</p>
+        <h1>Hello ...</h1>  <!--will display username on "..."-->
+        <h1>Welcome to SpeedIdle!</h1>
+        <p>A simple idle game where you race other players through collecting points by upgrading and using items to achieve your goal!</p>
         <!--Buttons that direct the users to different pages-->
         <button class="btn" onclick="goToMarketplace()">Marketplace</button>
-        <button class="btn" onclick="startGame()">Start Game</button>
+        <button class="btn" onclick="playGame()">Game</button>
         <button class="btn" onclick="showTutorial()">Tutorial</button>
+        <button class="btn" onclick="LoggingOut()">Log Out</button>
     </div>
 
     <script>
         function goToMarketplace() {
             // Redirect to the marketplace page
-            window.location.href = "/marketplace"; 
+            window.location.href = "/templates/marketplace.html"; 
         }
 
-        function startGame() {
+        function playGame() {
             // Redirect to the game's page
-            window.location.href = "/game";
+            window.location.href = "/templates/game.html";
         }
 
         function showTutorial() {
             // Show the tutorial page
-            window.location.href = "/tutorial";
+            window.location.href = "/templates/tutorial.html";
+        }
+
+        function LoggingOut() {
+            // Show the tutorial page
+            window.location.href = "/templates/login.html";
         }
     </script>
 </body>
