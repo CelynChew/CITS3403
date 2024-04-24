@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<head>
+    <title>Game - Introduction</title>
+    <link rel="stylesheet" href="../static/css/intro.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Hello ...</h1>  <!--will display username on "..."-->
+        <h1>Welcome to SpeedIdle!</h1>
+        <p>A simple idle game where you race other players through collecting points by upgrading and using items to achieve your goal!</p>
+        <!--Buttons that direct the users to different pages-->
+        <button class="btn" onclick="goToMarketplace()">Marketplace</button>
+        <button class="btn" onclick="playGame()">Game</button>
+        <button class="btn" onclick="showTutorial()">Tutorial</button>
+        <button class="btn" onclick="LoggingOut()">Log Out</button>
+    </div>
+
+    <script>
+        function goToMarketplace() {
+            // Redirect to the marketplace page with defined route
+            window.location.href = "/marketplace"; 
+        }
+
+        function playGame() {
+            // Redirect to the game's page with defined route
+            window.location.href = "/game";
+        }
+
+        function showTutorial() {
+            // Show the tutorial page with defined route
+            window.location.href = "/tutorial"; 
+        }
+
+        function LoggingOut() {
+            // Redirect to login page with defined route
+            window.location.href = "/";
+        }
+    </script>
+</body>
+</html>
