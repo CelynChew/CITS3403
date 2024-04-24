@@ -1,0 +1,14 @@
+.group-name {
+    font-size: 1.2rem; 
+}
+
+.chat-messages {
+    height: 300px; 
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.chat-input {
+    margin-top: 20px;
+}

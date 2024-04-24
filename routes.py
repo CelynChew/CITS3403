@@ -32,5 +32,10 @@ def game():
 def tutorial():
     return render_template('tutorial.html')
 
+# Defining route to chatroom
+@app.route('/chatroom')
+def chatroom():
+    return render_template('chatroom.html')
+
 if __name__ == '__main__':
     app.run(debug=True)

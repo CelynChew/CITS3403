@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<head>
+    <title>Chatroom</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- chatroom.css -->
+    <link rel="stylesheet" href="../static/css/chatroom.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="display-4"> <span class="group-name" id="group-name"></span></h1>
+        
+        <!-- Chat display area -->
+        <div class="chat-messages">
+            <p>Chat messgaes will be displayed here</p>
+        </div>
+        <div class="chat-input">
+            <div class="input-group">
+                <input type="text" class="form-control" id="message-input" placeholder="Type your message...">
+                
+                <!-- Make the send button visually connected to the message input field -->
+                <div class="input-group-append">
+                    <button class="btn btn-primary" id="send-button" onclick="sendMessage()">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Handling chat functionality
+        function sendMessage() {
+            var messageInput = document.getElementById('message-input');
+            var message = messageInput.value.trim();   // To remove extra whitespaces that users type before or after the message
+            if (message !== '') {
+                // Too add send message functionality 
+                console.log('Message sent:', message);  // For checking
+                messageInput.value = ''; // Clear input field after sending message
+            }
+        }
+
+        // Allow group name to change 
+        var groupName = "Person / Group Name"; // Change this to fetch the group name dynamically
+        document.getElementById('group-name').textContent = groupName;
+    </script>
+</body>
+</html>
