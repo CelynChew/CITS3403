@@ -7,8 +7,24 @@
     border: 1px solid #ccc;
     padding: 10px;
     margin-bottom: 20px;
+    overflow-y: auto; /* Enable vertical scrolling */
 }
 
-.chat-input {
-    margin-top: 20px;
+.chat {
+    padding: 10px;
+    border: 1px solid lightgray;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    cursor: pointer;
 }
+
+.chat:hover {
+    background-color: rgb(240, 240, 240);
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin-top: 10%;
+    margin-left: -20%;
+  }
