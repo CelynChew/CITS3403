@@ -1,0 +1,28 @@
+.carousel {
+    background-color: white; 
+    border: 1px solid gray; 
+    margin: auto; /* center the carousel horizontally */
+    margin-top: 20%; /* center the carousel vertically */
+    border-radius: 7px;
+    text-align: center; 
+    width: 60%;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4); 
+}
+
+.carousel-item {
+    padding: 20px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.carousel-indicators button{
+    background-color: gray !important; /* ensures inactive indicator is gray */
+}
+
+.carousel-indicators button.active {
+    background-color: black !important; /* ensures active indicator is black */
+}
+
+.carousel-control-prev, .carousel-control-next{
+    filter: invert(); /* makes prev and next arrows visible */
+}
