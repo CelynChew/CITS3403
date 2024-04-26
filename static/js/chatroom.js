@@ -27,3 +27,20 @@ mockChats.forEach(function(chat) {
     });
     chatList.appendChild(li);
 });
+
+// Search bar functionality 
+document.getElementById('search-chat').addEventListener('input', function() {
+    var searchVal = this.value.trim().toLowerCase(); // clean the search value - remove white spaces + change all to lower case
+    var chatList = document.querySelectorAll('#chat-list li'); // select all chat in chat list
+
+    // Loop through the chat list
+    chatList.forEach(function(item) {
+        var itemName = item.textContent.trim().toLowerCase(); // clean chat list names 
+        // If the chat item matches the search term, show it; otherwise, hide it - remove white spaces + change all to lower case
+        if (itemName.includes(searchVal)) { // allow for flexibl search 
+            item.style.display = 'block';
+        } else {
+            item.style.display = 'none'; // hiding chats that are not searched for
+        }
+    });
+});
