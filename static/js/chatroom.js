@@ -20,24 +20,53 @@ input.addEventListener("keypress", function(event) {
     }
 });
 
-// Allow group name to change 
-var groupName = "Person / Group Name"; // Change this to fetch the group name dynamically
-document.getElementById('group-name').textContent = groupName;
-
-// Chat examples
-var mockChats = ["Chat 1", "Chat 2", "Chat 3"];
-
-// Display mock chats in the chat list
+// Function to add new chats to chat list 
 var chatList = document.getElementById('chat-list');
-mockChats.forEach(function(chat) {
-    var li = document.createElement('li');
-    li.textContent = chat;
-    li.classList.add('chat'); // Add class for styling
-    li.addEventListener('click', function() {
-        // Handle chat click event if needed
-    });
-    chatList.appendChild(li);
-});
+var createChatForm = document.getElementById('create-chat-form');
+var membersInput = document.getElementById('members-input');
+var groupNameInput = document.getElementById('group-name-input');
+var newChatModal = document.getElementById('new-chat-form');
+
+function createChat() {
+    // Get values from input fields and remove extra white spaces
+    var members = membersInput.value.trim();
+    var groupName = groupNameInput.value.trim();
+
+    // Exit the function if member field is empty
+    if (members === "") {
+        console.log("Members field is empty. Cannot create new chat.");
+        return; 
+    }    
+
+    // Create a new list item
+    var chatListItem = document.createElement('li');
+
+    // Construct the chat item string based on whether a group name is provided
+    if (groupName !== "") {
+        chatListItem.textContent = groupName; // Use group name only
+    } else {
+        chatListItem.textContent = members; // Use members only
+    }
+
+    chatListItem.classList.add('chat'); // Adding .chat CSS to the chatListItem
+    console.log("New chat created:", chatListItem);
+
+    // Add the new chat item to the chat list
+    chatList.appendChild(chatListItem);
+
+    // Clear input fields
+    membersInput.value = "";
+    groupNameInput.value = "";
+
+    // Close modal after chat is created
+    newChatModal.classList.remove('show');
+}
+
+// Function to clear input fields when modal is closed
+function clearFields() {
+    membersInput.value = ""; // Clear members input field
+    groupNameInput.value = ""; // Clear group name input field
+}
 
 // Search bar functionality 
 document.getElementById('search-chat').addEventListener('input', function() {

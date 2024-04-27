@@ -48,21 +48,21 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">New Chat</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" onclick="clearFields()"></button>
                 </div>
                 <div class="modal-body">
                     <form id="create-chat-form">
                         <!-- input for members -->
                         <div class="mb-3">
                             <label for="members-input">Member(s)</label>
-                            <input type="text" class="form-control" id="members-input" name="members" placeholder="Enter members(s)">
+                            <input type="text" class="form-control" id="members-input" name="members" placeholder="Enter members(s)" required>
                         </div>
                         <!-- input for group name -->
                         <div class="mb-3">
                             <label for="group-name-input">Group Name (optional)</label>
                             <input type="text" class="form-control" id="group-name-input" name="group-name" placeholder="Enter group name">
                         </div>
-                        <button type="submit" class="btn btn-primary">Create Chat</button>
+                        <button type="submit" class="btn btn-primary" onclick="createChat()">Create Chat</button>
                     </form>
                 </div>
             </div>
