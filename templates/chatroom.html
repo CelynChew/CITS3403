@@ -11,6 +11,10 @@
     <div class="container">
         <div class="row">
             <div class="col-md-3">
+                <div class="new-chat">
+                    <!-- Button to open modal -->
+                    <button id="new-chat-btn" data-bs-toggle="modal" data-bs-target="#new-chat-form">New Chat</button>
+                </div>
                 <div class="chat-list">
                     <!-- Chat list display area -->
                     <input type="text" class="form-control mb-2" id="search-chat" placeholder="Search chats...">
@@ -38,6 +42,32 @@
         </div>
     </div>
 
+    <!-- New Chat modal -->
+    <div class="modal fade" id="new-chat-form">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">New Chat</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="create-chat-form">
+                        <!-- input for members -->
+                        <div class="mb-3">
+                            <label for="members-input">Member(s)</label>
+                            <input type="text" class="form-control" id="members-input" name="members" placeholder="Enter members(s)">
+                        </div>
+                        <!-- input for group name -->
+                        <div class="mb-3">
+                            <label for="group-name-input">Group Name (optional)</label>
+                            <input type="text" class="form-control" id="group-name-input" name="group-name" placeholder="Enter group name">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Create Chat</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
     <script src="../static/js/chatroom.js"></script>
 </body>
 </html>
