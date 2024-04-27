@@ -9,6 +9,17 @@ function sendMessage() {
     }
 }
 
+// Trigger send button on enter
+var input = document.getElementById('message-input')
+// Event listener for when user presses enter
+input.addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+        // Cancel the default action, if needed
+        event.preventDefault();
+        document.getElementById("send-button").click();
+    }
+});
+
 // Allow group name to change 
 var groupName = "Person / Group Name"; // Change this to fetch the group name dynamically
 document.getElementById('group-name').textContent = groupName;
