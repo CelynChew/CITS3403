@@ -7,7 +7,7 @@
     <div class="container">
         <h2>Login</h2>
         <!-- will have to add action attribute to handle submit input-->
-        <form id="loginForm">
+        <form id="loginForm" action="/" method="POST">
             <div class="form-group">
                 <label for="username">Username:</label>
                 <input type="text" id="username" name="username" required>
@@ -25,9 +25,16 @@
             <div class="form-group">
                 <p>Don't have an account? <a href="../register">Register</a></p>
             </div>
+            <!-- error message if login failed -->
+            {% if error_message %}
+            <div class="form-group">
+                <p style="color: red;">{{ error_message }}</p>
+            </div>
+            {% endif %}
         </form>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="../static/js/login-register.js"></script>
 </body>
 </html>
