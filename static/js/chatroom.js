@@ -60,6 +60,7 @@ function createChat() {
 
     // Close modal after chat is created
     newChatModal.classList.remove('show');
+    document.querySelector('.modal-backdrop').remove()
 }
 
 // Function to clear input fields when modal is closed
@@ -67,6 +68,26 @@ function clearFields() {
     membersInput.value = ""; // Clear members input field
     groupNameInput.value = ""; // Clear group name input field
 }
+
+// Get the group name element
+var groupNameElement = document.getElementById('group-name');
+
+// Listener for updating chat display header
+chatList.addEventListener('click', function(event) {
+    // Setting variable name for element that was clicked
+    var clickedElement = event.target;
+    
+    // Finding chat items
+    while (clickedElement && clickedElement.tagName !== 'LI') {
+        clickedElement = clickedElement.parentElement;
+    }
+    
+    // If a chat item was clicked, the chat name will be updated
+    if (clickedElement && clickedElement.classList.contains('chat')) {
+        // Updating the displayed chat name
+        groupNameElement.textContent = clickedElement.textContent;
+    }
+});
 
 // Search bar functionality 
 document.getElementById('search-chat').addEventListener('input', function() {
