@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, url_for
 import sqlite3
 
 app = Flask(__name__)
@@ -30,14 +30,15 @@ def login():
         conn.close()
 
         if user:
-            # User authenticated successfully, redirect to intro page
-            return redirect('/intro')
+            # User authenticated successfully, redirect to intro page with username
+            return redirect(url_for('intro', username=username))
         else:
-            # Authentication failed, set error message
+            # Authentication failed, render login page with error message
             error_message = 'Invalid username or password'
     
-    # Render the login page with error message if exists
+    # If it's a GET request, render the login page
     return render_template('login.html', error_message=error_message)
+
 
 # Route to serve the registration page
 @app.route('/register', methods=['GET', 'POST']) # GET for displaying registration form, POST for handling registration data.
@@ -62,10 +63,10 @@ def registration():
 
     return render_template('registration.html')
 
-# Defining route to introduction page
-@app.route('/intro')
-def intro():
-    return render_template('intro.html')
+# Route to serve the introduction page
+@app.route('/intro/<username>')
+def intro(username):
+    return render_template('intro.html', username=username)
 
 # Defining route to marketplace
 @app.route('/marketplace')
