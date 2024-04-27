@@ -7,7 +7,7 @@
     <div class="container">
         <!-- creating a form to ask for information to put into a database -->
         <h2>Registration</h2>
-        <form onsubmit="return register()">
+        <form id="registerForm" action="/register" method="POST">
             <!-- asking for new username-->
             <label for="uName">Username:</label>
             <input type="text" id="uName" name="uName" required>
@@ -18,11 +18,17 @@
             <label for="retypePassword">Retype Password:</label>
             <input type="password" id="retypePassword" name="retypePassword" required>
             <input type="submit" value="Register">
-            <!-- error message if passwords typed in the 2 fields are not matched -->
-            <p id="password-match-error" style="color: red; display: none;">Passwords do not match.</p>
+            <div class="form-group">
+                <p>Already have an account? <a href="../">Login</a></p>
+            </div>
+            <!-- error message if passwords typed in the 2 fields are not matched or if username already exists -->
+            {% if error_message %}
+            <p style="color: red;">{{ error_message }}</p>
+            {% endif %}
         </form>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="../static/js/login-register.js"></script>
 </body>
 </html>
