@@ -105,3 +105,8 @@ document.getElementById('search-chat').addEventListener('input', function() {
         }
     });
 });
+
+// Function for logging out
+function LoggingOut() {
+    window.location.href = "/";
+}

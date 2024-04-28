@@ -49,6 +49,15 @@ ul {
     border-radius: 20%;
 }
 
-#new-chat-btn:hover {
+#new-chat-btn:hover, #logout-btn:hover {
     background-color: whitesmoke;
+}
+
+#logout-btn {
+    margin-top: -2%;
+    margin-left: 60%;
+    padding: 5px;
+    border: 1px solid lightgray;
+    background-color:white;
+    border-radius: 20%;
 }
