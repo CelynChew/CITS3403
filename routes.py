@@ -92,17 +92,7 @@ def registration():
 def intro(username):
     return render_template('intro.html', username=username)
 
-# Defining route to marketplace
-@app.route('/marketplace')
-def marketplace():
-    return render_template('marketplace.html')
-
-# Defining route to for users to play game
-@app.route('/game')
-def game():
-    return render_template('game.html')
-
-# Defining route for gameplay instructions
+# Defining route for using chatroom features
 @app.route('/tutorial')
 def tutorial():
     return render_template('tutorial.html')
