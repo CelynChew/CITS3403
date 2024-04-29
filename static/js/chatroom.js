@@ -1,11 +1,56 @@
 // Handling chat functionality
+
+// Function to fetch messages and update the chat display
+function updateChatDisplay() {
+    fetch('/get_messages')
+        .then(response => response.json())
+        .then(data => {
+            const chatMessagesDiv = document.getElementById('chat-messages');
+            // Clear existing messages
+            chatMessagesDiv.innerHTML = '';
+            // Loop through the messages and append them to the chat messages div
+            data.forEach(message => {
+                const messageElement = document.createElement('p');
+                messageElement.textContent = `${message.user_id}: ${message.message} (${message.timestamp})`;
+                chatMessagesDiv.appendChild(messageElement);
+            });
+            // Scroll to the bottom of the chat messages div to show the latest messages
+            chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+        })
+        .catch(error => console.error('Error fetching messages:', error));
+}
+
+// Call the updateChatDisplay function when the page loads
+window.addEventListener('load', updateChatDisplay);
+
+// Function to send a message
 function sendMessage() {
     var messageInput = document.getElementById('message-input');
-    var message = messageInput.value.trim();   // To remove extra whitespaces that users type before or after the message
+    var message = messageInput.value.trim();
     if (message !== '') {
-        // To add send message functionality 
-        console.log('Message sent:', message);  // For checking
-        messageInput.value = ''; // Clear input field after sending message
+        fetch('/send_message', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: message })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Message sent:', data.message);
+            // After successfully sending message, clear input field
+            messageInput.value = '';
+            // Update the chat display to show the new message
+            updateChatDisplay();
+        })
+        .catch(error => {
+            console.error('There was a problem with sending your message:', error);
+        });
     }
 }
 
@@ -16,7 +61,7 @@ input.addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
         // Cancel the default action, if needed
         event.preventDefault();
-        document.getElementById("send-button").click();
+        sendMessage(); // Call the sendMessage function when Enter is pressed
     }
 });
 
