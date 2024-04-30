@@ -37,6 +37,14 @@
                 <p style="color: red;">{{ error_message }}</p>
             </div>
             {% endif %}
+
+            <!-- Alert message if user is not authenticated -->
+            {% if alert_message %}
+            <script>
+                alert("{{ alert_message }}");
+                window.location.href = "/";  // Redirect to the login page
+            </script>
+            {% endif %}
         </form>
     </div>
 

@@ -100,7 +100,8 @@ def tutorial():
 # Route to serve the chatroom
 @app.route('/chatroom', methods=['GET', 'POST'])
 def chatroom():
-    error_message = None
+    if not session.get('authenticated'):  # Check if user is authenticated
+        return render_template('login.html', alert_message="Opps.. You need to log in before accessing the chatroom.") # Redirect user if not authenticated
     
     if request.method == 'POST':
         username = request.form['username']
