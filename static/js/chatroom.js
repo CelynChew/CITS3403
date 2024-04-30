@@ -1,5 +1,3 @@
-// Handling chat functionality
-
 // Function to fetch messages and update the chat display
 function updateChatDisplay() {
     fetch('/get_messages')
