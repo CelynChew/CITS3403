@@ -13,6 +13,20 @@ body {
     padding: 20px;
 }
 
+#new-chat-btn {
+    border: 1px solid gray;
+    background-color: white;
+    font-size: large;
+    padding-top: 5px;
+    width: 30px;
+    height: 70%;
+}
+
+#new-chat-btn:hover {
+    background-color: lightgray;
+    transition: 0.2s;
+}
+
 .chat {
     padding: 10px;
     border: 1px solid lightgray; 
