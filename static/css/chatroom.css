@@ -14,12 +14,13 @@ body {
 }
 
 #new-chat-btn {
-    border: 1px solid gray;
     background-color: white;
     font-size: large;
     padding-top: 5px;
     width: 30px;
     height: 70%;
+    border-radius: 5px;
+    border: 1px solid lightgrey;
 }
 
 #new-chat-btn:hover {
@@ -42,6 +43,14 @@ body {
 ul {
     list-style-type: none;
     padding: 0;
+}
+
+.delete-group-btn {
+    height: 25px;
+    margin-left: 70%;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .group-name {
@@ -75,10 +84,6 @@ ul {
 
 #search-chat {
     margin-bottom: 10px;
-}
-
-#new-chat-btn {
-    border-radius: 20px;
 }
 
 #logout-btn {
