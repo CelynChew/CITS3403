@@ -1,5 +1,3 @@
-// Handling chat functionality
-
 // Function to fetch messages and update the chat display
 function updateChatDisplay() {
     fetch('/get_messages')
@@ -80,24 +78,38 @@ function createChat() {
     // Exit the function if member field is empty
     if (members === "") {
         console.log("Members field is empty. Cannot create new chat.");
-        return; 
-    }    
-
-    // Create a new list item
-    var chatListItem = document.createElement('li');
-
-    // Construct the chat item string based on whether a group name is provided
-    if (groupName !== "") {
-        chatListItem.textContent = groupName; // Use group name only
-    } else {
-        chatListItem.textContent = members; // Use members only
+        return;
     }
 
-    chatListItem.classList.add('chat'); // Adding .chat CSS to the chatListItem
-    console.log("New chat created:", chatListItem);
+    var chatName;
+    // Construct the chat item string based on whether a group name is provided
+    if (groupName !== "") {
+        chatName = groupName; // Use group name only
+    } else {
+        chatName = members; // Use members only
+    }
 
-    // Add the new chat item to the chat list
-    chatList.appendChild(chatListItem);
+    // Send a POST request to the Flask backend to create chat
+    fetch('/create_chat', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ chat_name: chatName })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Display chat in the chat list
+        fetchChats();
+    })
+    .catch(error => {
+        console.error('There was a problem creating the chat:', error);
+    });
 
     // Clear input fields
     membersInput.value = "";
@@ -105,8 +117,82 @@ function createChat() {
 
     // Close modal after chat is created
     newChatModal.classList.remove('show');
-    document.querySelector('.modal-backdrop').remove()
+    document.querySelector('.modal-backdrop').remove() // Remove modal backdrop
 }
+
+// Function to delete a chat
+function deleteChat(chatId, chatListItem) {
+    // Send a DELETE request to the Flask backend to delete the chat
+    fetch('/chats', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ chat_id: chatId })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Remove chat item from the chat list
+        chatListItem.remove();
+    })
+    .catch(error => {
+        console.error('There was a problem deleting the chat:', error);
+    });
+}
+
+// Function to fetch existing chats
+function fetchChats() {
+    // GET request to the Flask backend to display existing chats
+    fetch('/chats')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Clear the existing chat list
+        chatList.innerHTML = '';
+        
+        // Loop through fetched chat and add to the chat list
+        data.chats.forEach(chat => {
+            // Create a new list item for the chat
+            var chatListItem = document.createElement('li');
+            chatListItem.textContent = chat.chat_name;
+
+            chatListItem.classList.add('chat'); // Adding .chat CSS to the chatListItem
+
+            // Create delete button/icon
+            var deleteButton = document.createElement('button');
+            deleteButton.classList.add('delete-group-btn', 'btn', 'btn-danger', 'btn-sm'); // Adding Bootstrap button classes
+            deleteButton.textContent = 'x';
+
+            // Append the delete button to the chat list item
+            chatListItem.appendChild(deleteButton);
+
+            // Add event listener for delete button/icon
+            deleteButton.addEventListener('click', function(event) {
+                event.stopPropagation();
+                // Calling deleteChat() to delete selected chat
+                deleteChat(chat.chat_id, chatListItem);
+            });
+
+            // Add the new chat item to the chat list
+            chatList.appendChild(chatListItem);
+        });
+    })
+    .catch(error => {
+        console.error('There was a problem fetching chats:', error);
+    });
+}
+
+// Call fetchChats() when the page loads
+fetchChats();
 
 // Function to clear input fields when modal is closed
 function clearFields() {
@@ -129,8 +215,13 @@ chatList.addEventListener('click', function(event) {
     
     // If a chat item was clicked, the chat name will be updated
     if (clickedElement && clickedElement.classList.contains('chat')) {
+        var clickedText = clickedElement.textContent.trim();
+        
+        // Exclude the last character (which is 'x')
+        var groupName = clickedText.substring(0, clickedText.length - 1);
+        
         // Updating the displayed chat name
-        groupNameElement.textContent = clickedElement.textContent;
+        groupNameElement.textContent = groupName;
     }
 });
 
@@ -142,8 +233,14 @@ document.getElementById('search-chat').addEventListener('input', function() {
     // Loop through the chat list
     chatList.forEach(function(item) {
         var itemName = item.textContent.trim().toLowerCase(); // clean chat list names 
+        
+        // Exclude the last character ('x')
+        if (itemName.charAt(itemName.length - 1) === 'x') {
+            itemName = itemName.substring(0, itemName.length - 1);
+        }
+        
         // If the chat item matches the search term, show it; otherwise, hide it - remove white spaces + change all to lower case
-        if (itemName.includes(searchVal)) { // allow for flexibl search 
+        if (itemName.includes(searchVal)) { // allow for flexible search 
             item.style.display = 'block';
         } else {
             item.style.display = 'none'; // hiding chats that are not searched for

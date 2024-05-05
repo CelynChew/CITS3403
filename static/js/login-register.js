@@ -1,7 +1,7 @@
 // Function to toggle password visibility
 function PasswordVisibility() {
     var passwordInput = document.getElementById("password");
-    var toggleIcon = document.querySelector(".toggle-password");
+    var toggleIcon = document.getElementById("showPassword");
 
     if (passwordInput.type === "password") {
         passwordInput.type = "text";
