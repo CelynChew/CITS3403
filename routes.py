@@ -15,28 +15,52 @@ def get_db_connection():
 # Create a table for users if it doesn't exist
 def create_table():
     conn = get_db_connection()
-    conn.execute(
-        '''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY, 
-            username TEXT UNIQUE, 
-            password TEXT
-        )
-        ''')
+    try:
+        conn.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY, 
+                username TEXT UNIQUE, 
+                password TEXT
+            )
+            ''')
 
-    conn.execute(
-        '''
-        CREATE TABLE IF NOT EXISTS chats (
-            chat_id INTEGER PRIMARY KEY, 
-            user_id INTEGER,
-            messages TEXT, 
-            timestamp DATETIME,
-            FOREIGN KEY (user_id) REFERENCES users(id)
-                ON DELETE CASCADE
-                ON UPDATE NO ACTION
-        )
-        ''')
-    conn.close()
+        conn.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS messages (
+                msg_id INTEGER PRIMARY KEY, 
+                sender_id INTEGER,
+                msg_text TEXT, 
+                timestamp DATETIME,
+                FOREIGN KEY (sender_id) REFERENCES users(id)
+                    ON DELETE CASCADE
+                    ON UPDATE NO ACTION
+            )
+            ''')
+
+        conn.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS chats (
+                chat_id INTEGER PRIMARY KEY,
+                chat_name VARCHAR(100) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            ''')
+
+        conn.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS user_chats (
+                user_chat_id INTEGER PRIMARY KEY,
+                user_id INT NOT NULL,
+                chat_id INT NOT NULL,
+                FOREIGN KEY (user_id) REFERENCES users(id),
+                FOREIGN KEY (chat_id) REFERENCES chats(chat_id)
+            )
+            ''')
+    except sqlite3.OperationalError as e:
+        print("Table creation failed:", e)
+    finally:
+        conn.close()
 
 create_table()
 
@@ -103,27 +127,21 @@ def chatroom():
     if 'username' not in session:
         return render_template('login.html', alert_message="Opps.. You need to log in before accessing the chatroom.") # Redirect user if not authenticated
     
-    if request.method == 'POST':
-        username = request.form['username']
-        messages = request.form['messages']
-        timestamp = datetime.now()
-
-        conn = get_db_connection()
-        user = conn.execute('SELECT user_id FROM users WHERE username = ?', (username,)).fetchone()
-        if user:
-            user_id = user['user_id']
-            # Insert messages into the chats table
-            conn.execute('INSERT INTO chats (user_id, messages, timestamp) VALUES (?, ?, ?)', (user_id, message, timestamp))
-            conn.commit()
-        conn.close()   
-        return redirect(url_for('chatroom'))
+    # Get the username from the session
+    username = session['username']
     
-    # Handle receiving messages
+    # Retrieve chats for logged in user
     conn = get_db_connection()
-    messages = conn.execute('SELECT * FROM chats').fetchall()
+    userchats = conn.execute('''
+        SELECT c.chat_id, c.chat_name
+        FROM chats c
+        INNER JOIN user_chats uc ON c.chat_id = uc.chat_id
+        INNER JOIN users u ON uc.user_id = u.id
+        WHERE u.username = ?
+    ''', (username,)).fetchall()
     conn.close()
     
-    return render_template('chatroom.html', messages=messages)
+    return render_template('chatroom.html', user_chats=userchats)
 
 # Route to handle senidng the message 
 @app.route('/send_message', methods=['POST'])
@@ -152,6 +170,71 @@ def get_messages():
     conn.close()
     messages_list = [{'user_id': message['user_id'], 'message': message['messages'], 'timestamp': message['timestamp']} for message in messages]
     return jsonify(messages_list)
+
+# Route to handle creating chat
+@app.route('/create_chat', methods=['POST'])
+def create_chat():
+    if request.method == 'POST':
+        chat_name = request.json['chat_name']
+        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M')
+        
+        conn = get_db_connection()
+        try:
+            # Insert new chat into the chats table
+            cursor = conn.execute('INSERT INTO chats (chat_name, created_at) VALUES (?, ?)', (chat_name, timestamp))
+            chat_id = cursor.lastrowid  # Get the ID of the inserted chat
+            
+            # Get the user ID of the current user
+            username = session['username']
+            user_id = conn.execute('SELECT id FROM users WHERE username = ?', (username,)).fetchone()['id']
+            
+            # Insert into the user_chats table to link the user with the chat
+            conn.execute('INSERT INTO user_chats (user_id, chat_id) VALUES (?, ?)', (user_id, chat_id))
+
+            conn.commit()
+            conn.close()
+            return jsonify({"message": "Chat created successfully"})
+        except sqlite3.Error as er:
+            conn.close()
+            return jsonify({"error": str(er)})
+
+
+# Route to show chats
+@app.route('/chats')
+def show_chats():
+    # Check if user is logged in
+    if 'username' not in session:
+        return render_template('login.html', alert_message="Opps.. You need to log in before accessing the chatroom.") # Redirect user if not authenticated
+    
+    # Get the username from the session
+    username = session['username']
+    
+    # Connect to the database
+    conn = get_db_connection()
+    
+    # Retrieve chats for logged-in user
+    user_chats = conn.execute('''
+        SELECT c.chat_id, c.chat_name, c.created_at
+        FROM chats c
+        INNER JOIN user_chats uc ON c.chat_id = uc.chat_id
+        INNER JOIN users u ON uc.user_id = u.id
+        WHERE u.username = ?
+    ''', (username,)).fetchall()
+    
+    # Close the database connection
+    conn.close()
+    
+    # Create a list to store chat data
+    chat_data = []
+    for chat in user_chats:
+        chat_data.append({
+            'chat_id': chat['chat_id'],
+            'chat_name': chat['chat_name'],
+            'created_at': chat['created_at']
+        })
+    
+    # Return JSON response containing chat information
+    return jsonify(chats=chat_data)
 
 if __name__ == '__main__':
     app.run(debug=True)

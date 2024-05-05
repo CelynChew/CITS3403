@@ -78,38 +78,39 @@ function createChat() {
     // Exit the function if member field is empty
     if (members === "") {
         console.log("Members field is empty. Cannot create new chat.");
-        return; 
-    }    
-
-    // Create a new list item
-    var chatListItem = document.createElement('li');
-
-    // Construct the chat item string based on whether a group name is provided
-    if (groupName !== "") {
-        chatListItem.textContent = groupName; // Use group name only
-    } else {
-        chatListItem.textContent = members; // Use members only
+        return;
     }
 
-    chatListItem.classList.add('chat'); // Adding .chat CSS to the chatListItem
-    console.log("New chat created:", chatListItem);
+    var chatName;
+    // Construct the chat item string based on whether a group name is provided
+    if (groupName !== "") {
+        chatName = groupName; // Use group name only
+    } else {
+        chatName = members; // Use members only
+    }
 
-    // Create delete button/icon
-    var deleteButton = document.createElement('button');
-    deleteButton.classList.add('delete-group-btn', 'btn', 'btn-danger', 'btn-sm'); // Adding Bootstrap button classes
-    deleteButton.textContent = 'x'; 
-
-    // Append the delete button to the chat list item
-    chatListItem.appendChild(deleteButton);
-
-    // Add event listener for delete button/icon
-    deleteButton.addEventListener('click', function(event) {
-        event.stopPropagation();
-        chatListItem.remove(); // Remove the chat item from the chat list
+    // Send a POST request to the Flask backend to create chat
+    fetch('/create_chat', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ chat_name: chatName })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Chat created:', data.message);
+        // If chat creation is successful, chat will be displayed
+        fetchChats();
+    })
+    .catch(error => {
+        console.error('There was a problem creating the chat:', error);
     });
-
-    // Add the new chat item to the chat list
-    chatList.appendChild(chatListItem);
 
     // Clear input fields
     membersInput.value = "";
@@ -119,6 +120,54 @@ function createChat() {
     newChatModal.classList.remove('show');
     document.querySelector('.modal-backdrop').remove() // Remove modal backdrop
 }
+
+// Function to fetch existing chats
+function fetchChats() {
+    // GET request to the Flask backend to display existing chats
+    fetch('/chats')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Clear the existing chat list
+        chatList.innerHTML = '';
+        
+        // Loop through fetched chat and add to the chat list
+        data.chats.forEach(chat => {
+            // Create a new list item for the chat
+            var chatListItem = document.createElement('li');
+            chatListItem.textContent = chat.chat_name;
+
+            chatListItem.classList.add('chat'); // Adding .chat CSS to the chatListItem
+
+            // Create delete button/icon
+            var deleteButton = document.createElement('button');
+            deleteButton.classList.add('delete-group-btn', 'btn', 'btn-danger', 'btn-sm'); // Adding Bootstrap button classes
+            deleteButton.textContent = 'x';
+
+            // Append the delete button to the chat list item
+            chatListItem.appendChild(deleteButton);
+
+            // Add event listener for delete button/icon
+            deleteButton.addEventListener('click', function(event) {
+                event.stopPropagation();
+                chatListItem.remove(); // Remove the chat item from the chat list
+            });
+
+            // Add the new chat item to the chat list
+            chatList.appendChild(chatListItem);
+        });
+    })
+    .catch(error => {
+        console.error('There was a problem fetching chats:', error);
+    });
+}
+
+// Call fetchChats() when the page loads
+fetchChats();
 
 // Function to clear input fields when modal is closed
 function clearFields() {
