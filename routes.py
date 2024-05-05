@@ -199,8 +199,8 @@ def create_chat():
             return jsonify({"error": str(er)})
 
 
-# Route to show chats
-@app.route('/chats')
+# Route to show chats - GET for displaying chats and DELETE for removing chats
+@app.route('/chats', methods=['GET', 'DELETE'])
 def show_chats():
     # Check if user is logged in
     if 'username' not in session:
@@ -212,29 +212,44 @@ def show_chats():
     # Connect to the database
     conn = get_db_connection()
     
-    # Retrieve chats for logged-in user
-    user_chats = conn.execute('''
-        SELECT c.chat_id, c.chat_name, c.created_at
-        FROM chats c
-        INNER JOIN user_chats uc ON c.chat_id = uc.chat_id
-        INNER JOIN users u ON uc.user_id = u.id
-        WHERE u.username = ?
-    ''', (username,)).fetchall()
+    # Handling GET request (chat display)
+    if request.method == 'GET':
+        # Retrieve chats for logged-in user
+        user_chats = conn.execute('''
+            SELECT c.chat_id, c.chat_name, c.created_at
+            FROM chats c
+            INNER JOIN user_chats uc ON c.chat_id = uc.chat_id
+            INNER JOIN users u ON uc.user_id = u.id
+            WHERE u.username = ?
+        ''', (username,)).fetchall()
+        
+        # Close the database connection
+        conn.close()
+        
+        # Create a list to store chat data
+        chat_data = []
+        for chat in user_chats:
+            chat_data.append({
+                'chat_id': chat['chat_id'],
+                'chat_name': chat['chat_name'],
+                'created_at': chat['created_at']
+            })
+        
+        # Return JSON response containing chat information
+        return jsonify(chats=chat_data)
     
-    # Close the database connection
-    conn.close()
-    
-    # Create a list to store chat data
-    chat_data = []
-    for chat in user_chats:
-        chat_data.append({
-            'chat_id': chat['chat_id'],
-            'chat_name': chat['chat_name'],
-            'created_at': chat['created_at']
-        })
-    
-    # Return JSON response containing chat information
-    return jsonify(chats=chat_data)
+    # Handling DELETE request (chat removal)
+    if request.method == 'DELETE':
+        # Get the chat_id to delete
+        chat_id = request.json.get('chat_id')
+
+        # Delete the chat from the database
+        conn.execute('DELETE FROM user_chats WHERE chat_id = ?', (chat_id,))
+        conn.execute('DELETE FROM chats WHERE chat_id = ?', (chat_id,))
+        conn.commit()
+        conn.close()
+
+        return jsonify({'message': 'Chat deleted successfully'})
 
 if __name__ == '__main__':
     app.run(debug=True)

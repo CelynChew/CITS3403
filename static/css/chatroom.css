@@ -47,10 +47,10 @@ ul {
 
 .delete-group-btn {
     height: 25px;
-    margin-left: 70%;
     display: inline-flex;
     justify-content: center;
     align-items: center;
+    float: right;
 }
 
 .group-name {

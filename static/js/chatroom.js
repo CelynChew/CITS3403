@@ -104,8 +104,7 @@ function createChat() {
         return response.json();
     })
     .then(data => {
-        console.log('Chat created:', data.message);
-        // If chat creation is successful, chat will be displayed
+        // Display chat in the chat list
         fetchChats();
     })
     .catch(error => {
@@ -119,6 +118,31 @@ function createChat() {
     // Close modal after chat is created
     newChatModal.classList.remove('show');
     document.querySelector('.modal-backdrop').remove() // Remove modal backdrop
+}
+
+// Function to delete a chat
+function deleteChat(chatId, chatListItem) {
+    // Send a DELETE request to the Flask backend to delete the chat
+    fetch('/chats', {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ chat_id: chatId })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Remove chat item from the chat list
+        chatListItem.remove();
+    })
+    .catch(error => {
+        console.error('There was a problem deleting the chat:', error);
+    });
 }
 
 // Function to fetch existing chats
@@ -154,7 +178,8 @@ function fetchChats() {
             // Add event listener for delete button/icon
             deleteButton.addEventListener('click', function(event) {
                 event.stopPropagation();
-                chatListItem.remove(); // Remove the chat item from the chat list
+                // Calling deleteChat() to delete selected chat
+                deleteChat(chat.chat_id, chatListItem);
             });
 
             // Add the new chat item to the chat list
