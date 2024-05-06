@@ -1,68 +1,11 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 from datetime import datetime
-import sqlite3
+from flask_sqlalchemy import SQLAlchemy
+from app.models import User, Message, Chats, UserChat
 import os
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
-
-# SQLite database connection
-def get_db_connection():
-    conn = sqlite3.connect('users.db')
-    conn.row_factory = sqlite3.Row
-    return conn
-
-# Create a table for users if it doesn't exist
-def create_table():
-    conn = get_db_connection()
-    try:
-        conn.execute(
-            '''
-            CREATE TABLE IF NOT EXISTS users (
-                id INTEGER PRIMARY KEY, 
-                username TEXT UNIQUE, 
-                password TEXT
-            )
-            ''')
-
-        conn.execute(
-            '''
-            CREATE TABLE IF NOT EXISTS messages (
-                msg_id INTEGER PRIMARY KEY, 
-                sender_id INTEGER,
-                msg_text TEXT, 
-                timestamp DATETIME,
-                FOREIGN KEY (sender_id) REFERENCES users(id)
-                    ON DELETE CASCADE
-                    ON UPDATE NO ACTION
-            )
-            ''')
-
-        conn.execute(
-            '''
-            CREATE TABLE IF NOT EXISTS chats (
-                chat_id INTEGER PRIMARY KEY,
-                chat_name VARCHAR(100) NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-            ''')
-
-        conn.execute(
-            '''
-            CREATE TABLE IF NOT EXISTS user_chats (
-                user_chat_id INTEGER PRIMARY KEY,
-                user_id INT NOT NULL,
-                chat_id INT NOT NULL,
-                FOREIGN KEY (user_id) REFERENCES users(id),
-                FOREIGN KEY (chat_id) REFERENCES chats(chat_id)
-            )
-            ''')
-    except sqlite3.OperationalError as e:
-        print("Table creation failed:", e)
-    finally:
-        conn.close()
-
-create_table()
 
 # Route to handle user login
 @app.route('/', methods=['GET', 'POST'])

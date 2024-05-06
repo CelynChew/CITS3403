@@ -28,4 +28,7 @@ Install Requirements (if needed):
 Initialise Database:
 ```flask db init```
 
+Run Server:
+```flask run```
+
 ## How to run the tests for the application
