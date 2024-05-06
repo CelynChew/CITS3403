@@ -42,7 +42,7 @@ def registration():
             return render_template('registration.html', password_error='Passwords do not match!')
         
         # Check if user already exists
-        user = User.query.filter_by(username=username).first()
+        user = User.query.filter_by(username = username).first()
         if user:
             return render_template('registration.html', error_message='Username already exists!')
         
@@ -75,19 +75,15 @@ def chatroom():
     username = session['username']
     
     # Retrieve chats for logged in user
-    conn = get_db_connection()
-    userchats = conn.execute('''
-        SELECT c.chat_id, c.chat_name
-        FROM chats c
-        INNER JOIN user_chats uc ON c.chat_id = uc.chat_id
-        INNER JOIN users u ON uc.user_id = u.id
-        WHERE u.username = ?
-    ''', (username,)).fetchall()
-    conn.close()
+    user_chats = (Chats.query
+                  .join(UserChat, Chats.chat_id == UserChat.chat_id)
+                  .join(User, UserChat.user_id == User.id)
+                  .filter(User.username == username)
+                  .all())
     
-    return render_template('chatroom.html', user_chats=userchats)
+    return render_template('chatroom.html', user_chats=user_chats)
 
-# Route to handle senidng the message 
+# Route to handle sending the message 
 @app.route('/send_message', methods=['POST'])
 def send_message():
     if request.method == 'POST':
@@ -95,24 +91,28 @@ def send_message():
         username = session['username']
         timestamp = datetime.now()
 
-        conn = get_db_connection()
-        user = conn.execute('SELECT id FROM users WHERE username = ?', (username,)).fetchone()
+        user = User.query.filter_by(username = username).first()
+        
         if user:
             user_id = user['id']
+
+            # Create a new Message object
+            new_message = Message(sender_id = user.id, msg_text = message, timestamp = timestamp)
+            
             # Insert messages into the chats table
-            conn.execute('INSERT INTO chats (user_id, messages, timestamp) VALUES (?, ?, ?)', (user_id, message, timestamp))
-            conn.commit()
-        conn.close()   
+            db.session.add(new_message)
+            db.session.commit()
+
         return jsonify({"message": "Message sent successfully"})
 
 # Route to handle retrieving messages
 @app.route('/get_messages', methods=['GET'])
 def get_messages():
     # Retrieve messages from the database
-    conn = get_db_connection()
-    messages = conn.execute('SELECT * FROM chats').fetchall()
-    conn.close()
-    messages_list = [{'user_id': message['user_id'], 'message': message['messages'], 'timestamp': message['timestamp']} for message in messages]
+    messages = Message.query.all()
+
+    # Convert the messages to a list of dictionaries
+    messages_list = [{'user_id': message.sender_id, 'message': message.msg_text, 'timestamp': message.timestamp} for message in messages]
     return jsonify(messages_list)
 
 # Route to handle creating chat
@@ -122,25 +122,25 @@ def create_chat():
         chat_name = request.json['chat_name']
         timestamp = datetime.now().strftime('%Y-%m-%d %H:%M')
         
-        conn = get_db_connection()
         try:
             # Insert new chat into the chats table
-            cursor = conn.execute('INSERT INTO chats (chat_name, created_at) VALUES (?, ?)', (chat_name, timestamp))
-            chat_id = cursor.lastrowid  # Get the ID of the inserted chat
+            chat = Chats(chat_name = chat_name, created_at = timestamp)
+            db.session.add(chat)
+            db.session.commit()
             
             # Get the user ID of the current user
             username = session['username']
-            user_id = conn.execute('SELECT id FROM users WHERE username = ?', (username,)).fetchone()['id']
-            
-            # Insert into the user_chats table to link the user with the chat
-            conn.execute('INSERT INTO user_chats (user_id, chat_id) VALUES (?, ?)', (user_id, chat_id))
+            user = User.query.filter_by(username = username).first()
 
-            conn.commit()
-            conn.close()
+            # Insert into the user_chats table to link the user with the chat
+            user_chat = UserChat(user_id = user.id, chat_id = chat.chat_id) 
+            db.session.add(user_chat)
+            db.session.commit()
+
             return jsonify({"message": "Chat created successfully"})
-        except sqlite3.Error as er:
-            conn.close()
-            return jsonify({"error": str(er)})
+        
+        except Exception as err:
+            return jsonify({"error": str(err)})
 
 
 # Route to show chats - GET for displaying chats and DELETE for removing chats
@@ -153,30 +153,22 @@ def show_chats():
     # Get the username from the session
     username = session['username']
     
-    # Connect to the database
-    conn = get_db_connection()
-    
     # Handling GET request (chat display)
     if request.method == 'GET':
         # Retrieve chats for logged-in user
-        user_chats = conn.execute('''
-            SELECT c.chat_id, c.chat_name, c.created_at
-            FROM chats c
-            INNER JOIN user_chats uc ON c.chat_id = uc.chat_id
-            INNER JOIN users u ON uc.user_id = u.id
-            WHERE u.username = ?
-        ''', (username,)).fetchall()
-        
-        # Close the database connection
-        conn.close()
+        user_chats = (Chats.query
+                      .join(UserChat, Chats.chat_id == UserChat.chat_id)
+                      .join(User, UserChat.user_id == User.id)
+                      .filter(User.username == username)
+                      .all())
         
         # Create a list to store chat data
         chat_data = []
         for chat in user_chats:
             chat_data.append({
-                'chat_id': chat['chat_id'],
-                'chat_name': chat['chat_name'],
-                'created_at': chat['created_at']
+                'chat_id': chat.chat_id,
+                'chat_name': chat.chat_name,
+                'created_at': chat.created_at.strftime('%Y-%m-%d %H:%M')
             })
         
         # Return JSON response containing chat information
@@ -187,13 +179,44 @@ def show_chats():
         # Get the chat_id to delete
         chat_id = request.json.get('chat_id')
 
-        # Delete the chat from the database
-        conn.execute('DELETE FROM user_chats WHERE chat_id = ?', (chat_id,))
-        conn.execute('DELETE FROM chats WHERE chat_id = ?', (chat_id,))
-        conn.commit()
-        conn.close()
+        # Delete the chat from the database - Cascade will handle deletion in UserChat
+        chat = Chats.query.get(chat_id)
+        db.session.delete(chat)
+        db.session.commit()
 
         return jsonify({'message': 'Chat deleted successfully'})
+
+@app.route('/data')
+def data():
+    # Fetch all users from the database
+    users = User.query.all()
+    msgs = Message.query.all()
+    chats = Chats.query.all()
+    user_chats = UserChat.query.all()
+
+    # List to store user data
+    user_data = [{
+        'id': user.id,
+        'username': user.username,
+        'password': user.username} for user in users]
+    
+    msgs_data = [{
+        'msg_id': msg.msg_id,
+        'sender_id': msg.sender_id,
+        'msg_text': msg.msg_text,
+        'timestamp': msg.timestamp} for msg in msgs]
+    
+    chats_data = [{
+        'chat_id': chat.chat_id,
+        'chat_name': chat.chat_name,
+        'created_at': chat.created_at} for chat in chats]
+    
+    user_chats_data = [{
+        'user_chat_id': uchat.user_chat_id,
+        'user_id': uchat.user_id,
+        'chat_id': uchat.chat_id} for uchat in user_chats]
+
+    return jsonify(users = user_data, msgs = msgs_data, chats = chats_data, user_chats = user_chats_data)
 
 if __name__ == '__main__':
     app.run(debug=True)

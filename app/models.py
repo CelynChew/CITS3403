@@ -28,7 +28,7 @@ class Chats(db.Model):
     created_at = db.Column(db.TIMESTAMP, nullable = False)
 
     # Relationship between Chats and UserChat model
-    user_chats = db.relationship('UserChat', back_populates = 'chat')
+    user_chats = db.relationship('UserChat', back_populates = 'chat', cascade = 'all, delete')
 
 # Bridging model to connect chats with users
 class UserChat(db.Model):
