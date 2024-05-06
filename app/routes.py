@@ -116,11 +116,11 @@ def get_messages():
     return jsonify(messages_list)
 
 # Route to handle creating chat
-@app.route('/create_chat', methods=['POST'])
+@app.route('/create_chat', methods=['GET', 'POST'])
 def create_chat():
     if request.method == 'POST':
         chat_name = request.json['chat_name']
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M')
+        timestamp = datetime.now()
         
         try:
             # Insert new chat into the chats table
@@ -141,7 +141,6 @@ def create_chat():
         
         except Exception as err:
             return jsonify({"error": str(err)})
-
 
 # Route to show chats - GET for displaying chats and DELETE for removing chats
 @app.route('/chats', methods=['GET', 'DELETE'])
@@ -209,7 +208,7 @@ def data():
     chats_data = [{
         'chat_id': chat.chat_id,
         'chat_name': chat.chat_name,
-        'created_at': chat.created_at} for chat in chats]
+        'created_at': chat.created_at.strftime("%Y-%m-%d %H:%M:%S")} for chat in chats]
     
     user_chats_data = [{
         'user_chat_id': uchat.user_chat_id,
