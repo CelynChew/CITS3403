@@ -1,10 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from app.models import User, Message, Chats, UserChat
+from .models import User, Message, Chats, UserChat
+from app import app, db
 import os
 
-app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
 # Route to handle user login
@@ -15,9 +15,8 @@ def login():
         username = request.form['username']
         password = request.form['password']
 
-        conn = get_db_connection()
-        user = conn.execute('SELECT * FROM users WHERE username = ? AND password = ?', (username, password)).fetchone()
-        conn.close()
+        # Query database to find the user by username and password
+        user = User.query.filter_by(username=username, password=password).first()
 
         if user:
             session['username'] = username
@@ -40,17 +39,19 @@ def registration():
         retype_password = request.form['retypePassword']
 
         if password != retype_password:
-            return render_template('registration.html', error_message='Passwords do not match!')
+            return render_template('registration.html', password_error='Passwords do not match!')
         
-        conn = get_db_connection()
-        try:
-            conn.execute('INSERT INTO users (username, password) VALUES (?, ?)', (username, password))
-            conn.commit()
-            conn.close()
-            return redirect('/')
-        except sqlite3.IntegrityError:
-            conn.close()
-            return render_template('registration.html', error_message='Username already exists! Please choose a different one.')
+        # Check if user already exists
+        user = User.query.filter_by(username=username).first()
+        if user:
+            return render_template('registration.html', error_message='Username already exists!')
+        
+        else:
+            user = User(username = username, password = password)
+            db.session.add(user)
+            db.session.commit()
+            # Redirect to a different page after successful registration
+            return redirect(url_for('login'))
 
     return render_template('registration.html')
 

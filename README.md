@@ -17,18 +17,29 @@
 
 ## How to launch the application
 Create Virtual Environment:
+
 ```python -m venv .venv```
 
 Activate Environment:
+
 ```. .venv/bin/activate```
 
 Install Requirements (if needed):
+
 ```pip install -r requirements.txt```
 
 Initialise Database:
+
 ```flask db init```
 
+```flask db migrate -m "Initial migration"```
+
+Create tables:
+
+```flask db upgrade```
+
 Run Server:
+
 ```flask run```
 
 ## How to run the tests for the application

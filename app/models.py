@@ -7,6 +7,10 @@ class User(db.Model):
     username = db.Column(db.TEXT, nullable = False, unique=True)
     password = db.Column(db.TEXT, nullable = False)
 
+    # Define the relationship with the Message model
+    sent_messages = db.relationship('Message', back_populates='sender')
+    user_chats = db.relationship('UserChat', back_populates='user')
+
 # Stores message content
 class Message(db.Model):
     msg_id = db.Column(db.Integer, primary_key = True)
