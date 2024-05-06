@@ -16,5 +16,16 @@
 ## Architecture of the application
 
 ## How to launch the application
+Create Virtual Environment:
+```python -m venv .venv```
+
+Activate Environment:
+```. .venv/bin/activate```
+
+Install Requirements (if needed):
+```pip install -r requirements.txt```
+
+Initialise Database:
+```flask db init```
 
 ## How to run the tests for the application
