@@ -140,8 +140,16 @@ def create_chat():
         timestamp = datetime.now()
         
         try:
+            # Get the user ID of the current user
+            username = session['username']
+            
             # Check if the chat already exists
-            existing_chat = Chats.query.filter_by(chat_name = chat_name).first()
+            existing_chat = (Chats.query
+                            .join(UserChat, Chats.chat_id == UserChat.chat_id)
+                            .join(User, UserChat.user_id == User.id)
+                            .filter(User.username == username, Chats.chat_name == chat_name)
+                            .first())
+            
             if existing_chat:
                 return jsonify({"chat_alert": f"Chat with {chat_name} already exists"})
 
@@ -156,8 +164,6 @@ def create_chat():
             db.session.add(chat)
             db.session.commit()
             
-            # Get the user ID of the current user
-            username = session['username']
             user = User.query.filter_by(username = username).first()
 
             # Insert into the user_chats table to link the user with the chat
