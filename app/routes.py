@@ -133,13 +133,24 @@ def get_messages(chat_name):
         return jsonify({"error": "Chat not found"})
 
 # Route to handle creating chat
-@app.route('/create_chat', methods=['GET', 'POST'])
+@app.route('/create_chat', methods=['POST'])
 def create_chat():
     if request.method == 'POST':
         chat_name = request.json['chat_name']
         timestamp = datetime.now()
         
         try:
+            # Check if the chat already exists
+            existing_chat = Chats.query.filter_by(chat_name = chat_name).first()
+            if existing_chat:
+                return jsonify({"chat_alert": f"Chat with {chat_name} already exists"})
+
+
+            chat_with_user = User.query.filter_by(username = chat_name).first()
+            # Check if the user exists
+            if chat_with_user is None:
+                return jsonify({"user_alert": f"{chat_name} does not have an account"})
+            
             # Insert new chat into the chats table
             chat = Chats(chat_name = chat_name, created_at = timestamp)
             db.session.add(chat)

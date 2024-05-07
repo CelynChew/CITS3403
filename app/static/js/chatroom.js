@@ -108,8 +108,27 @@ function createChat() {
         return response.json();
     })
     .then(data => {
+        // Clear alert messages
+        document.getElementById('chat-alert-container').innerHTML = '';
+        document.getElementById('user-alert-container').innerHTML = '';
+
         // Display chat in the chat list
         fetchChats();
+
+        // Check for chat_alert and user_alert messages
+        if (data.chat_alert) {
+            // Alert for replicated chats
+            document.getElementById('chat-alert-container').innerHTML = '<div class="alert alert-danger">' + data.chat_alert + '</div>';
+            
+        } else if(data.user_alert) {
+            // Alert for non-exisiting users
+            document.getElementById('user-alert-container').innerHTML = '<div class="alert alert-danger">' + data.user_alert + '</div>';
+            
+        } else {
+            // Close modal after chat is created
+            newChatModal.classList.remove('show');
+            document.querySelector('.modal-backdrop').remove()
+        }
     })
     .catch(error => {
         console.error('There was a problem creating the chat:', error);
@@ -118,10 +137,6 @@ function createChat() {
     // Clear input fields
     membersInput.value = "";
     groupNameInput.value = "";
-
-    // Close modal after chat is created
-    newChatModal.classList.remove('show');
-    document.querySelector('.modal-backdrop').remove() // Remove modal backdrop
 }
 
 // Function to delete a chat
