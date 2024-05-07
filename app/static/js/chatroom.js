@@ -174,7 +174,7 @@ function fetchChats() {
             // Create delete button/icon
             var deleteButton = document.createElement('button');
             deleteButton.classList.add('delete-group-btn', 'btn', 'btn-danger', 'btn-sm'); // Adding Bootstrap button classes
-            deleteButton.textContent = 'x';
+            deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
 
             // Append the delete button to the chat list item
             chatListItem.appendChild(deleteButton);
@@ -219,10 +219,7 @@ chatList.addEventListener('click', function(event) {
     
     // If a chat item was clicked, the chat name will be updated
     if (clickedElement && clickedElement.classList.contains('chat')) {
-        var clickedText = clickedElement.textContent.trim();
-        
-        // Exclude the last character (which is 'x')
-        var groupName = clickedText.substring(0, clickedText.length - 1);
+        var groupName = clickedElement.textContent.trim();
         
         // Updating the displayed chat name
         groupNameElement.textContent = groupName;
@@ -237,11 +234,6 @@ document.getElementById('search-chat').addEventListener('input', function() {
     // Loop through the chat list
     chatList.forEach(function(item) {
         var itemName = item.textContent.trim().toLowerCase(); // clean chat list names 
-        
-        // Exclude the last character ('x')
-        if (itemName.charAt(itemName.length - 1) === 'x') {
-            itemName = itemName.substring(0, itemName.length - 1);
-        }
         
         // If the chat item matches the search term, show it; otherwise, hide it - remove white spaces + change all to lower case
         if (itemName.includes(searchVal)) { // allow for flexible search 
