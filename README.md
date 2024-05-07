@@ -20,9 +20,11 @@ Create Virtual Environment:
 
 ```python -m venv .venv```
 
-Activate Environment:                  Windows                  If error occurs due to execution policy
+Activate Environment:                              
 
-```. .venv/bin/activate```   ``` .venv/Scripts/activate```    ```Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser```
+Mac ```. .venv/bin/activate```   
+
+Windows ``` .venv/Scripts/activate```     IF ERROR ```Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser```
 
 Install Requirements (if needed):
 
@@ -30,9 +32,13 @@ Install Requirements (if needed):
 
 Initialise Database: 
 
-```flask db init```                                If error occurs (start from ```flask db init```  after making new directory in migration```
+```flask db init```                                
 
-```flask db migrate -m "Initial migration"```    ```Remove-Item -Recurse -Force migrations```  ----> ```mkdir migrations```
+```flask db migrate -m "Initial migration"```  
+
+If error occurs (start from ```flask db init```  after making new directory in migration```)
+```Remove-Item -Recurse -Force migrations```
+```mkdir migrations```
 
 Create tables:
 
