@@ -94,26 +94,43 @@ def send_message():
         user = User.query.filter_by(username = username).first()
         
         if user:
-            user_id = user['id']
+            # Retrieve chat_name from the request
+            chat_name = request.json['chat_name']  
+            # Query the chat_id based on the chat name
+            chat = Chats.query.filter_by(chat_name=chat_name).first()
 
-            # Create a new Message object
-            new_message = Message(sender_id = user.id, msg_text = message, timestamp = timestamp)
-            
-            # Insert messages into the chats table
-            db.session.add(new_message)
-            db.session.commit()
+            if chat:
+                chat_id = chat.chat_id
 
-        return jsonify({"message": "Message sent successfully"})
+                # Create a new Message object
+                new_message = Message(sender_id = user.id, chat_id = chat_id, msg_text = message, timestamp = timestamp)
+                
+                # Insert message into the messages table
+                db.session.add(new_message)
+                db.session.commit()
+
+                return jsonify({"message": "Message sent successfully"})
 
 # Route to handle retrieving messages
-@app.route('/get_messages', methods=['GET'])
-def get_messages():
-    # Retrieve messages from the database
-    messages = Message.query.all()
+@app.route('/get_messages/<string:chat_name>', methods=['GET'])
+def get_messages(chat_name):
+    username = session['username']
+    user = User.query.filter_by(username = username).first()
+    
+    # Retrieve chat based on the chat name
+    chat = Chats.query.filter_by(chat_name = chat_name).first()
 
-    # Convert the messages to a list of dictionaries
-    messages_list = [{'user_id': message.sender_id, 'message': message.msg_text, 'timestamp': message.timestamp} for message in messages]
-    return jsonify(messages_list)
+    if chat:
+        chat_id = chat.chat_id
+        # Retrieve messages from the database
+        messages = Message.query.filter_by(chat_id = chat_id).all()
+
+        # Convert the messages to a list of dictionaries
+        messages_list = [{'user_id': message.sender_id, 'message': message.msg_text, 'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M')} for message in messages]
+        return jsonify(messages_list)
+    
+    else:
+        return jsonify({"error": "Chat not found"})
 
 # Route to handle creating chat
 @app.route('/create_chat', methods=['GET', 'POST'])
@@ -202,6 +219,7 @@ def data():
     msgs_data = [{
         'msg_id': msg.msg_id,
         'sender_id': msg.sender_id,
+        'chat_id': msg.chat_id,
         'msg_text': msg.msg_text,
         'timestamp': msg.timestamp} for msg in msgs]
     

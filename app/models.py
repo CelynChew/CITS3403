@@ -15,11 +15,14 @@ class User(db.Model):
 class Message(db.Model):
     msg_id = db.Column(db.Integer, primary_key = True)
     sender_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete = 'CASCADE'), nullable = False)
+    chat_id = db.Column(db.Integer, db.ForeignKey('chats.chat_id', ondelete='CASCADE'), nullable=False)
     msg_text = db.Column(db.Text, nullable = False)
     timestamp = db.Column(db.DateTime, nullable=False)
 
     # Relationship between Message and User model
     sender = db.relationship('User', back_populates = 'sent_messages', foreign_keys = [sender_id])
+    # Relationship between Message and Chats model
+    chat = db.relationship('Chats', backref='messages')
 
 # Stores chat details 
 class Chats(db.Model):

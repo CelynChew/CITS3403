@@ -1,11 +1,13 @@
 // Function to fetch messages and update the chat display
-function updateChatDisplay() {
-    fetch('/get_messages')
+function updateChatDisplay(chatName) {
+    fetch(`/get_messages/${chatName}`)
         .then(response => response.json())
         .then(data => {
             const chatMessagesDiv = document.getElementById('chat-messages');
             // Clear existing messages
             chatMessagesDiv.innerHTML = '';
+            // Filter messages based on the selected chat name
+            const messagesForCurrentChat = data.filter(message => message.chat_name === chatName);
             // Loop through the messages and append them to the chat messages div
             data.forEach(message => {
                 const messageElement = document.createElement('p');
@@ -22,7 +24,7 @@ function updateChatDisplay() {
 window.addEventListener('load', updateChatDisplay);
 
 // Function to send a message
-function sendMessage() {
+function sendMessage(chatName) {
     var messageInput = document.getElementById('message-input');
     var message = messageInput.value.trim();
     if (message !== '') {
@@ -31,7 +33,7 @@ function sendMessage() {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ message: message })
+            body: JSON.stringify({ message: message, chat_name: chatName })
         })
         .then(response => {
             if (!response.ok) {
@@ -44,7 +46,7 @@ function sendMessage() {
             // After successfully sending message, clear input field
             messageInput.value = '';
             // Update the chat display to show the new message
-            updateChatDisplay();
+            updateChatDisplay(chatName);
         })
         .catch(error => {
             console.error('There was a problem with sending your message:', error);
@@ -59,7 +61,9 @@ input.addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
         // Cancel the default action, if needed
         event.preventDefault();
-        sendMessage(); // Call the sendMessage function when Enter is pressed
+        // Retrieve selected chat name
+        var currentChatName = document.getElementById('group-name').textContent.trim();
+        sendMessage(currentChatName);; // Call the sendMessage function when Enter is pressed
     }
 });
 
@@ -90,7 +94,7 @@ function createChat() {
     }
 
     // Send a POST request to the Flask backend to create chat
-    fetch('/create_chat', {
+    fetch(`/create_chat`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -123,7 +127,7 @@ function createChat() {
 // Function to delete a chat
 function deleteChat(chatId, chatListItem) {
     // Send a DELETE request to the Flask backend to delete the chat
-    fetch('/chats', {
+    fetch(`/chats`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json'
@@ -148,7 +152,7 @@ function deleteChat(chatId, chatListItem) {
 // Function to fetch existing chats
 function fetchChats() {
     // GET request to the Flask backend to display existing chats
-    fetch('/chats')
+    fetch(`/chats`)
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
