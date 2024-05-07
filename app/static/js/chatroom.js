@@ -210,6 +210,22 @@ function fetchChats() {
     });
 }
 
+// Listener for displaying messages
+chatList.addEventListener('click', function(event) {
+    var clickedElement = event.target;
+    
+    // Finding chat list items
+    while (clickedElement && clickedElement.tagName !== 'LI') {
+        clickedElement = clickedElement.parentElement;
+    }
+    
+    // Display messages for each chat
+    if (clickedElement && clickedElement.classList.contains('chat')) {
+        var chatName = clickedElement.textContent;
+        updateChatDisplay(chatName);
+    }
+});
+
 // Call fetchChats() when the page loads
 fetchChats();
 
