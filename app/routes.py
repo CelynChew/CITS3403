@@ -126,7 +126,7 @@ def get_messages(chat_name):
         messages = Message.query.filter_by(chat_id = chat_id).all()
 
         # Convert the messages to a list of dictionaries
-        messages_list = [{'user_id': message.sender_id, 'message': message.msg_text, 'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M')} for message in messages]
+        messages_list = [{'username': message.sender.username, 'message': message.msg_text, 'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M')} for message in messages]
         return jsonify(messages_list)
     
     else:

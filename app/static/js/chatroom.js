@@ -11,7 +11,7 @@ function updateChatDisplay(chatName) {
             // Loop through the messages and append them to the chat messages div
             data.forEach(message => {
                 const messageElement = document.createElement('p');
-                messageElement.textContent = `${message.user_id}: ${message.message} (${message.timestamp})`;
+                messageElement.textContent = `${message.username}: ${message.message} (${message.timestamp})`;
                 chatMessagesDiv.appendChild(messageElement);
             });
             // Scroll to the bottom of the chat messages div to show the latest messages
