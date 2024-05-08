@@ -89,11 +89,13 @@ def send_message():
     if request.method == 'POST':
         message = request.json['message']
         username = session['username']
+        receiver_username = request.json['chat_name']
         timestamp = datetime.now()
 
-        user = User.query.filter_by(username = username).first()
+        sender = User.query.filter_by(username = username).first()
+        receiver = User.query.filter_by(username = receiver_username).first()
         
-        if user:
+        if sender and receiver:
             # Retrieve chat_name from the request
             chat_name = request.json['chat_name']  
             # Query the chat_id based on the chat name
@@ -103,7 +105,7 @@ def send_message():
                 chat_id = chat.chat_id
 
                 # Create a new Message object
-                new_message = Message(sender_id = user.id, chat_id = chat_id, msg_text = message, timestamp = timestamp)
+                new_message = Message(sender_id = sender.id, receiver_id = receiver.id, chat_id = chat_id, msg_text = message, timestamp = timestamp)
                 
                 # Insert message into the messages table
                 db.session.add(new_message)
@@ -111,7 +113,7 @@ def send_message():
 
                 return jsonify({"message": "Message sent successfully"})
 
-# Route to handle retrieving messages
+# Route to display messages
 @app.route('/get_messages/<string:chat_name>', methods=['GET'])
 def get_messages(chat_name):
     username = session['username']
@@ -123,10 +125,10 @@ def get_messages(chat_name):
     if chat:
         chat_id = chat.chat_id
         # Retrieve messages from the database
-        messages = Message.query.filter_by(chat_id = chat_id).all()
+        messages = Message.query.filter_by(chat_id = chat_id, sender_id=user.id).all()
 
         # Convert the messages to a list of dictionaries
-        messages_list = [{'username': message.sender.username, 'message': message.msg_text, 'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M')} for message in messages]
+        messages_list = [{'username': message.sender.username, 'receiver_username': message.receiver.username,'message': message.msg_text, 'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M')} for message in messages]
         return jsonify(messages_list)
     
     else:
@@ -141,22 +143,22 @@ def create_chat():
         
         try:
             # Get the user ID of the current user
-            username = session['username']
+            sender_username = session['username']
             
             # Check if the chat already exists
             existing_chat = (Chats.query
                             .join(UserChat, Chats.chat_id == UserChat.chat_id)
                             .join(User, UserChat.user_id == User.id)
-                            .filter(User.username == username, Chats.chat_name == chat_name)
+                            .filter(User.username == sender_username, Chats.chat_name == chat_name)
                             .first())
             
             if existing_chat:
                 return jsonify({"chat_alert": f"Chat with {chat_name} already exists"})
 
 
-            chat_with_user = User.query.filter_by(username = chat_name).first()
+            receiver = User.query.filter_by(username = chat_name).first()
             # Check if the user exists
-            if chat_with_user is None:
+            if receiver is None:
                 return jsonify({"user_alert": f"{chat_name} does not have an account"})
             
             # Insert new chat into the chats table
@@ -164,11 +166,14 @@ def create_chat():
             db.session.add(chat)
             db.session.commit()
             
-            user = User.query.filter_by(username = username).first()
+            sender = User.query.filter_by(username = sender_username).first()
 
             # Insert into the user_chats table to link the user with the chat
-            user_chat = UserChat(user_id = user.id, chat_id = chat.chat_id) 
-            db.session.add(user_chat)
+            sender_user_chat = UserChat(user_id = sender.id, chat_id = chat.chat_id)
+            receiver_user_chat = UserChat(user_id = receiver.id, chat_id = chat.chat_id)
+
+            db.session.add(sender_user_chat)
+            db.session.add(receiver_user_chat)
             db.session.commit()
 
             return jsonify({"message": "Chat created successfully"})
@@ -236,6 +241,7 @@ def data():
     msgs_data = [{
         'msg_id': msg.msg_id,
         'sender_id': msg.sender_id,
+        'reciever_id':msg.receiver_id,
         'chat_id': msg.chat_id,
         'msg_text': msg.msg_text,
         'timestamp': msg.timestamp} for msg in msgs]

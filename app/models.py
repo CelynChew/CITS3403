@@ -8,19 +8,21 @@ class User(db.Model):
     password = db.Column(db.TEXT, nullable = False)
 
     # Define the relationship with the Message model
-    sent_messages = db.relationship('Message', back_populates='sender')
+    sent_messages = db.relationship('Message', back_populates='sender', foreign_keys='Message.sender_id')
     user_chats = db.relationship('UserChat', back_populates='user')
 
 # Stores message content
 class Message(db.Model):
     msg_id = db.Column(db.Integer, primary_key = True)
-    sender_id = db.Column(db.Integer, db.ForeignKey('user.id', ondelete = 'CASCADE'), nullable = False)
+    sender_id = db.Column(db.Integer, db.ForeignKey('user.id', name='fk_sender_id', ondelete = 'CASCADE'), nullable = False)
+    receiver_id = db.Column(db.Integer, db.ForeignKey('user.id', name='fk_receiver_id', ondelete = 'CASCADE'), nullable=False)
     chat_id = db.Column(db.Integer, db.ForeignKey('chats.chat_id', ondelete='CASCADE'), nullable=False)
     msg_text = db.Column(db.Text, nullable = False)
     timestamp = db.Column(db.DateTime, nullable=False)
 
     # Relationship between Message and User model
     sender = db.relationship('User', back_populates = 'sent_messages', foreign_keys = [sender_id])
+    receiver = db.relationship('User', foreign_keys = [receiver_id])
     # Relationship between Message and Chats model
     chat = db.relationship('Chats', backref='messages')
 
