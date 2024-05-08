@@ -7,9 +7,11 @@ class User(db.Model):
     username = db.Column(db.TEXT, nullable = False, unique=True)
     password = db.Column(db.TEXT, nullable = False)
 
-    # Define the relationship with the Message model
+    # Relationship with the Message model
     sent_messages = db.relationship('Message', back_populates='sender', foreign_keys='Message.sender_id')
     user_chats = db.relationship('UserChat', back_populates='user')
+    # Relationship with the Chats model
+    created_chats = db.relationship('Chats', back_populates='creator')
 
 # Stores message content
 class Message(db.Model):
@@ -29,11 +31,15 @@ class Message(db.Model):
 # Stores chat details 
 class Chats(db.Model):
     chat_id = db.Column(db.Integer, primary_key = True)
-    chat_name = db.Column(db.String(100), nullable = False)
+    chat_name = db.Column(db.VARCHAR(100), nullable = False)
+    receiver_chat_name = db.Column(db.VARCHAR(100), nullable = False)
     created_at = db.Column(db.TIMESTAMP, nullable = False)
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'))  
 
     # Relationship between Chats and UserChat model
     user_chats = db.relationship('UserChat', back_populates = 'chat', cascade = 'all, delete')
+    # Relationship with the User model
+    creator = db.relationship('User', back_populates = 'created_chats')
 
 # Bridging model to connect chats with users
 class UserChat(db.Model):

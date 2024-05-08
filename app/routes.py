@@ -114,16 +114,15 @@ def send_message():
                 return jsonify({"message": "Message sent successfully"})
 
 # Route to display messages
-@app.route('/get_messages/<string:chat_name>', methods=['GET'])
-def get_messages(chat_name):
+@app.route('/get_messages/<int:chat_id>', methods=['GET'])
+def get_messages(chat_id):
     username = session['username']
-    user = User.query.filter_by(username = username).first()
+    user = User.query.filter_by(username=username).first()
     
-    # Retrieve chat based on the chat name
-    chat = Chats.query.filter_by(chat_name = chat_name).first()
+    # Retrieve chat based on the chat id
+    chat = Chats.query.get(chat_id)
 
     if chat:
-        chat_id = chat.chat_id
         # Check if the logged-in user is a participant in the chat
         participant = UserChat.query.filter_by(user_id=user.id, chat_id=chat_id).first()
 
@@ -132,7 +131,12 @@ def get_messages(chat_name):
             messages = Message.query.filter_by(chat_id=chat_id).all()
 
             # Convert the messages to a list of dictionaries
-            messages_list = [{'username': message.sender.username, 'receiver_username': message.receiver.username, 'message': message.msg_text, 'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M')} for message in messages]
+            messages_list = [{'chat_id': chat_id, 
+                              'sender_username': message.sender.username, 
+                              'receiver_username': message.receiver.username, 
+                              'message': message.msg_text, 
+                              'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M')} 
+                             for message in messages]
             return jsonify(messages_list)
         else:
             return jsonify({"error": "User is not a participant in this chat"})
@@ -149,6 +153,9 @@ def create_chat():
         try:
             # Get the user ID of the current user
             sender_username = session['username']
+
+             # User who is creating the chat
+            created_by = User.query.filter_by(username = sender_username).first()
             
             # Check if the chat already exists
             existing_chat = (Chats.query
@@ -167,7 +174,7 @@ def create_chat():
                 return jsonify({"user_alert": f"{chat_name} does not have an account"})
             
             # Insert new chat into the chats table
-            chat = Chats(chat_name = chat_name, created_at = timestamp)
+            chat = Chats(chat_name = chat_name, created_at = timestamp, created_by = created_by.id, receiver_chat_name = sender_username)
             db.session.add(chat)
             db.session.commit()
             
@@ -195,7 +202,10 @@ def show_chats():
     
     # Get the username from the session
     username = session['username']
-    
+
+    # Get logged in user information
+    logged_in = User.query.filter_by(username = username).first()
+
     # Handling GET request (chat display)
     if request.method == 'GET':
         # Retrieve chats for logged-in user
@@ -208,9 +218,15 @@ def show_chats():
         # Create a list to store chat data
         chat_data = []
         for chat in user_chats:
+            # Determine the chat name based logged in account
+            if chat.created_by == logged_in.id:
+                chat_name = chat.chat_name
+            else:
+                chat_name = chat.receiver_chat_name
+
             chat_data.append({
                 'chat_id': chat.chat_id,
-                'chat_name': chat.chat_name,
+                'chat_name': chat_name,
                 'created_at': chat.created_at.strftime('%Y-%m-%d %H:%M')
             })
         
@@ -254,7 +270,9 @@ def data():
     chats_data = [{
         'chat_id': chat.chat_id,
         'chat_name': chat.chat_name,
-        'created_at': chat.created_at.strftime("%Y-%m-%d %H:%M:%S")} for chat in chats]
+        'created_at': chat.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+        'receiver_chat_name': chat.receiver_chat_name,
+        'created_by': chat.created_by} for chat in chats]
     
     user_chats_data = [{
         'user_chat_id': uchat.user_chat_id,

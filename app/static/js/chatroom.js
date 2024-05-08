@@ -1,27 +1,53 @@
 // Function to fetch messages and update the chat display
-function updateChatDisplay(chatName) {
-    fetch(`/get_messages/${chatName}`)
-        .then(response => response.json())
+function updateChatDisplay(chatId, chatName) {
+    fetch(`/get_messages/${chatId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             const chatMessagesDiv = document.getElementById('chat-messages');
             // Clear existing messages
             chatMessagesDiv.innerHTML = '';
-            // Filter messages based on the selected chat name
-            const messagesForCurrentChat = data.filter(message => message.chat_name === chatName);
             // Loop through the messages and append them to the chat messages div
             data.forEach(message => {
+
                 const messageElement = document.createElement('p');
-                messageElement.textContent = `${message.username}: ${message.message} (${message.timestamp})`;
+                messageElement.textContent = `${message.sender_username}: ${message.message} (${message.timestamp})`;
                 chatMessagesDiv.appendChild(messageElement);
             });
             // Scroll to the bottom of the chat messages div to show the latest messages
             chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+
+            // Display the chat name
+            document.getElementById('group-name').textContent = chatName;
         })
         .catch(error => console.error('Error fetching messages:', error));
 }
 
 // Call the updateChatDisplay function when the page loads
 window.addEventListener('load', updateChatDisplay);
+
+var chatList = document.getElementById('chat-list');
+// Listener for displaying messages
+chatList.addEventListener('click', function(event) {
+    var clickedElement = event.target;
+    
+    // Finding chat list items
+    while (clickedElement && clickedElement.tagName !== 'LI') {
+        clickedElement = clickedElement.parentElement;
+    }
+    
+    // Display messages for each chat
+    if (clickedElement && clickedElement.classList.contains('chat')) {
+        var chatId = clickedElement.dataset.chatId;
+        var chatName = clickedElement.textContent.trim();
+        
+        updateChatDisplay(chatId, chatName); 
+    }
+});
 
 // Function to send a message
 function sendMessage(chatName) {
@@ -183,6 +209,7 @@ function fetchChats() {
             // Create a new list item for the chat
             var chatListItem = document.createElement('li');
             chatListItem.textContent = chat.chat_name;
+            chatListItem.dataset.chatId = chat.chat_id; // Add chat_id as data attribute
 
             chatListItem.classList.add('chat'); // Adding .chat CSS to the chatListItem
 
@@ -209,22 +236,6 @@ function fetchChats() {
         console.error('There was a problem fetching chats:', error);
     });
 }
-
-// Listener for displaying messages
-chatList.addEventListener('click', function(event) {
-    var clickedElement = event.target;
-    
-    // Finding chat list items
-    while (clickedElement && clickedElement.tagName !== 'LI') {
-        clickedElement = clickedElement.parentElement;
-    }
-    
-    // Display messages for each chat
-    if (clickedElement && clickedElement.classList.contains('chat')) {
-        var chatName = clickedElement.textContent;
-        updateChatDisplay(chatName);
-    }
-});
 
 // Call fetchChats() when the page loads
 fetchChats();
