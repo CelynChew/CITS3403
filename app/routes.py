@@ -124,13 +124,18 @@ def get_messages(chat_name):
 
     if chat:
         chat_id = chat.chat_id
-        # Retrieve messages from the database
-        messages = Message.query.filter_by(chat_id = chat_id, sender_id=user.id).all()
+        # Check if the logged-in user is a participant in the chat
+        participant = UserChat.query.filter_by(user_id=user.id, chat_id=chat_id).first()
 
-        # Convert the messages to a list of dictionaries
-        messages_list = [{'username': message.sender.username, 'receiver_username': message.receiver.username,'message': message.msg_text, 'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M')} for message in messages]
-        return jsonify(messages_list)
-    
+        if participant:
+            # Retrieve messages from the database for the specified chat
+            messages = Message.query.filter_by(chat_id=chat_id).all()
+
+            # Convert the messages to a list of dictionaries
+            messages_list = [{'username': message.sender.username, 'receiver_username': message.receiver.username, 'message': message.msg_text, 'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M')} for message in messages]
+            return jsonify(messages_list)
+        else:
+            return jsonify({"error": "User is not a participant in this chat"})
     else:
         return jsonify({"error": "Chat not found"})
 
