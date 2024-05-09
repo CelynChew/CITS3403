@@ -21,7 +21,7 @@ def login():
         if user:
             session['username'] = username
             # User authenticated successfully, redirect to intro page with username
-            return redirect(url_for('intro', username=username))
+            return redirect(url_for('chatroom', username=username))
         else:
             # Authentication failed, render login page with error message
             error_message = 'Invalid username or password'
@@ -81,7 +81,7 @@ def chatroom():
                   .filter(User.username == username)
                   .all())
     
-    return render_template('chatroom.html', user_chats=user_chats)
+    return render_template('chatroom.html', user_chats=user_chats, username=username)
 
 # Route to handle sending the message 
 @app.route('/send_message', methods=['POST'])

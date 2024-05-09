@@ -290,3 +290,8 @@ document.getElementById('search-chat').addEventListener('input', function() {
 function LoggingOut() {
     window.location.href = "/";
 }
+
+// Function for going to tutotial page
+function showTutorial() {
+    window.location.href = "/tutorial"; 
+}
