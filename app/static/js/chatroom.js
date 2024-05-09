@@ -1,38 +1,6 @@
 // Function to fetch messages and update the chat display
-function updateChatDisplay() {
-    fetch('/get_messages')
-        .then(response => response.json())
-        .then(data => {
-            const chatMessagesDiv = document.getElementById('chat-messages');
-            // Clear existing messages
-            chatMessagesDiv.innerHTML = '';
-            // Loop through the messages and append them to the chat messages div
-            data.forEach(message => {
-                const messageElement = document.createElement('p');
-                messageElement.textContent = `${message.user_id}: ${message.message} (${message.timestamp})`;
-                chatMessagesDiv.appendChild(messageElement);
-            });
-            // Scroll to the bottom of the chat messages div to show the latest messages
-            chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
-        })
-        .catch(error => console.error('Error fetching messages:', error));
-}
-
-// Call the updateChatDisplay function when the page loads
-window.addEventListener('load', updateChatDisplay);
-
-// Function to send a message
-function sendMessage() {
-    var messageInput = document.getElementById('message-input');
-    var message = messageInput.value.trim();
-    if (message !== '') {
-        fetch('/send_message', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message: message })
-        })
+function updateChatDisplay(chatId, chatName) {
+    fetch(`/get_messages/${chatId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -40,14 +8,101 @@ function sendMessage() {
             return response.json();
         })
         .then(data => {
-            console.log('Message sent:', data.message);
-            // After successfully sending message, clear input field
-            messageInput.value = '';
-            // Update the chat display to show the new message
-            updateChatDisplay();
+            const chatMessagesDiv = document.getElementById('chat-messages');
+            // Clear existing messages
+            chatMessagesDiv.innerHTML = '';
+            // Loop through the messages and append them to the chat messages div
+            data.forEach(message => {
+
+                const messageElement = document.createElement('p');
+                messageElement.textContent = `${message.sender_username}: ${message.message} (${message.timestamp})`;
+                chatMessagesDiv.appendChild(messageElement);
+            });
+            // Scroll to the bottom of the chat messages div to show the latest messages
+            chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+
+            // Display the chat name
+            document.getElementById('group-name').textContent = chatName;
+        })
+        .catch(error => console.error('Error fetching messages:', error));
+}
+
+// Call the updateChatDisplay function when the page loads
+window.addEventListener('load', updateChatDisplay);
+
+var chatList = document.getElementById('chat-list');
+// Listener for displaying messages
+chatList.addEventListener('click', function(event) {
+    var clickedElement = event.target;
+    
+    // Finding chat list items
+    while (clickedElement && clickedElement.tagName !== 'LI') {
+        clickedElement = clickedElement.parentElement;
+    }
+    
+    // Display messages for each chat
+    if (clickedElement && clickedElement.classList.contains('chat')) {
+        var chatId = clickedElement.dataset.chatId;
+        var chatName = clickedElement.textContent.trim();
+        
+        updateChatDisplay(chatId, chatName); 
+    }
+});
+
+// Function to send a message
+function sendMessage(chatName) {
+    // Get the message input element
+    var messageInput = document.getElementById('message-input');
+    // Get the trimmed message content
+    var messageContent = messageInput.value.trim();
+
+    // Check if the message is not empty
+    if (messageContent !== '') {
+        // Fetch the chatId based on chatName
+        fetch(`/get_chat_id/${chatName}`)
+        .then(response => {
+            // Check if the response is successful
+            if (!response.ok) {
+                throw new Error('Failed to fetch chatId');
+            }
+            // Parse the response JSON data
+            return response.json();
+        })
+        .then(data => {
+            // Once chatId is obtained, send the message
+            var chatId = data.chatId;
+            // Send the message to the backend
+            fetch('/send_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: messageContent, chat_id: chatId, chat_name: chatName })
+            })
+            .then(response => {
+                // Check if the response is successful
+                if (!response.ok) {
+                    throw new Error('Failed to send message');
+                }
+                // Parse the response JSON data
+                return response.json();
+            })
+            .then(data => {
+                // Log a success message
+                console.log('Message sent successfully:', data.message);
+                // Clear the message input field
+                messageInput.value = '';
+                // Update the chat display to show the new message
+                updateChatDisplay(chatId, chatName);
+            })
+            .catch(error => {
+                // Log any errors that occurred during message sending
+                console.error('Failed to send message:', error);
+            });
         })
         .catch(error => {
-            console.error('There was a problem with sending your message:', error);
+            // Log any errors that occurred during chatId fetching
+            console.error('Failed to fetch chatId:', error);
         });
     }
 }
@@ -59,7 +114,9 @@ input.addEventListener("keypress", function(event) {
     if (event.key === "Enter") {
         // Cancel the default action, if needed
         event.preventDefault();
-        sendMessage(); // Call the sendMessage function when Enter is pressed
+        // Retrieve selected chat name
+        var currentChatName = document.getElementById('group-name').textContent.trim();
+        sendMessage(currentChatName);; // Call the sendMessage function when Enter is pressed
     }
 });
 
@@ -90,7 +147,7 @@ function createChat() {
     }
 
     // Send a POST request to the Flask backend to create chat
-    fetch('/create_chat', {
+    fetch(`/create_chat`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -104,8 +161,27 @@ function createChat() {
         return response.json();
     })
     .then(data => {
+        // Clear alert messages
+        document.getElementById('chat-alert-container').innerHTML = '';
+        document.getElementById('user-alert-container').innerHTML = '';
+
         // Display chat in the chat list
         fetchChats();
+
+        // Check for chat_alert and user_alert messages
+        if (data.chat_alert) {
+            // Alert for replicated chats
+            document.getElementById('chat-alert-container').innerHTML = '<div class="alert alert-danger">' + data.chat_alert + '</div>';
+            
+        } else if(data.user_alert) {
+            // Alert for non-exisiting users
+            document.getElementById('user-alert-container').innerHTML = '<div class="alert alert-danger">' + data.user_alert + '</div>';
+            
+        } else {
+            // Close modal after chat is created
+            newChatModal.classList.remove('show');
+            document.querySelector('.modal-backdrop').remove()
+        }
     })
     .catch(error => {
         console.error('There was a problem creating the chat:', error);
@@ -114,16 +190,12 @@ function createChat() {
     // Clear input fields
     membersInput.value = "";
     groupNameInput.value = "";
-
-    // Close modal after chat is created
-    newChatModal.classList.remove('show');
-    document.querySelector('.modal-backdrop').remove() // Remove modal backdrop
 }
 
 // Function to delete a chat
 function deleteChat(chatId, chatListItem) {
     // Send a DELETE request to the Flask backend to delete the chat
-    fetch('/chats', {
+    fetch(`/chats`, {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json'
@@ -148,7 +220,7 @@ function deleteChat(chatId, chatListItem) {
 // Function to fetch existing chats
 function fetchChats() {
     // GET request to the Flask backend to display existing chats
-    fetch('/chats')
+    fetch(`/chats`)
     .then(response => {
         if (!response.ok) {
             throw new Error('Network response was not ok');
@@ -164,13 +236,14 @@ function fetchChats() {
             // Create a new list item for the chat
             var chatListItem = document.createElement('li');
             chatListItem.textContent = chat.chat_name;
+            chatListItem.dataset.chatId = chat.chat_id; // Add chat_id as data attribute
 
             chatListItem.classList.add('chat'); // Adding .chat CSS to the chatListItem
 
             // Create delete button/icon
             var deleteButton = document.createElement('button');
             deleteButton.classList.add('delete-group-btn', 'btn', 'btn-danger', 'btn-sm'); // Adding Bootstrap button classes
-            deleteButton.textContent = 'x';
+            deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
 
             // Append the delete button to the chat list item
             chatListItem.appendChild(deleteButton);
@@ -215,10 +288,7 @@ chatList.addEventListener('click', function(event) {
     
     // If a chat item was clicked, the chat name will be updated
     if (clickedElement && clickedElement.classList.contains('chat')) {
-        var clickedText = clickedElement.textContent.trim();
-        
-        // Exclude the last character (which is 'x')
-        var groupName = clickedText.substring(0, clickedText.length - 1);
+        var groupName = clickedElement.textContent.trim();
         
         // Updating the displayed chat name
         groupNameElement.textContent = groupName;
@@ -234,11 +304,6 @@ document.getElementById('search-chat').addEventListener('input', function() {
     chatList.forEach(function(item) {
         var itemName = item.textContent.trim().toLowerCase(); // clean chat list names 
         
-        // Exclude the last character ('x')
-        if (itemName.charAt(itemName.length - 1) === 'x') {
-            itemName = itemName.substring(0, itemName.length - 1);
-        }
-        
         // If the chat item matches the search term, show it; otherwise, hide it - remove white spaces + change all to lower case
         if (itemName.includes(searchVal)) { // allow for flexible search 
             item.style.display = 'block';
@@ -251,4 +316,9 @@ document.getElementById('search-chat').addEventListener('input', function() {
 // Function for logging out
 function LoggingOut() {
     window.location.href = "/";
+}
+
+// Function for going to tutotial page
+function showTutorial() {
+    window.location.href = "/tutorial"; 
 }

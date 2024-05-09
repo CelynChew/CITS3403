@@ -4,7 +4,7 @@ body {
 }
 
 .container {
-    margin-top: 50px;
+    margin-top: 25px;
 }
 
 .chat-sidebar {
@@ -18,9 +18,12 @@ body {
     font-size: large;
     padding-top: 5px;
     width: 30px;
-    height: 70%;
+    height: 85%;
     border-radius: 5px;
     border: 1px solid lightgrey;
+    display: flex; 
+    justify-content: center;
+    align-items: center;
 }
 
 #new-chat-btn:hover {
@@ -63,8 +66,7 @@ ul {
     background-color: white; 
     border-radius: 10px;
     padding: 20px;
-    height: calc(100vh - 70px);
-
+    height: calc(100vh - 15vh);
 }
 
 .chat-messages {
@@ -84,6 +86,7 @@ ul {
 
 #search-chat {
     margin-bottom: 10px;
+    margin-top: 10px;
 }
 
 #logout-btn {

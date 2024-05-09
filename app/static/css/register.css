@@ -16,6 +16,7 @@ body {
 h2 {
     text-align: center;
     font-weight: bold;
+    padding-bottom: 10px;
 }
 
 label {
@@ -25,6 +26,11 @@ label {
 
 #submit-btn {
     width: 100%;
+    background-color: rgb(51, 122, 183); 
+}
+
+#submit-btn:hover {
+    background-color: rgb(40, 96, 144); /* Darker hover color */
 }
 
 #password-match-error {

@@ -1,0 +1,80 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: rgb(245, 245, 245); /* Light gray background */
+    margin-top: 60px;
+}
+
+.container {
+    margin: auto; 
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    padding-top: 10vh;
+    height: 80vh; 
+}
+
+h2 {
+    text-align: center;
+    font-weight: bold;
+    color: rgb(51, 51, 51); /* Darker text color */
+    margin-bottom: 20px;
+}
+
+label, input {
+    display: block;
+    margin-bottom: 15px;
+}
+
+input[type="text"] {
+    width: calc(100% - 30px);
+    padding: 10px;
+    border: 1px solid rgb(204, 204, 204); /* Light gray border */
+    border-radius: 5px;
+}
+
+#password {
+    max-width: 85%;
+    padding: 10px;
+    border: 1px solid rgb(204, 204, 204);
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+
+.toggle-password {
+    cursor: pointer;
+}
+
+#showPassword {
+    height: 46px;
+    border: 1px solid rgb(204, 204, 204);
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    padding: 5px 10px;
+    font-size: 20px;
+}
+
+#showPassword:hover {
+    background-color: rgb(238, 238, 238);
+}
+
+#login-btn {
+    width: 95%;
+    padding: 10px;
+    background-color: rgb(51, 122, 183); 
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#login-btn:hover {
+    background-color: rgb(40, 96, 144); /* Darker hover color */
+}
+
+.intro-section {
+    border-right: 1px solid rgb(204, 204, 204);
+    height: 60vh;
+    margin-right: 20px;
+}

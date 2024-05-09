@@ -5,10 +5,10 @@ function PasswordVisibility() {
 
     if (passwordInput.type === "password") {
         passwordInput.type = "text";
-        toggleIcon.textContent = "Hide";
+        toggleIcon.innerHTML = `<i class="bi bi-eye-fill"></i>`;
     } else {
         passwordInput.type = "password";
-        toggleIcon.textContent = "Show";
+        toggleIcon.innerHTML = `<i class="bi bi-eye-slash-fill"></i>`;
     }
 }
 

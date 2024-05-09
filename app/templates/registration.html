@@ -34,10 +34,12 @@
                 <p>Already have an account? <a href="../">Login</a></p>
             </div>
             <!-- Error message if passwords do not match -->
-            <p id="password-match-error" style="color: red; display: none;">Passwords do not match.</p>
+            {% if password_error %}
+                <p style="color: red;">{{ password_error }}</p>
+            {% endif %}
             <!-- Error message if username already exists -->
             {% if error_message %}
-            <p style="color: red;">{{ error_message }}</p>
+                <p style="color: red;">{{ error_message }}</p>
             {% endif %}
         </form>
     </div>

@@ -16,5 +16,36 @@
 ## Architecture of the application
 
 ## How to launch the application
+Create Virtual Environment:
+
+```python3 -m venv .venv```
+
+Activate Environment:                              
+
+Mac ```. .venv/bin/activate```   
+
+Windows ``` .venv/Scripts/activate```     IF ERROR ```Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser```
+
+Install Requirements (if needed):
+
+```pip install -r requirements.txt```
+
+Initialise Database: 
+
+```flask db init```                                
+
+```flask db migrate -m "Initial migration"```  
+
+If error occurs (start from ```flask db init```  after making new directory in migration)
+```Remove-Item -Recurse -Force migrations```
+```mkdir migrations```
+
+Create tables:
+
+```flask db upgrade```
+
+Run Server:
+
+```flask run```
 
 ## How to run the tests for the application

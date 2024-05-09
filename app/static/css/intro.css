@@ -20,13 +20,13 @@ h1 {
 }
 
 .btn {
-    padding: 15px 30px;
-    font-size: 20px;
+    padding: 10px 20px;
+    font-size: 18px;
     margin: 10px;
     background-color: rgb(149, 148, 138);
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 20px;
     cursor: pointer;
     transition: background-color 0.3s;
 }
