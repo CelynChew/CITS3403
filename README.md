@@ -18,7 +18,7 @@
 ## How to launch the application
 Create Virtual Environment:
 
-```python -m venv .venv```
+```python3 -m venv .venv```
 
 Activate Environment:                              
 
@@ -36,7 +36,7 @@ Initialise Database:
 
 ```flask db migrate -m "Initial migration"```  
 
-If error occurs (start from ```flask db init```  after making new directory in migration```)
+If error occurs (start from ```flask db init```  after making new directory in migration)
 ```Remove-Item -Recurse -Force migrations```
 ```mkdir migrations```
 

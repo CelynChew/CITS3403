@@ -89,29 +89,56 @@ def send_message():
     if request.method == 'POST':
         message = request.json['message']
         username = session['username']
-        receiver_username = request.json['chat_name']
+        chat_name = request.json['chat_name']
         timestamp = datetime.now()
 
-        sender = User.query.filter_by(username = username).first()
-        receiver = User.query.filter_by(username = receiver_username).first()
+        sender_info = User.query.filter_by(username=username).first()
+        receiver_info = User.query.filter_by(username=chat_name).first()
         
-        if sender and receiver:
-            # Retrieve chat_name from the request
-            chat_name = request.json['chat_name']  
-            # Query the chat_id based on the chat name
-            chat = Chats.query.filter_by(chat_name=chat_name).first()
+        chat = Chats.query.filter_by(chat_name=chat_name).first()
 
-            if chat:
-                chat_id = chat.chat_id
+        if chat == None:
+            chat = Chats.query.filter_by(receiver_chat_name=chat_name).first()
+        
+        print(chat)
+        
+        if chat:
+            # Create a new Message object
+            new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, msg_text=message, timestamp=timestamp)
+                    
+            # Insert message into the messages table
+            db.session.add(new_message)
+            db.session.commit()
 
-                # Create a new Message object
-                new_message = Message(sender_id = sender.id, receiver_id = receiver.id, chat_id = chat_id, msg_text = message, timestamp = timestamp)
-                
-                # Insert message into the messages table
-                db.session.add(new_message)
-                db.session.commit()
-
-                return jsonify({"message": "Message sent successfully"})
+            return jsonify({"message": "Message sent successfully"})
+        else:
+            return jsonify({"error": "Chat not found"})
+        
+        
+# Route to retrieve chatId based on chatName
+@app.route('/get_chat_id/<chatName>')
+def get_chat_id(chatName):
+    if 'username' in session:  # Check if user is logged in
+        logged_in_username = session['username']
+        
+        # Query the database to find the user who created the chat
+        creator = User.query.join(Chats, User.id == Chats.created_by).filter(Chats.chat_name == chatName).first()
+        
+        # Find the chat based on whether the logged-in user is the creator
+        chat = None
+        if creator and creator.username == logged_in_username:  # Check if creator is not None and if the logged-in user is the creator
+            chat = Chats.query.filter_by(chat_name=chatName).first()
+        else:  # If the logged-in user is the receiver
+            chat = Chats.query.filter_by(receiver_chat_name=chatName).first()
+        
+        if chat:
+            print("Chat found:", chat)
+            return jsonify({"chatId": chat.chat_id})
+        else:
+            print("Chat not found")
+            return jsonify({"error": "Chat not found"}), 404
+    else:
+        return jsonify({"error": "User not logged in"}), 401
 
 # Route to display messages
 @app.route('/get_messages/<int:chat_id>', methods=['GET'])
@@ -269,7 +296,7 @@ def data():
     
     chats_data = [{
         'chat_id': chat.chat_id,
-        'chat_name': chat.chat_name,
+        'creator_chat_name': chat.chat_name,
         'created_at': chat.created_at.strftime("%Y-%m-%d %H:%M:%S"),
         'receiver_chat_name': chat.receiver_chat_name,
         'created_by': chat.created_by} for chat in chats]

@@ -51,31 +51,58 @@ chatList.addEventListener('click', function(event) {
 
 // Function to send a message
 function sendMessage(chatName) {
+    // Get the message input element
     var messageInput = document.getElementById('message-input');
-    var message = messageInput.value.trim();
-    if (message !== '') {
-        fetch('/send_message', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message: message, chat_name: chatName })
-        })
+    // Get the trimmed message content
+    var messageContent = messageInput.value.trim();
+
+    // Check if the message is not empty
+    if (messageContent !== '') {
+        // Fetch the chatId based on chatName
+        fetch(`/get_chat_id/${chatName}`)
         .then(response => {
+            // Check if the response is successful
             if (!response.ok) {
-                throw new Error('Network response was not ok');
+                throw new Error('Failed to fetch chatId');
             }
+            // Parse the response JSON data
             return response.json();
         })
         .then(data => {
-            console.log('Message sent:', data.message);
-            // After successfully sending message, clear input field
-            messageInput.value = '';
-            // Update the chat display to show the new message
-            updateChatDisplay(chatName);
+            // Once chatId is obtained, send the message
+            var chatId = data.chatId;
+            // Send the message to the backend
+            fetch('/send_message', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: messageContent, chat_id: chatId, chat_name: chatName })
+            })
+            .then(response => {
+                // Check if the response is successful
+                if (!response.ok) {
+                    throw new Error('Failed to send message');
+                }
+                // Parse the response JSON data
+                return response.json();
+            })
+            .then(data => {
+                // Log a success message
+                console.log('Message sent successfully:', data.message);
+                // Clear the message input field
+                messageInput.value = '';
+                // Update the chat display to show the new message
+                updateChatDisplay(chatId, chatName);
+            })
+            .catch(error => {
+                // Log any errors that occurred during message sending
+                console.error('Failed to send message:', error);
+            });
         })
         .catch(error => {
-            console.error('There was a problem with sending your message:', error);
+            // Log any errors that occurred during chatId fetching
+            console.error('Failed to fetch chatId:', error);
         });
     }
 }
