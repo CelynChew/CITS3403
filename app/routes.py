@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from .models import User, Message, Chats, UserChat, GroupChat
+from .models import User, Message, Chats, UserChat
 from app import app, db
 import os
 
@@ -290,7 +290,6 @@ def data():
     msgs = Message.query.all()
     chats = Chats.query.all()
     user_chats = UserChat.query.all()
-    group_chat = GroupChat.query.all()
 
     # List to store user data
     user_data = [{
@@ -304,28 +303,21 @@ def data():
         'reciever_id':msg.receiver_id,
         'chat_id': msg.chat_id,
         'msg_text': msg.msg_text,
-        'timestamp': msg.timestamp,
-        'is_group_message': msg.is_group_message} for msg in msgs]
+        'timestamp': msg.timestamp} for msg in msgs]
     
     chats_data = [{
         'chat_id': chat.chat_id,
         'creator_chat_name': chat.chat_name,
         'created_at': chat.created_at.strftime("%Y-%m-%d %H:%M:%S"),
         'receiver_chat_name': chat.receiver_chat_name,
-        'created_by': chat.created_by,
-        'is_group_chat': chat.is_group_chat} for chat in chats]
+        'created_by': chat.created_by} for chat in chats]
     
     user_chats_data = [{
         'user_chat_id': uchat.user_chat_id,
         'user_id': uchat.user_id,
         'chat_id': uchat.chat_id} for uchat in user_chats]
-    
-    group_chat_data = [{
-        'group_id': grp.group_id,
-        'chat_id': grp.chat_id,
-        'group_name': grp.group_name} for grp in group_chat]
 
-    return jsonify(users = user_data, msgs = msgs_data, chats = chats_data, user_chats = user_chats_data, group_chat = group_chat_data)
+    return jsonify(users = user_data, msgs = msgs_data, chats = chats_data, user_chats = user_chats_data)
 
 if __name__ == '__main__':
     app.run(debug=True)

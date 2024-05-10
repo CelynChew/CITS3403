@@ -80,6 +80,12 @@ ul {
     margin-top: 15px;
 }
 
+#send-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
 .modal-content {
     border-radius: 10px;
 }
