@@ -1,15 +1,20 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from .models import User, Message, Chats, UserChat
 from app import app, db
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
-import os
+from config import Config
 
-app.secret_key = os.urandom(24)
+app.config.from_object(Config)
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+@app.before_request
+def before_request():
+    session.permanent = False
+    app.permanent_session_lifetime = timedelta(minutes=5)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -37,14 +42,17 @@ def login():
     # If it's a GET request, render the login page
     return render_template('login.html', error_message=error_message)
 
+# Route to handle user logout
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
-    # Clear the session
-    session.clear()
-    # Redirect to the login page
-    return redirect(url_for('login'))
+    session.clear()  # Clear the session
+    # Remove the session cookie and set it to expire immediately
+    response = redirect(url_for('login'))
+    response.delete_cookie('session')
+    response.set_cookie('session', '', expires=0)
+    return response
 
 # Route to serve the registration page
 @app.route('/register', methods=['GET', 'POST']) # GET for displaying registration form, POST for handling registration data.
@@ -88,6 +96,8 @@ def tutorial():
 @login_required
 def chatroom():
     # If the username parameter is missing from the URL, redirect with the username
+    if session.get('logged_in'):
+        username = session['username']
     if 'username' not in request.args:
         return redirect(url_for('chatroom', username=current_user.username))
     
