@@ -37,11 +37,13 @@ def login():
     # If it's a GET request, render the login page
     return render_template('login.html', error_message=error_message)
 
-# Route to handle user logout
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
+    # Clear the session
+    session.clear()
+    # Redirect to the login page
     return redirect(url_for('login'))
 
 # Route to serve the registration page
@@ -85,18 +87,27 @@ def tutorial():
 @app.route('/chatroom', methods=['GET', 'POST'])
 @login_required
 def chatroom():
-    # Get the username from the session
-    username = current_user.username
+    # If the username parameter is missing from the URL, redirect with the username
+    if 'username' not in request.args:
+        return redirect(url_for('chatroom', username=current_user.username))
     
-    # Retrieve chats for logged in user
-    user_chats = (Chats.query
-                  .join(UserChat, Chats.chat_id == UserChat.chat_id)
-                  .join(User, UserChat.user_id == User.id)
-                  .filter(User.username == username)
-                  .all())
-    
-    return render_template('chatroom.html', user_chats=user_chats, username=username)
+    # Get the username from the query parameters
+    username = request.args.get('username')
 
+    # Ensure that the logged-in user matches the username in the URL
+    if current_user.username == username:
+        # Retrieve chats for logged-in user
+        user_chats = (Chats.query
+                      .join(UserChat, Chats.chat_id == UserChat.chat_id)
+                      .join(User, UserChat.user_id == User.id)
+                      .filter(User.username == username)
+                      .all())
+        
+        return render_template('chatroom.html', user_chats=user_chats, username=username)
+    else:
+        # If the username in the URL doesn't match the logged-in user, redirect to the login page
+        return redirect(url_for('login'))
+    
 # Route to handle sending the message 
 @app.route('/send_message', methods=['POST'])
 @login_required
