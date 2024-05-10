@@ -131,12 +131,7 @@ def send_message():
         sender_info = User.query.filter_by(username=username).first()
         receiver_info = User.query.filter_by(username=chat_name).first()
         
-        chat = Chats.query.filter_by(chat_name=chat_name).first()
-
-        if chat == None:
-            chat = Chats.query.filter_by(receiver_chat_name=chat_name).first()
-        
-        print(chat)
+        chat = Chats.query.filter((Chats.chat_name == chat_name) | (Chats.receiver_chat_name == chat_name)).first()
         
         if chat:
             # Create a new Message object
@@ -148,30 +143,7 @@ def send_message():
 
             return jsonify({"message": "Message sent successfully"})
         else:
-            return jsonify({"error": "Chat not found"})
-        
-# Route to retrieve chatId based on chatName
-@app.route('/get_chat_id/<chatName>')
-@login_required
-def get_chat_id(chatName):
-    logged_in_username = current_user.username
-    
-    # Query the database to find the user who created the chat
-    creator = User.query.join(Chats, User.id == Chats.created_by).filter(Chats.chat_name == chatName).first()
-    
-    # Find the chat based on whether the logged-in user is the creator
-    chat = None
-    if creator and creator.username == logged_in_username:  # Check if creator is not None and if the logged-in user is the creator
-        chat = Chats.query.filter_by(chat_name=chatName).first()
-    else:  # If the logged-in user is the receiver
-        chat = Chats.query.filter_by(receiver_chat_name=chatName).first()
-    
-    if chat:
-        print("Chat found:", chat)
-        return jsonify({"chatId": chat.chat_id})
-    else:
-        print("Chat not found")
-        return jsonify({"error": "Chat not found"}), 404
+            return jsonify({"error": "Chat not found"}), 404
 
 # Route to display messages
 @app.route('/get_messages/<int:chat_id>', methods=['GET'])
@@ -200,9 +172,14 @@ def get_messages(chat_id):
                              for message in messages]
             return jsonify(messages_list)
         else:
-            return jsonify({"error": "User is not a participant in this chat"})
+            return jsonify({"error": "User is not a participant in this chat"}), 401
     else:
-        return jsonify({"error": "Chat not found"})
+        return jsonify({"error": "Chat not found"}), 404
+
+# Handling 401 errors and redirecting to login page
+@app.errorhandler(401)
+def unauthorized(error):
+    return redirect(url_for('login'))
 
 # Route to handle creating chat
 @app.route('/create_chat', methods=['POST'])
