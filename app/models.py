@@ -21,6 +21,7 @@ class Message(db.Model):
     chat_id = db.Column(db.Integer, db.ForeignKey('chats.chat_id', ondelete='CASCADE'), nullable=False)
     msg_text = db.Column(db.Text, nullable = False)
     timestamp = db.Column(db.DateTime, nullable=False)
+    is_group_message = db.Column(db.Boolean, default=False)  # Flag to indicate if it's a message sent to a group 
 
     # Relationship between Message and User model
     sender = db.relationship('User', back_populates = 'sent_messages', foreign_keys = [sender_id])
@@ -34,12 +35,15 @@ class Chats(db.Model):
     chat_name = db.Column(db.VARCHAR(100), nullable = False)
     receiver_chat_name = db.Column(db.VARCHAR(100), nullable = False)
     created_at = db.Column(db.TIMESTAMP, nullable = False)
-    created_by = db.Column(db.Integer, db.ForeignKey('user.id'))  
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
+    is_group_chat = db.Column(db.Boolean, default=False)  # Flag to indicate if it's a group chat
 
     # Relationship between Chats and UserChat model
     user_chats = db.relationship('UserChat', back_populates = 'chat', cascade = 'all, delete')
     # Relationship with the User model
     creator = db.relationship('User', back_populates = 'created_chats')
+    # Relationship with GroupChat model
+    group = db.relationship('GroupChat', back_populates='chat')
 
 # Bridging model to connect chats with users
 class UserChat(db.Model):
@@ -51,3 +55,12 @@ class UserChat(db.Model):
     user = db.relationship('User', back_populates = 'user_chats')
     # Relationship between UserChat and Chats model
     chat = db.relationship('Chats', back_populates = 'user_chats')
+
+# Model to store group chat details
+class GroupChat(db.Model):
+    group_id = db.Column(db.Integer, primary_key=True)
+    chat_id = db.Column(db.Integer, db.ForeignKey('chats.chat_id', ondelete = 'CASCADE'), nullable=False)
+    group_name = db.Column(db.VARCHAR(100))
+    
+    # Relationship between GroupChat and Chats
+    chat = db.relationship('Chats', back_populates='group')

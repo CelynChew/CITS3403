@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
 from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
-from .models import User, Message, Chats, UserChat
+from .models import User, Message, Chats, UserChat, GroupChat
 from app import app, db
 import os
 
@@ -95,13 +95,20 @@ def send_message():
         sender_info = User.query.filter_by(username=username).first()
         receiver_info = User.query.filter_by(username=chat_name).first()
         
-        chat = Chats.query.filter_by(chat_name=chat_name).first()
+        # Retrieve chats for logged-in user
+        user_chats = (Chats.query
+                      .join(UserChat, Chats.chat_id == UserChat.chat_id)
+                      .join(User, UserChat.user_id == User.id)
+                      .filter(User.username == username)
+                      .all())
+        print(user_chats)
+
+        chat = next((chat for chat in user_chats if chat.chat_name == chat_name), None)
 
         if chat == None:
-            chat = Chats.query.filter_by(receiver_chat_name=chat_name).first()
-        
+            chat = next((chat for chat in user_chats if chat.receiver_chat_name == chat_name), None)
         print(chat)
-        
+
         if chat:
             # Create a new Message object
             new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, msg_text=message, timestamp=timestamp)
@@ -121,19 +128,23 @@ def get_chat_id(chatName):
     if 'username' in session:  # Check if user is logged in
         logged_in_username = session['username']
         
-        # Query the database to find the user who created the chat
-        creator = User.query.join(Chats, User.id == Chats.created_by).filter(Chats.chat_name == chatName).first()
+
+        # Retrieve the logged-in user from the database
+        logged_in_user = User.query.filter_by(username=logged_in_username).first()
         
-        # Find the chat based on whether the logged-in user is the creator
-        chat = None
-        if creator and creator.username == logged_in_username:  # Check if creator is not None and if the logged-in user is the creator
-            chat = Chats.query.filter_by(chat_name=chatName).first()
-        else:  # If the logged-in user is the receiver
-            chat = Chats.query.filter_by(receiver_chat_name=chatName).first()
-        
-        if chat:
-            print("Chat found:", chat)
-            return jsonify({"chatId": chat.chat_id})
+        if logged_in_user:
+            # Retrieve chats for the logged-in user
+            user_chats = (Chats.query
+                        .join(UserChat, Chats.chat_id == UserChat.chat_id)
+                        .join(User, UserChat.user_id == User.id)
+                        .filter(User.id == logged_in_user.id)
+                        .all())
+
+            # Find the chat based on whether the logged-in user is the creator
+            for chat in user_chats:
+                if chat:
+                    print("Chat found:", chat)
+                    return jsonify({"chatId": chat.chat_id})
         else:
             print("Chat not found")
             return jsonify({"error": "Chat not found"}), 404
@@ -279,6 +290,7 @@ def data():
     msgs = Message.query.all()
     chats = Chats.query.all()
     user_chats = UserChat.query.all()
+    group_chat = GroupChat.query.all()
 
     # List to store user data
     user_data = [{
@@ -292,21 +304,28 @@ def data():
         'reciever_id':msg.receiver_id,
         'chat_id': msg.chat_id,
         'msg_text': msg.msg_text,
-        'timestamp': msg.timestamp} for msg in msgs]
+        'timestamp': msg.timestamp,
+        'is_group_message': msg.is_group_message} for msg in msgs]
     
     chats_data = [{
         'chat_id': chat.chat_id,
         'creator_chat_name': chat.chat_name,
         'created_at': chat.created_at.strftime("%Y-%m-%d %H:%M:%S"),
         'receiver_chat_name': chat.receiver_chat_name,
-        'created_by': chat.created_by} for chat in chats]
+        'created_by': chat.created_by,
+        'is_group_chat': chat.is_group_chat} for chat in chats]
     
     user_chats_data = [{
         'user_chat_id': uchat.user_chat_id,
         'user_id': uchat.user_id,
         'chat_id': uchat.chat_id} for uchat in user_chats]
+    
+    group_chat_data = [{
+        'group_id': grp.group_id,
+        'chat_id': grp.chat_id,
+        'group_name': grp.group_name} for grp in group_chat]
 
-    return jsonify(users = user_data, msgs = msgs_data, chats = chats_data, user_chats = user_chats_data)
+    return jsonify(users = user_data, msgs = msgs_data, chats = chats_data, user_chats = user_chats_data, group_chat = group_chat_data)
 
 if __name__ == '__main__':
     app.run(debug=True)
