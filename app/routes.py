@@ -63,7 +63,6 @@ def unauthorized(error):
 
 # Route to serve the registration page
 @app.route('/register', methods=['GET', 'POST']) # GET for displaying registration form, POST for handling registration data.
-@login_required
 def registration():
     if request.method == 'POST':
         username = request.form['uName']
