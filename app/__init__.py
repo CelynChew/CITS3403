@@ -19,8 +19,3 @@ from app import routes, models
 @login_manager.user_loader
 def load_user(user_id):
     return models.User.query.get(int(user_id))
-
-class Config:
-    SECRET_KEY = 'anotsecureenoughkeymayneedchanges'
-    SQLALCHEMY_DATABASE_URI = 'database_uri'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
