@@ -45,9 +45,32 @@ chatList.addEventListener('click', function(event) {
         var chatId = clickedElement.dataset.chatId;
         var chatName = clickedElement.textContent.trim();
         
+        // Call the getChatId function with the chatName
+        getChatId(chatName);
+        
+        // Call the updateChatDisplay function with the chatId and chatName
         updateChatDisplay(chatId, chatName); 
     }
 });
+
+// Function to fetch chatId based on chatName
+function getChatId(chatName) {
+    fetch(`/get_chat_id/${chatName}`)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to fetch chatId');
+        }
+        return response.json();
+    })
+    .then(data => {
+        var chatId = data.chatId;
+        // Once chatId is obtained, call the updateChatDisplay function with the chatId and chatName
+        updateChatDisplay(chatId, chatName);
+    })
+    .catch(error => {
+        console.error('Failed to fetch chatId:', error);
+    });
+}
 
 // Function to send a message
 function sendMessage(chatName) {
@@ -217,7 +240,6 @@ function deleteChat(chatId, chatListItem) {
     });
 }
 
-// Function to fetch existing chats
 function fetchChats() {
     // GET request to the Flask backend to display existing chats
     fetch(`/chats`)
@@ -245,15 +267,15 @@ function fetchChats() {
             deleteButton.classList.add('delete-group-btn', 'btn', 'btn-danger', 'btn-sm'); // Adding Bootstrap button classes
             deleteButton.innerHTML = '<i class="bi bi-trash"></i>';
 
-            // Append the delete button to the chat list item
-            chatListItem.appendChild(deleteButton);
-
             // Add event listener for delete button/icon
             deleteButton.addEventListener('click', function(event) {
                 event.stopPropagation();
                 // Calling deleteChat() to delete selected chat
                 deleteChat(chat.chat_id, chatListItem);
             });
+
+            // Append the delete button to the chat list item
+            chatListItem.appendChild(deleteButton);
 
             // Add the new chat item to the chat list
             chatList.appendChild(chatListItem);
@@ -276,22 +298,22 @@ function clearFields() {
 // Get the group name element
 var groupNameElement = document.getElementById('group-name');
 
-// Listener for updating chat display header
+// Listener for displaying messages
 chatList.addEventListener('click', function(event) {
-    // Setting variable name for element that was clicked
     var clickedElement = event.target;
     
-    // Finding chat items
+    // Finding chat list items
     while (clickedElement && clickedElement.tagName !== 'LI') {
         clickedElement = clickedElement.parentElement;
     }
     
-    // If a chat item was clicked, the chat name will be updated
+    // Display messages for each chat
     if (clickedElement && clickedElement.classList.contains('chat')) {
-        var groupName = clickedElement.textContent.trim();
+        var chatId = clickedElement.dataset.chatId;
+        var chatName = clickedElement.textContent.trim();
         
-        // Updating the displayed chat name
-        groupNameElement.textContent = groupName;
+        getChatId(chatName); // Call the getChatId function when a chat is clicked
+        updateChatDisplay(chatId, chatName); 
     }
 });
 
