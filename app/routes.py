@@ -20,7 +20,7 @@ def before_request():
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-# Route to handle user login
+## Route to handle user login
 @app.route('/', methods=['GET', 'POST'])
 def login():
     error_message = None
@@ -33,7 +33,9 @@ def login():
 
         if user:
             login_user(user)
-            # User authenticated successfully, redirect to intro page with username
+            # Set the username in the session
+            session['username'] = username
+            # User authenticated successfully, redirect to chatroom with username as a query parameter
             return redirect(url_for('chatroom', username=username))
         else:
             # Authentication failed, render login page with error message
@@ -54,8 +56,14 @@ def logout():
     response.set_cookie('session', '', expires=0)
     return response
 
+# Handling 401 errors and redirecting to login page
+@app.errorhandler(401)
+def unauthorized(error):
+    return redirect(url_for('login'))
+
 # Route to serve the registration page
 @app.route('/register', methods=['GET', 'POST']) # GET for displaying registration form, POST for handling registration data.
+@login_required
 def registration():
     if request.method == 'POST':
         username = request.form['uName']
@@ -92,47 +100,51 @@ def tutorial():
     return render_template('tutorial.html')
 
 # Route to serve the chatroom
-@app.route('/chatroom', methods=['GET', 'POST'])
+@app.route('/chatroom')
 @login_required
 def chatroom():
-    # If the username parameter is missing from the URL, redirect with the username
-    if session.get('logged_in'):
-        username = session['username']
-    if 'username' not in request.args:
-        return redirect(url_for('chatroom', username=current_user.username))
+    if 'username' not in session:
+        return render_template('login.html', alert_message="Oops.. You need to log in before accessing the chatroom.") # Redirect user if not authenticated
     
-    # Get the username from the query parameters
-    username = request.args.get('username')
+    # Get the username from the session or query parameter
+    username = session.get('username') or request.args.get('username')
+    
+    # Retrieve chats for logged in user
+    user_chats = (Chats.query
+                  .join(UserChat, Chats.chat_id == UserChat.chat_id)
+                  .join(User, UserChat.user_id == User.id)
+                  .filter(User.username == username)
+                  .all())
+    
+    return render_template('chatroom.html', user_chats=user_chats, username=username)
 
-    # Ensure that the logged-in user matches the username in the URL
-    if current_user.username == username:
-        # Retrieve chats for logged-in user
-        user_chats = (Chats.query
-                      .join(UserChat, Chats.chat_id == UserChat.chat_id)
-                      .join(User, UserChat.user_id == User.id)
-                      .filter(User.username == username)
-                      .all())
-        
-        return render_template('chatroom.html', user_chats=user_chats, username=username)
-    else:
-        # If the username in the URL doesn't match the logged-in user, redirect to the login page
-        return redirect(url_for('login'))
-    
 # Route to handle sending the message 
 @app.route('/send_message', methods=['POST'])
 @login_required
 def send_message():
     if request.method == 'POST':
         message = request.json['message']
-        username = current_user.username
+        username = session['username']
         chat_name = request.json['chat_name']
         timestamp = datetime.now()
 
         sender_info = User.query.filter_by(username=username).first()
         receiver_info = User.query.filter_by(username=chat_name).first()
         
-        chat = Chats.query.filter((Chats.chat_name == chat_name) | (Chats.receiver_chat_name == chat_name)).first()
-        
+        # Retrieve chats for logged-in user
+        user_chats = (Chats.query
+                      .join(UserChat, Chats.chat_id == UserChat.chat_id)
+                      .join(User, UserChat.user_id == User.id)
+                      .filter(User.username == username)
+                      .all())
+        print(user_chats)
+
+        chat = next((chat for chat in user_chats if chat.chat_name == chat_name), None)
+
+        if chat == None:
+            chat = next((chat for chat in user_chats if chat.receiver_chat_name == chat_name), None)
+        print(chat)
+
         if chat:
             # Create a new Message object
             new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, msg_text=message, timestamp=timestamp)
@@ -144,12 +156,43 @@ def send_message():
             return jsonify({"message": "Message sent successfully"})
         else:
             return jsonify({"error": "Chat not found"}), 404
+        
+        
+# Route to retrieve chatId based on chatName
+@app.route('/get_chat_id/<chatName>')
+@login_required
+def get_chat_id(chatName):
+    if 'username' in session:  # Check if user is logged in
+        logged_in_username = session['username']
+        
+
+        # Retrieve the logged-in user from the database
+        logged_in_user = User.query.filter_by(username=logged_in_username).first()
+        
+        if logged_in_user:
+            # Retrieve chats for the logged-in user
+            user_chats = (Chats.query
+                        .join(UserChat, Chats.chat_id == UserChat.chat_id)
+                        .join(User, UserChat.user_id == User.id)
+                        .filter(User.id == logged_in_user.id)
+                        .all())
+
+            # Find the chat based on whether the logged-in user is the creator
+            for chat in user_chats:
+                if chat:
+                    print("Chat found:", chat)
+                    return jsonify({"chatId": chat.chat_id})
+        else:
+            print("Chat not found")
+            return jsonify({"error": "Chat not found"}), 404
+    else:
+        return jsonify({"error": "User not logged in"}), 401
 
 # Route to display messages
 @app.route('/get_messages/<int:chat_id>', methods=['GET'])
 @login_required
 def get_messages(chat_id):
-    username = current_user.username
+    username = session['username']
     user = User.query.filter_by(username=username).first()
     
     # Retrieve chat based on the chat id
@@ -172,14 +215,9 @@ def get_messages(chat_id):
                              for message in messages]
             return jsonify(messages_list)
         else:
-            return jsonify({"error": "User is not a participant in this chat"}), 401
+            return jsonify({"error": "User is not a participant in this chat"})
     else:
-        return jsonify({"error": "Chat not found"}), 404
-
-# Handling 401 errors and redirecting to login page
-@app.errorhandler(401)
-def unauthorized(error):
-    return redirect(url_for('login'))
+        return jsonify({"error": "Chat not found"})
 
 # Route to handle creating chat
 @app.route('/create_chat', methods=['POST'])
@@ -268,7 +306,7 @@ def show_chats():
 
         # Return JSON response containing chat information
         return jsonify(chats=chat_data)
-
+    
     # Handling DELETE request (chat removal)
     if request.method == 'DELETE':
         # Get the chat_id to delete
