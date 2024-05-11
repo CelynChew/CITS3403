@@ -147,8 +147,14 @@ input.addEventListener("keypress", function(event) {
         event.preventDefault();
         // Retrieve selected chat name
         var currentChatName = document.getElementById('group-name').textContent.trim();
-        sendMessage(currentChatName);; // Call the sendMessage function when Enter is pressed
+        sendMessage(currentChatName); // Call the sendMessage function when Enter is pressed
     }
+});
+var sendButton = document.getElementById('send-button')
+sendButton.addEventListener("click", function(event) {
+    // Retrieve selected chat name
+    var currentChatName = document.getElementById('group-name').textContent.trim();
+    sendMessage(currentChatName); // Send Message
 });
 
 // Function to add new chats to chat list 
