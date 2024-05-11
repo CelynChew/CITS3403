@@ -5,6 +5,7 @@ from .models import User, Message, Chats, UserChat
 from app import app, db
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from config import Config
+import os
 
 app.config.from_object(Config)
 
@@ -118,17 +119,18 @@ def chatroom():
     return render_template('chatroom.html', user_chats=user_chats, username=username)
 
 # Route to recieve file uploaded by users
+UPLOAD_FOLDER = os.path.join(app.root_path, 'uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     file = request.files['file']
     if file:
-        # Read file
-        file_content = file.read()
+        # Save the file to the upload folder
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        file.save(file_path)
         
-        # Print the content of the file
-        print(file_content)
-        
-        return 'File content printed successfully'
+        return jsonify({'file_path': file_path})
     else:
         return 'No file uploaded'
 
