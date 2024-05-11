@@ -49,6 +49,11 @@ chatList.addEventListener('click', function(event) {
     }
 });
 
+// Function to open file input page
+function openFileInput() {
+    document.getElementById('fileInput').click();
+}
+
 // Function to send a message
 function sendMessage(chatName) {
     // Get the message input element

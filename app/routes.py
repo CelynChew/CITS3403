@@ -343,6 +343,7 @@ def data():
         'reciever_id':msg.receiver_id,
         'chat_id': msg.chat_id,
         'msg_text': msg.msg_text,
+        'file_path': msg.file_path,
         'timestamp': msg.timestamp} for msg in msgs]
     
     chats_data = [{
