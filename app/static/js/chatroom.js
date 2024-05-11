@@ -54,6 +54,32 @@ function openFileInput() {
     document.getElementById('fileInput').click();
 }
 
+function sendFileToFlask(event) {
+    const file = event.target.files[0]; // Getting the file
+
+    // Sending file to Flask
+    if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        fetch('/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                // For checking
+                console.log('File uploaded successfully');
+            } else {
+                console.error('File upload failed');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+}
+
 // Function to send a message
 function sendMessage(chatName) {
     // Get the message input element

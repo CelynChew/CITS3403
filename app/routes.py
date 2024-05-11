@@ -117,6 +117,21 @@ def chatroom():
     
     return render_template('chatroom.html', user_chats=user_chats, username=username)
 
+# Route to recieve file uploaded by users
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    file = request.files['file']
+    if file:
+        # Read file
+        file_content = file.read()
+        
+        # Print the content of the file
+        print(file_content)
+        
+        return 'File content printed successfully'
+    else:
+        return 'No file uploaded'
+
 # Route to handle sending the message 
 @app.route('/send_message', methods=['POST'])
 @login_required
