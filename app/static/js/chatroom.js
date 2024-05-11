@@ -316,6 +316,18 @@ document.getElementById('search-chat').addEventListener('input', function() {
 // Function for logging out
 function LoggingOut() {
     window.location.href = "/";
+    fetch('/logout', {
+        method: 'GET',
+        credentials: 'same-origin' // Include cookies in the request
+    })
+    .then(response => {
+        // Handle successful logout
+        window.location.href = "/";
+    })
+    .catch(error => {
+        // Handle errors
+        console.error('Logout error:', error);
+    });
 }
 
 // Function for going to tutotial page
