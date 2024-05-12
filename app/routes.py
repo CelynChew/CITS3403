@@ -126,8 +126,25 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 def upload_file():
     file = request.files['file']
     chat_name = request.form['chat_name']  # Get the chat name from the request
+    username = session['username']
+    timestamp = datetime.now()
 
-    if file:
+    sender_info = User.query.filter_by(username=username).first()
+    receiver_info = User.query.filter_by(username=chat_name).first()
+
+    # Retrieve chats for logged-in user
+    user_chats = (Chats.query
+                      .join(UserChat, Chats.chat_id == UserChat.chat_id)
+                      .join(User, UserChat.user_id == User.id)
+                      .filter(User.username == username)
+                      .all())
+    
+    chat = next((chat for chat in user_chats if chat.chat_name == chat_name), None)
+
+    if chat == None:
+        chat = next((chat for chat in user_chats if chat.receiver_chat_name == chat_name), None)
+
+    if file and chat:
         # Read the content of the file
         file_content = file.read()
         print("Chat Name:", chat_name)  # Print the chat name
@@ -136,8 +153,13 @@ def upload_file():
         # Save the file to the upload folder
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(file_path)
+
+        new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, file_path=file_path, timestamp=timestamp)
         
-        return jsonify({'file_path': file_path})
+        db.session.add(new_message)
+        db.session.commit()
+       
+        return jsonify({"message": "Message sent successfully"})
     else:
         return 'No file uploaded'
 
