@@ -1,6 +1,7 @@
 from app import db
 from datetime import datetime
 from flask_login import UserMixin
+from sqlalchemy import CheckConstraint
 
 # Stores user information
 class User(db.Model, UserMixin):
@@ -26,8 +27,12 @@ class Message(db.Model):
     sender_id = db.Column(db.Integer, db.ForeignKey('user.id', name='fk_sender_id', ondelete='CASCADE'), nullable=False)
     receiver_id = db.Column(db.Integer, db.ForeignKey('user.id', name='fk_receiver_id', ondelete='CASCADE'), nullable=False)
     chat_id = db.Column(db.Integer, db.ForeignKey('chats.chat_id', ondelete='CASCADE'), nullable=False)
-    msg_text = db.Column(db.Text, nullable=False)
+    msg_text = db.Column(db.Text)
+    file_path = db.Column(db.Text)  
     timestamp = db.Column(db.DateTime, nullable=False)
+
+    # Check that either msg_text or file_path is not NULL
+    __table_args__ = (CheckConstraint('msg_text IS NOT NULL OR file_path IS NOT NULL', name = 'msg_text_or_file_path_required'),)
 
     # Relationship between Message and User model
     sender = db.relationship('User', back_populates='sent_messages', foreign_keys=[sender_id])
@@ -41,7 +46,7 @@ class Chats(db.Model):
     chat_name = db.Column(db.VARCHAR(100), nullable=False)
     receiver_chat_name = db.Column(db.VARCHAR(100), nullable=False)
     created_at = db.Column(db.TIMESTAMP, nullable=False)
-    created_by = db.Column(db.Integer, db.ForeignKey('user.id'))  
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     # Relationship between Chats and UserChat model
     user_chats = db.relationship('UserChat', back_populates='chat', cascade='all, delete')
