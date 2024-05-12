@@ -15,7 +15,14 @@ function updateChatDisplay(chatId, chatName) {
             data.forEach(message => {
 
                 const messageElement = document.createElement('p');
-                messageElement.textContent = `${message.sender_username}: ${message.message} (${message.timestamp})`;
+                // Check if msg_text field is null to decide which content to append into chat display area
+                let content;
+                if (message.message !== null) {
+                    content = message.message;
+                } else {
+                    content = message.file_path;
+                }
+                messageElement.textContent = `${message.sender_username}: ${content} (${message.timestamp})`;
                 chatMessagesDiv.appendChild(messageElement);
             });
             // Scroll to the bottom of the chat messages div to show the latest messages

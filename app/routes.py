@@ -256,6 +256,7 @@ def get_messages(chat_id):
                               'sender_username': message.sender.username, 
                               'receiver_username': message.receiver.username, 
                               'message': message.msg_text, 
+                              'file_path':message.file_path,
                               'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M')} 
                              for message in messages]
             return jsonify(messages_list)
