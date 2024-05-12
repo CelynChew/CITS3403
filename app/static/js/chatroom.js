@@ -13,16 +13,18 @@ function updateChatDisplay(chatId, chatName) {
             chatMessagesDiv.innerHTML = '';
             // Loop through the messages and append them to the chat messages div
             data.forEach(message => {
-
                 const messageElement = document.createElement('p');
                 // Check if msg_text field is null to decide which content to append into chat display area
                 let content;
                 if (message.message !== null) {
                     content = message.message;
                 } else {
-                    content = message.file_path;
+                    // Creating a download link
+                    // Extract filename from the file path by getting last element of array
+                    const fileName = message.file_path.split('/').pop();
+                    content = `<a href="${message.file_path}" download="${fileName}">Download ${fileName}</a>`;
                 }
-                messageElement.textContent = `${message.sender_username}: ${content} (${message.timestamp})`;
+                messageElement.innerHTML = `${message.sender_username}: ${content} (${message.timestamp})`;
                 chatMessagesDiv.appendChild(messageElement);
             });
             // Scroll to the bottom of the chat messages div to show the latest messages
