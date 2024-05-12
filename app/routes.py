@@ -125,7 +125,14 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 @app.route('/upload', methods=['POST'])
 def upload_file():
     file = request.files['file']
+    chat_name = request.form['chat_name']  # Get the chat name from the request
+
     if file:
+        # Read the content of the file
+        file_content = file.read()
+        print("Chat Name:", chat_name)  # Print the chat name
+        print(file_content)
+        
         # Save the file to the upload folder
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(file_path)

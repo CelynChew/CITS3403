@@ -54,13 +54,14 @@ function openFileInput() {
     document.getElementById('fileInput').click();
 }
 
-function sendFileToFlask(event) {
+function sendFileToFlask(event, chatName) {
     const file = event.target.files[0]; // Getting the file
 
     // Sending file to Flask
     if (file) {
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('chat_name', chatName); // Append chat name to the FormData
 
         fetch('/upload', {
             method: 'POST',
@@ -79,6 +80,14 @@ function sendFileToFlask(event) {
         });
     }
 }
+
+var fileInput = document.getElementById('fileInput');
+fileInput.addEventListener("change", function(event) {
+    // Retrieve selected chat name
+    var currentChatName = document.getElementById('group-name').textContent.trim();
+    // Pass both event and chat name to sendFileToFlask
+    sendFileToFlask(event, currentChatName);
+});
 
 // Function to send a message
 function sendMessage(chatName) {
