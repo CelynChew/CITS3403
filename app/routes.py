@@ -5,6 +5,7 @@ from .models import User, Message, Chats, UserChat
 from app import app, db
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from config import Config
+from .forms import LoginForm, RegistrationForm, SendMessageForm
 import os
 
 app.config.from_object(Config)
@@ -25,25 +26,25 @@ def load_user(user_id):
 @app.route('/', methods=['GET', 'POST'])
 def login():
     error_message = None
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-
-        # Query database to find the user by username and password
-        user = User.query.filter_by(username=username, password=password).first()
-
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+        print("Username:", username)
+        print("Password:", password)
+        user = User.query.filter_by(username=username).first()
         if user:
-            login_user(user)
-            # Set the username in the session
-            session['username'] = username
-            # User authenticated successfully, redirect to chatroom with username as a query parameter
-            return redirect(url_for('chatroom', username=username))
+            if user.password == password:
+                login_user(user)
+                session['username'] = username
+                return redirect(url_for('chatroom', username=username))
+            else:
+                error_message = 'Invalid password'
         else:
-            # Authentication failed, render login page with error message
-            error_message = 'Invalid username or password'
-    
-    # If it's a GET request, render the login page
-    return render_template('login.html', error_message=error_message)
+            error_message = 'User not found'
+    else:
+        print(form.errors)
+    return render_template('login.html', error_message=error_message, form=form)
 
 # Route to handle user logout
 @app.route('/logout')
@@ -51,11 +52,7 @@ def login():
 def logout():
     logout_user()
     session.clear()  # Clear the session
-    # Remove the session cookie and set it to expire immediately
-    response = redirect(url_for('login'))
-    response.delete_cookie('session')
-    response.set_cookie('session', '', expires=0)
-    return response
+    return redirect(url_for('login'))
 
 # Handling 401 errors and redirecting to login page
 @app.errorhandler(401)
@@ -63,30 +60,32 @@ def unauthorized(error):
     return redirect(url_for('login'))
 
 # Route to serve the registration page
-@app.route('/register', methods=['GET', 'POST']) # GET for displaying registration form, POST for handling registration data.
+@app.route('/register', methods=['GET', 'POST'])
 def registration():
-    if request.method == 'POST':
-        username = request.form['uName']
-        password = request.form['password']
-        retype_password = request.form['retypePassword']
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+        retype_password = form.confirm_password.data
 
         if password != retype_password:
-            return render_template('registration.html', password_error='Passwords do not match!')
-        
+            return render_template('registration.html', form=form, password_error='Passwords do not match!')
+
         # Check if user already exists
-        user = User.query.filter_by(username = username).first()
+        user = User.query.filter_by(username=username).first()
         if user:
-            return render_template('registration.html', error_message='Username already exists!')
-        
+            return render_template('registration.html', form=form, error_message='Username already exists!')
+
         else:
-            user = User(username = username, password = password)
+            user = User(username=username, password=password)
             db.session.add(user)
             db.session.commit()
             # Redirect to a different page after successful registration
             return redirect(url_for('login'))
 
-    return render_template('registration.html')
-
+    # Render the registration form when the request method is GET
+    return render_template('registration.html', form=form)
+    
 # Route to serve the introduction page
 @app.route('/intro/<username>')
 @login_required
@@ -138,10 +137,11 @@ def upload_file():
 @app.route('/send_message', methods=['POST'])
 @login_required
 def send_message():
-    if request.method == 'POST':
-        message = request.json['message']
+    form = SendMessageForm()
+    if form.validate_on_submit():
+        message = form.message.data
+        chat_name = form.chat_name.data
         username = session['username']
-        chat_name = request.json['chat_name']
         timestamp = datetime.now()
 
         sender_info = User.query.filter_by(username=username).first()
@@ -173,6 +173,8 @@ def send_message():
             return jsonify({"message": "Message sent successfully"})
         else:
             return jsonify({"error": "Chat not found"}), 404
+    else:
+        return jsonify({"error": form.errors}), 400
         
         
 # Route to retrieve chatId based on chatName
