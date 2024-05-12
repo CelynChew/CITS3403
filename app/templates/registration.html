@@ -1,5 +1,8 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registration</title>
     <!-- Bootstrap -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
@@ -10,32 +13,33 @@
     <div class="container">
         <h2 class="mt-5">Registration</h2>
         <form id="registerForm" action="/register" method="POST">
+            {{ form.csrf_token }}
             <div class="mb-3">
                 <!-- New username input-->
-                <label for="uName" class="form-label">Username:</label>
-                <input type="text" class="form-control" id="uName" name="uName" required>
+                {{ form.username.label(class="form-label") }}
+                {{ form.username(class="form-control", id="uName") }}
             </div>
             <div class="mb-3">
                 <!-- Password input -->
-                <label for="password" class="form-label">Password:</label>
-                <input type="password" class="form-control" id="password" name="password" required>
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control", id="password") }}
             </div>
             <div class="mb-3">
                 <!-- Retyped Password input -->
-                <label for="retypePassword" class="form-label">Retype Password:</label>
-                <input type="password" class="form-control" id="retypePassword" name="retypePassword" required>
+                {{ form.confirm_password.label(class="form-label") }}
+                {{ form.confirm_password(class="form-control", id="retypePassword") }}
             </div>
             <div class="mb-3">
                 <!-- Register Button -->
-                <button type="submit" class="btn btn-primary" id="submit-btn">Register</button>
+                {{ form.submit(class="btn btn-primary", id="submit-btn", value="Register") }}
             </div>
             <div class="mb-3">
                 <!-- Redirect to Login Page -->
                 <p>Already have an account? <a href="../">Login</a></p>
             </div>
             <!-- Error message if passwords do not match -->
-            {% if password_error %}
-                <p style="color: red;">{{ password_error }}</p>
+            {% if form.errors %}
+                <p style="color: red;">{{ form.errors }}</p>
             {% endif %}
             <!-- Error message if username already exists -->
             {% if error_message %}
