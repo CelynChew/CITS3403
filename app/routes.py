@@ -51,8 +51,12 @@ def login():
 @login_required
 def logout():
     logout_user()
-    session.clear()  # Clear the session
-    return redirect(url_for('login'))
+    session.pop('username', None)  # Remove the username from the session
+    # Remove the session cookie and set it to expire immediately
+    response = redirect(url_for('login'))
+    response.delete_cookie('session')
+    response.set_cookie('session', '', expires=0)
+    return response
 
 # Handling 401 errors and redirecting to login page
 @app.errorhandler(401)
