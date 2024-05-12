@@ -5,6 +5,7 @@ from .models import User, Message, Chats, UserChat
 from app import app, db
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from config import Config
+import os
 
 app.config.from_object(Config)
 
@@ -117,6 +118,22 @@ def chatroom():
     
     return render_template('chatroom.html', user_chats=user_chats, username=username)
 
+# Route to recieve file uploaded by users
+UPLOAD_FOLDER = os.path.join(app.root_path, 'uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    file = request.files['file']
+    if file:
+        # Save the file to the upload folder
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        file.save(file_path)
+        
+        return jsonify({'file_path': file_path})
+    else:
+        return 'No file uploaded'
+
 # Route to handle sending the message 
 @app.route('/send_message', methods=['POST'])
 @login_required
@@ -136,12 +153,13 @@ def send_message():
                       .join(User, UserChat.user_id == User.id)
                       .filter(User.username == username)
                       .all())
-        print(user_chats)
-
+        
         chat = next((chat for chat in user_chats if chat.chat_name == chat_name), None)
 
         if chat == None:
             chat = next((chat for chat in user_chats if chat.receiver_chat_name == chat_name), None)
+
+        print(user_chats)
         print(chat)
 
         if chat:
@@ -230,7 +248,7 @@ def create_chat():
             # Get the user ID of the current user
             sender_username = current_user.username
 
-             # User who is creating the chat
+            # User who is creating the chat
             created_by = User.query.filter_by(username = sender_username).first()
             
             # Check if the chat already exists
@@ -343,6 +361,7 @@ def data():
         'reciever_id':msg.receiver_id,
         'chat_id': msg.chat_id,
         'msg_text': msg.msg_text,
+        'file_path': msg.file_path,
         'timestamp': msg.timestamp} for msg in msgs]
     
     chats_data = [{
