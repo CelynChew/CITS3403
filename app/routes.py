@@ -1,13 +1,27 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify, session
-from datetime import datetime
+from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from .models import User, Message, Chats, UserChat
 from app import app, db
+from flask_login import LoginManager, login_user, current_user, login_required, logout_user
+from config import Config
 import os
 
-app.secret_key = os.urandom(24)
+app.config.from_object(Config)
 
-# Route to handle user login
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@app.before_request
+def before_request():
+    session.permanent = False
+    app.permanent_session_lifetime = timedelta(minutes=5)
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+## Route to handle user login
 @app.route('/', methods=['GET', 'POST'])
 def login():
     error_message = None
@@ -19,8 +33,10 @@ def login():
         user = User.query.filter_by(username=username, password=password).first()
 
         if user:
+            login_user(user)
+            # Set the username in the session
             session['username'] = username
-            # User authenticated successfully, redirect to intro page with username
+            # User authenticated successfully, redirect to chatroom with username as a query parameter
             return redirect(url_for('chatroom', username=username))
         else:
             # Authentication failed, render login page with error message
@@ -29,6 +45,22 @@ def login():
     # If it's a GET request, render the login page
     return render_template('login.html', error_message=error_message)
 
+# Route to handle user logout
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    session.clear()  # Clear the session
+    # Remove the session cookie and set it to expire immediately
+    response = redirect(url_for('login'))
+    response.delete_cookie('session')
+    response.set_cookie('session', '', expires=0)
+    return response
+
+# Handling 401 errors and redirecting to login page
+@app.errorhandler(401)
+def unauthorized(error):
+    return redirect(url_for('login'))
 
 # Route to serve the registration page
 @app.route('/register', methods=['GET', 'POST']) # GET for displaying registration form, POST for handling registration data.
@@ -57,22 +89,25 @@ def registration():
 
 # Route to serve the introduction page
 @app.route('/intro/<username>')
+@login_required
 def intro(username):
     return render_template('intro.html', username=username)
 
 # Defining route for using chatroom features
 @app.route('/tutorial')
+@login_required
 def tutorial():
     return render_template('tutorial.html')
 
 # Route to serve the chatroom
-@app.route('/chatroom', methods=['GET', 'POST'])
+@app.route('/chatroom')
+@login_required
 def chatroom():
     if 'username' not in session:
-        return render_template('login.html', alert_message="Opps.. You need to log in before accessing the chatroom.") # Redirect user if not authenticated
+        return render_template('login.html', alert_message="Oops.. You need to log in before accessing the chatroom.") # Redirect user if not authenticated
     
-    # Get the username from the session
-    username = session['username']
+    # Get the username from the session or query parameter
+    username = session.get('username') or request.args.get('username')
     
     # Retrieve chats for logged in user
     user_chats = (Chats.query
@@ -83,8 +118,54 @@ def chatroom():
     
     return render_template('chatroom.html', user_chats=user_chats, username=username)
 
+# Route to recieve file uploaded by users
+UPLOAD_FOLDER = os.path.join(app.root_path, 'uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    file = request.files['file']
+    chat_name = request.form['chat_name']  # Get the chat name from the request
+    username = session['username']
+    timestamp = datetime.now()
+
+    sender_info = User.query.filter_by(username=username).first()
+    receiver_info = User.query.filter_by(username=chat_name).first()
+
+    # Retrieve chats for logged-in user
+    user_chats = (Chats.query
+                      .join(UserChat, Chats.chat_id == UserChat.chat_id)
+                      .join(User, UserChat.user_id == User.id)
+                      .filter(User.username == username)
+                      .all())
+    
+    chat = next((chat for chat in user_chats if chat.chat_name == chat_name), None)
+
+    if chat == None:
+        chat = next((chat for chat in user_chats if chat.receiver_chat_name == chat_name), None)
+
+    if file and chat:
+        # Read the content of the file
+        file_content = file.read()
+        print("Chat Name:", chat_name)  # Print the chat name
+        print(file_content)
+        
+        # Save the file to the upload folder
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        file.save(file_path)
+
+        new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, file_path=file_path, timestamp=timestamp)
+        
+        db.session.add(new_message)
+        db.session.commit()
+       
+        return jsonify({"message": "Message sent successfully"})
+    else:
+        return 'No file uploaded'
+
 # Route to handle sending the message 
 @app.route('/send_message', methods=['POST'])
+@login_required
 def send_message():
     if request.method == 'POST':
         message = request.json['message']
@@ -95,13 +176,20 @@ def send_message():
         sender_info = User.query.filter_by(username=username).first()
         receiver_info = User.query.filter_by(username=chat_name).first()
         
-        chat = Chats.query.filter_by(chat_name=chat_name).first()
+        # Retrieve chats for logged-in user
+        user_chats = (Chats.query
+                      .join(UserChat, Chats.chat_id == UserChat.chat_id)
+                      .join(User, UserChat.user_id == User.id)
+                      .filter(User.username == username)
+                      .all())
+        print(user_chats)
+
+        chat = next((chat for chat in user_chats if chat.chat_name == chat_name), None)
 
         if chat == None:
-            chat = Chats.query.filter_by(receiver_chat_name=chat_name).first()
-        
+            chat = next((chat for chat in user_chats if chat.receiver_chat_name == chat_name), None)
         print(chat)
-        
+
         if chat:
             # Create a new Message object
             new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, msg_text=message, timestamp=timestamp)
@@ -112,28 +200,33 @@ def send_message():
 
             return jsonify({"message": "Message sent successfully"})
         else:
-            return jsonify({"error": "Chat not found"})
+            return jsonify({"error": "Chat not found"}), 404
         
         
 # Route to retrieve chatId based on chatName
 @app.route('/get_chat_id/<chatName>')
+@login_required
 def get_chat_id(chatName):
     if 'username' in session:  # Check if user is logged in
         logged_in_username = session['username']
         
-        # Query the database to find the user who created the chat
-        creator = User.query.join(Chats, User.id == Chats.created_by).filter(Chats.chat_name == chatName).first()
+
+        # Retrieve the logged-in user from the database
+        logged_in_user = User.query.filter_by(username=logged_in_username).first()
         
-        # Find the chat based on whether the logged-in user is the creator
-        chat = None
-        if creator and creator.username == logged_in_username:  # Check if creator is not None and if the logged-in user is the creator
-            chat = Chats.query.filter_by(chat_name=chatName).first()
-        else:  # If the logged-in user is the receiver
-            chat = Chats.query.filter_by(receiver_chat_name=chatName).first()
-        
-        if chat:
-            print("Chat found:", chat)
-            return jsonify({"chatId": chat.chat_id})
+        if logged_in_user:
+            # Retrieve chats for the logged-in user
+            user_chats = (Chats.query
+                        .join(UserChat, Chats.chat_id == UserChat.chat_id)
+                        .join(User, UserChat.user_id == User.id)
+                        .filter(User.id == logged_in_user.id)
+                        .all())
+
+            # Find the chat based on whether the logged-in user is the creator
+            for chat in user_chats:
+                if chat:
+                    print("Chat found:", chat)
+                    return jsonify({"chatId": chat.chat_id})
         else:
             print("Chat not found")
             return jsonify({"error": "Chat not found"}), 404
@@ -142,6 +235,7 @@ def get_chat_id(chatName):
 
 # Route to display messages
 @app.route('/get_messages/<int:chat_id>', methods=['GET'])
+@login_required
 def get_messages(chat_id):
     username = session['username']
     user = User.query.filter_by(username=username).first()
@@ -162,6 +256,7 @@ def get_messages(chat_id):
                               'sender_username': message.sender.username, 
                               'receiver_username': message.receiver.username, 
                               'message': message.msg_text, 
+                              'file_path':message.file_path,
                               'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M')} 
                              for message in messages]
             return jsonify(messages_list)
@@ -172,6 +267,7 @@ def get_messages(chat_id):
 
 # Route to handle creating chat
 @app.route('/create_chat', methods=['POST'])
+@login_required
 def create_chat():
     if request.method == 'POST':
         chat_name = request.json['chat_name']
@@ -179,7 +275,7 @@ def create_chat():
         
         try:
             # Get the user ID of the current user
-            sender_username = session['username']
+            sender_username = current_user.username
 
              # User who is creating the chat
             created_by = User.query.filter_by(username = sender_username).first()
@@ -222,16 +318,13 @@ def create_chat():
 
 # Route to show chats - GET for displaying chats and DELETE for removing chats
 @app.route('/chats', methods=['GET', 'DELETE'])
+@login_required
 def show_chats():
-    # Check if user is logged in
-    if 'username' not in session:
-        return render_template('login.html', alert_message="Opps.. You need to log in before accessing the chatroom.") # Redirect user if not authenticated
-    
     # Get the username from the session
-    username = session['username']
+    username = current_user.username
 
     # Get logged in user information
-    logged_in = User.query.filter_by(username = username).first()
+    logged_in = User.query.filter_by(username=username).first()
 
     # Handling GET request (chat display)
     if request.method == 'GET':
@@ -241,7 +334,7 @@ def show_chats():
                       .join(User, UserChat.user_id == User.id)
                       .filter(User.username == username)
                       .all())
-        
+
         # Create a list to store chat data
         chat_data = []
         for chat in user_chats:
@@ -256,7 +349,7 @@ def show_chats():
                 'chat_name': chat_name,
                 'created_at': chat.created_at.strftime('%Y-%m-%d %H:%M')
             })
-        
+
         # Return JSON response containing chat information
         return jsonify(chats=chat_data)
     
@@ -265,6 +358,9 @@ def show_chats():
         # Get the chat_id to delete
         chat_id = request.json.get('chat_id')
 
+        # Delete associated messages first
+        Message.query.filter_by(chat_id=chat_id).delete()
+
         # Delete the chat from the database - Cascade will handle deletion in UserChat
         chat = Chats.query.get(chat_id)
         db.session.delete(chat)
@@ -272,7 +368,9 @@ def show_chats():
 
         return jsonify({'message': 'Chat deleted successfully'})
 
+
 @app.route('/data')
+@login_required
 def data():
     # Fetch all users from the database
     users = User.query.all()
@@ -292,6 +390,7 @@ def data():
         'reciever_id':msg.receiver_id,
         'chat_id': msg.chat_id,
         'msg_text': msg.msg_text,
+        'file_path': msg.file_path,
         'timestamp': msg.timestamp} for msg in msgs]
     
     chats_data = [{

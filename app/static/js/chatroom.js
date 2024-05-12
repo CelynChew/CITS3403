@@ -13,9 +13,18 @@ function updateChatDisplay(chatId, chatName) {
             chatMessagesDiv.innerHTML = '';
             // Loop through the messages and append them to the chat messages div
             data.forEach(message => {
-
                 const messageElement = document.createElement('p');
-                messageElement.textContent = `${message.sender_username}: ${message.message} (${message.timestamp})`;
+                // Check if msg_text field is null to decide which content to append into chat display area
+                let content;
+                if (message.message !== null) {
+                    content = message.message;
+                } else {
+                    // Creating a download link
+                    // Extract filename from the file path by getting last element of array
+                    const fileName = message.file_path.split('/').pop();
+                    content = `<a href="${message.file_path}" download="${fileName}">Download ${fileName}</a>`;
+                }
+                messageElement.innerHTML = `${message.sender_username}: ${content} (${message.timestamp})`;
                 chatMessagesDiv.appendChild(messageElement);
             });
             // Scroll to the bottom of the chat messages div to show the latest messages
@@ -47,6 +56,46 @@ chatList.addEventListener('click', function(event) {
         
         updateChatDisplay(chatId, chatName); 
     }
+});
+
+// Function to open file input page
+function openFileInput() {
+    document.getElementById('fileInput').click();
+}
+
+function sendFileToFlask(event, chatName) {
+    const file = event.target.files[0]; // Getting the file
+
+    // Sending file to Flask
+    if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('chat_name', chatName); // Append chat name to the FormData
+
+        fetch('/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => {
+            if (response.ok) {
+                // For checking
+                console.log('File uploaded successfully');
+            } else {
+                console.error('File upload failed');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+}
+
+var fileInput = document.getElementById('fileInput');
+fileInput.addEventListener("change", function(event) {
+    // Retrieve selected chat name
+    var currentChatName = document.getElementById('group-name').textContent.trim();
+    // Pass both event and chat name to sendFileToFlask
+    sendFileToFlask(event, currentChatName);
 });
 
 // Function to send a message
@@ -116,8 +165,14 @@ input.addEventListener("keypress", function(event) {
         event.preventDefault();
         // Retrieve selected chat name
         var currentChatName = document.getElementById('group-name').textContent.trim();
-        sendMessage(currentChatName);; // Call the sendMessage function when Enter is pressed
+        sendMessage(currentChatName); // Call the sendMessage function when Enter is pressed
     }
+});
+var sendButton = document.getElementById('send-button')
+sendButton.addEventListener("click", function(event) {
+    // Retrieve selected chat name
+    var currentChatName = document.getElementById('group-name').textContent.trim();
+    sendMessage(currentChatName); // Send Message
 });
 
 // Function to add new chats to chat list 
@@ -316,6 +371,18 @@ document.getElementById('search-chat').addEventListener('input', function() {
 // Function for logging out
 function LoggingOut() {
     window.location.href = "/";
+    fetch('/logout', {
+        method: 'GET',
+        credentials: 'same-origin' // Include cookies in the request
+    })
+    .then(response => {
+        // Handle successful logout
+        window.location.href = "/";
+    })
+    .catch(error => {
+        // Handle errors
+        console.error('Logout error:', error);
+    });
 }
 
 // Function for going to tutotial page
