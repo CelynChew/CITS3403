@@ -27,25 +27,28 @@
                 <div class="login-section">
                     <h2>Login</h2>
                     <form id="loginForm" action="/" method="POST">
+                        {{ form.csrf_token }}
+                        <!-- Username input -->
                         <div class="mb-3">
-                            <!-- Username input -->
                             <label for="username" class="form-label">Username:</label>
                             <input type="text" class="form-control" id="username" name="username" required>
                         </div>
+                        <!-- Password input -->
                         <div class="mb-3">
-                            <!-- Password input -->
                             <label for="password" class="form-label">Password:</label>
                             <div class="input-group">
                                 <input type="password" class="form-control" id="password" name="password" required>
-                                <button class="btn" type="button" id="showPassword" onclick="PasswordVisibility()"><i class="bi bi-eye-slash-fill"></i></button>
+                                <button class="btn" type="button" id="showPassword" onclick="PasswordVisibility()">
+                                    <i class="bi bi-eye-slash-fill"></i>
+                                </button>
                             </div>
                         </div>
+                        <!-- Login button -->
                         <div class="mb-3">
-                            <!-- Login button -->
                             <input type="submit" class="btn btn-primary" id="login-btn" value="Login">
                         </div>
+                        <!-- Link to registration page-->
                         <div class="mb-3">
-                            <!-- Link to registration page-->
                             <p>Don't have an account? <a href="../register">Register</a></p>
                         </div>
                         <!-- Error messages -->
