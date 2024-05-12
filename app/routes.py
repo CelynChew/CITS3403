@@ -128,12 +128,41 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 @app.route('/upload', methods=['POST'])
 def upload_file():
     file = request.files['file']
-    if file:
+    chat_name = request.form['chat_name']  # Get the chat name from the request
+    username = session['username']
+    timestamp = datetime.now()
+
+    sender_info = User.query.filter_by(username=username).first()
+    receiver_info = User.query.filter_by(username=chat_name).first()
+
+    # Retrieve chats for logged-in user
+    user_chats = (Chats.query
+                      .join(UserChat, Chats.chat_id == UserChat.chat_id)
+                      .join(User, UserChat.user_id == User.id)
+                      .filter(User.username == username)
+                      .all())
+    
+    chat = next((chat for chat in user_chats if chat.chat_name == chat_name), None)
+
+    if chat == None:
+        chat = next((chat for chat in user_chats if chat.receiver_chat_name == chat_name), None)
+
+    if file and chat:
+        # Read the content of the file
+        file_content = file.read()
+        print("Chat Name:", chat_name)  # Print the chat name
+        print(file_content)
+        
         # Save the file to the upload folder
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
         file.save(file_path)
+
+        new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, file_path=file_path, timestamp=timestamp)
         
-        return jsonify({'file_path': file_path})
+        db.session.add(new_message)
+        db.session.commit()
+       
+        return jsonify({"message": "Message sent successfully"})
     else:
         return 'No file uploaded'
 
@@ -141,11 +170,10 @@ def upload_file():
 @app.route('/send_message', methods=['POST'])
 @login_required
 def send_message():
-    form = SendMessageForm()
-    if form.validate_on_submit():
-        message = form.message.data
-        chat_name = form.chat_name.data
+    if request.method == 'POST':
+        message = request.json['message']
         username = session['username']
+        chat_name = request.json['chat_name']
         timestamp = datetime.now()
 
         sender_info = User.query.filter_by(username=username).first()
@@ -157,13 +185,12 @@ def send_message():
                       .join(User, UserChat.user_id == User.id)
                       .filter(User.username == username)
                       .all())
-        
+        print(user_chats)
+
         chat = next((chat for chat in user_chats if chat.chat_name == chat_name), None)
 
         if chat == None:
             chat = next((chat for chat in user_chats if chat.receiver_chat_name == chat_name), None)
-
-        print(user_chats)
         print(chat)
 
         if chat:
@@ -177,8 +204,6 @@ def send_message():
             return jsonify({"message": "Message sent successfully"})
         else:
             return jsonify({"error": "Chat not found"}), 404
-    else:
-        return jsonify({"error": form.errors}), 400
         
         
 # Route to retrieve chatId based on chatName
@@ -234,6 +259,7 @@ def get_messages(chat_id):
                               'sender_username': message.sender.username, 
                               'receiver_username': message.receiver.username, 
                               'message': message.msg_text, 
+                              'file_path':message.file_path,
                               'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M')} 
                              for message in messages]
             return jsonify(messages_list)
