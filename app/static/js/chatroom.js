@@ -78,8 +78,20 @@ function sendFileToFlask(event, chatName) {
         })
         .then(response => {
             if (response.ok) {
-                // For checking
-                console.log('File uploaded successfully');
+                // File uploaded successfully
+                // Fetch chat ID based on chat name
+                fetch(`/get_chat_id/${chatName}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Call updateChatDisplay with the retrieved chat ID and chat name
+                        updateChatDisplay(data.chatId, chatName);
+                    })
+                    .catch(error => console.error('Error fetching chat ID:', error));
             } else {
                 console.error('File upload failed');
             }
