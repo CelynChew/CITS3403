@@ -1,3 +1,23 @@
+.back-button {
+    position: absolute;
+    top: 20px; 
+    left: 20px;   
+    padding: 10px; 
+    background-color: #5b5b5b; 
+    color: white; 
+    border: none; 
+    border-radius: 5px; 
+    font-weight: bold; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+    transition: 0.3s; 
+}
+
+.back-button:hover {
+    background-color: #454545; 
+    transform: scale(1.05);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); 
+}
+
 .carousel {
     background-color: white; 
     border: 1px solid gray; 

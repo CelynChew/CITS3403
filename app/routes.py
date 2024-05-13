@@ -95,7 +95,6 @@ def intro(username):
 
 # Defining route for using chatroom features
 @app.route('/tutorial')
-@login_required
 def tutorial():
     return render_template('tutorial.html')
 
