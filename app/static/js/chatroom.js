@@ -197,7 +197,6 @@ var newChatModal = document.getElementById('new-chat-form');
 function createChat() {
     // Get values from input fields and remove extra white spaces
     var members = membersInput.value.trim();
-    var groupName = groupNameInput.value.trim();
 
     // Exit the function if member field is empty
     if (members === "") {
@@ -205,13 +204,7 @@ function createChat() {
         return;
     }
 
-    var chatName;
-    // Construct the chat item string based on whether a group name is provided
-    if (groupName !== "") {
-        chatName = groupName; // Use group name only
-    } else {
-        chatName = members; // Use members only
-    }
+    var chatName = members;
 
     // Send a POST request to the Flask backend to create chat
     fetch(`/create_chat`, {
