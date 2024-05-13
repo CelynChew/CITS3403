@@ -208,27 +208,34 @@ def send_message():
 def get_chat_id(chatName):
     if 'username' in session:  # Check if user is logged in
         logged_in_username = session['username']
-        
+        print("Chat name:", chatName)
 
         # Retrieve the logged-in user from the database
         logged_in_user = User.query.filter_by(username=logged_in_username).first()
-        
+
         if logged_in_user:
             # Retrieve chats for the logged-in user
             user_chats = (Chats.query
-                        .join(UserChat, Chats.chat_id == UserChat.chat_id)
-                        .join(User, UserChat.user_id == User.id)
-                        .filter(User.id == logged_in_user.id)
-                        .all())
+                          .join(UserChat, Chats.chat_id == UserChat.chat_id)
+                          .join(User, UserChat.user_id == User.id)
+                          .filter(User.id == logged_in_user.id)
+                          .all())
 
-            # Find the chat based on whether the logged-in user is the creator
+            # Find the chat based on whether the logged-in user is the creator or receiver
             for chat in user_chats:
-                if chat:
-                    print("Chat found:", chat)
-                    return jsonify({"chatId": chat.chat_id})
-        else:
+                if chat.chat_name == chatName or chat.receiver_chat_name == chatName:  # Check if the chat name matches
+                    if chat.created_by == logged_in_user.id or chat.receiver_chat_name == chatName:  # Check if the logged-in user is the creator
+                        print("Chat id:", chat.chat_id)
+                        return jsonify({"chatId": chat.chat_id})
+                    else:
+                        return jsonify({"error": "User is not the creator of the chat"}), 403
+
+            # If the loop completes without finding the chat
             print("Chat not found")
             return jsonify({"error": "Chat not found"}), 404
+        else:
+            print("User not found")
+            return jsonify({"error": "User not found"}), 404
     else:
         return jsonify({"error": "User not logged in"}), 401
 
