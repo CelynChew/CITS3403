@@ -342,6 +342,17 @@ function clearFields() {
 
 // Get the group name element
 var groupNameElement = document.getElementById('group-name');
+// Get message input, upload button, and send button elements
+var messageInput = document.getElementById('message-input');
+var uploadButton = document.getElementById('uploadFile');
+var sendButton = document.getElementById('send-button');
+
+// Function to enable message input, upload button, and send button
+function enableInputs() {
+    messageInput.disabled = false;
+    uploadButton.disabled = false;
+    sendButton.disabled = false;
+}
 
 // Listener for updating chat display header
 chatList.addEventListener('click', function(event) {
@@ -359,6 +370,13 @@ chatList.addEventListener('click', function(event) {
         
         // Updating the displayed chat name
         groupNameElement.textContent = groupName;
+        // Enable message input, upload and send buttons
+        enableInputs();
+    } else {
+        // Otherwise, disable the inputs
+        messageInput.disabled = true;
+        uploadButton.disabled = true;
+        sendButton.disabled = true;
     }
 });
 
