@@ -9,7 +9,7 @@
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
     <!-- chatroom.css -->
-    <link rel="stylesheet" href="../static/css/chatroom.css">
+    <link rel="stylesheet" href="../static/css/chatroom-m.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
@@ -19,43 +19,38 @@
             {% if username %}
                 <p class="navbar-brand" style="color: white; margin: 0;">Welcome, {{ username }}!</p>
             {% endif %}
-            <!-- Collapsible Button when screen size becomes small -->
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
             <!-- Navbar links -->
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <!-- Tutorial Page Link -->
-                    <li class="nav-item">
-                        <button class="btn" onclick="showTutorial()">Tutorial
-                            <!-- Question circle icon -->
-                            <i class="bi bi-question-circle" style="color: white; font-size: 20px;"></i>
-                        </button>
-                    </li>
-                    <!-- Logout Button -->
-                    <li class="nav-item">
-                        <button class="btn btn-danger" style="margin-top: 3px;" onclick="LoggingOut()">Logout</button>
-                    </li>
-                </ul>
-            </div>
+            <ul class="navbar-nav ms-auto flex-row">
+                <!-- Button to open modal -->
+                <li class ="nav-item">
+                    <button id="new-chat-btn" data-bs-toggle="modal" data-bs-target="#new-chat-form">+</button>
+                </li>
+                <!-- Tutorial Page Link -->
+                <li class="nav-item">
+                    <button class="btn" onclick="showTutorial()">Tutorial
+                        <!-- Question circle icon -->
+                        <i class="bi bi-question-circle" style="color: white; font-size: 20px;"></i>
+                    </button>
+                </li>
+                <!-- Logout Button -->
+                <li class="nav-item">
+                    <button class="btn btn-danger" style="margin-top: 3px;" onclick="LoggingOut()">Logout</button>
+                </li>
+            </ul>
         </div>
     </nav>
 
     <div class="container">
         <div class="row">
             <div class="col-md-3">
-                <div class="chat-sidebar">
-                    <div class="row">
-                        <div class="col">
-                            <!-- Button to open modal -->
-                            <button id="new-chat-btn" data-bs-toggle="modal" data-bs-target="#new-chat-form">+</button>
-                        </div>
-                    </div>
+                <div class="sidebar" id="sidebar">
+                    <!-- Button to toggle sidebar -->
+                    <button id="toggle-sidebar-btn" class="btn btn-secondary">Chats</button>
                     <!-- Search input -->
-                    <input type="text" class="form-control mb-3" id="search-chat" placeholder="Search chats...">
+                    <input type="text" class="form-control mb-3" id="search-chat" placeholder="Search chats..." style="display: none;">
                     <!-- Chat list display area -->
-                    <ul id="chat-list"></ul>
+                    <ul id="chat-list" style="display: none;">
+                    </ul>
                 </div>
             </div>
             <div class="col-md-9">

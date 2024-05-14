@@ -412,3 +412,23 @@ function switchContent() {
 
 // Listener to switch content on screen resizing
 window.addEventListener('resize', switchContent);
+
+// Listener to show chat list and search bar in mobile view
+document.addEventListener("DOMContentLoaded", function() {
+    // Get the sidebar element
+    var sidebar = document.getElementById('sidebar');
+    // Get the toggle sidebar button
+    var toggleSidebarBtn = document.getElementById('toggle-sidebar-btn');
+    // Get the search chat input
+    var searchChatInput = document.getElementById('search-chat');
+    // Get the chat list
+    var chatList = document.getElementById('chat-list');
+
+    // Add click event listener to the toggle sidebar button
+    toggleSidebarBtn.addEventListener('click', function() {
+        // Toggle the visibility of the search chat input
+        searchChatInput.style.display = searchChatInput.style.display === 'none' ? 'block' : 'none';
+        // Toggle the visibility of the chat list
+        chatList.style.display = chatList.style.display === 'none' ? 'block' : 'none';
+    });
+});
