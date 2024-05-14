@@ -396,6 +396,7 @@ function isMobile() {
 }
 
 let isMobileScreen = isMobile(); // Store initial screen size state
+console.log(isMobileScreen)
 
 // Function to check window width and redirect accordingly
 function switchContent() {

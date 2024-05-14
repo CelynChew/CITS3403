@@ -150,7 +150,7 @@ def chatroom():
 @login_required
 def chatroom_m():
     if 'username' not in session:
-        return render_template('login.html', alert_message="Oops.. You need to log in before accessing the chatroom.") # Redirect user if not authenticated
+        return render_template('login-m.html', alert_message="Oops.. You need to log in before accessing the chatroom.") # Redirect user if not authenticated
     
     # Get the username from the session or query parameter
     username = session.get('username') or request.args.get('username')

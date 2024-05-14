@@ -132,6 +132,7 @@ ul {
     border-color: lightgrey;
     border-bottom-left-radius: 5px;
     border-top-left-radius: 5px;
+    z-index: 0; /* Send button to the back so sidenav covers it when open */
 }
 
 #send-button {
