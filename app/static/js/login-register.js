@@ -35,9 +35,9 @@ function register() {
     }
 }
 
-// Function to check if the screen size is small (e.g., mobile)
+// Function to check if the screen size is small 
 function isMobile() {
-    return window.innerWidth <= 768; // Adjust this threshold as needed
+    return window.innerWidth <= 768; 
 }
 
 // Function to switch between desktop and mobile content

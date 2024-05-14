@@ -106,9 +106,3 @@ ul {
     border-radius: 20px;
     margin-left: 20%;
 }
-
-@media (max-width: 768px) { /* Adding breakpoint for tablet and mobile view */
-    .col-md-3 {
-        display: none; /* Hide chat list on mobile view */
-    }
-}

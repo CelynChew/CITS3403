@@ -389,3 +389,26 @@ function LoggingOut() {
 function showTutorial() {
     window.location.href = "/tutorial"; 
 }
+
+// Function to check if the screen size is small 
+function isMobile() {
+    return window.innerWidth <= 768; 
+}
+
+let isMobileScreen = isMobile(); // Store initial screen size state
+
+// Function to check window width and redirect accordingly
+function switchContent() {
+    const currentIsMobile = isMobile(); // Get current screen size
+    if (currentIsMobile !== isMobileScreen) { // Check if there's a change in screen size
+        isMobileScreen = currentIsMobile; // Update the stored screen size state
+        if (isMobileScreen) { 
+            window.location.href = "/chatroom-m"; // Redirect to mobile chatroom route
+        } else {
+            window.location.href = "/chatroom"; // Redirect to default chatroom route
+        }
+    }
+}
+
+// Listener to switch content on screen resizing
+window.addEventListener('resize', switchContent);
