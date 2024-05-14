@@ -14,6 +14,8 @@
 <body>
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
         <div class="container-fluid">
+            <!-- Button to toggle sidebar -->
+            <button id="toggle-sidebar-btn" class="btn btn-secondary" onclick="openNav()"><i class="bi bi-chat"></i></button>
             <!-- Navbar brand -->
             <!-- Display logged-in username -->
             {% if username %}
@@ -21,10 +23,6 @@
             {% endif %}
             <!-- Navbar links -->
             <ul class="navbar-nav ms-auto flex-row">
-                <!-- Button to open modal -->
-                <li class ="nav-item">
-                    <button id="new-chat-btn" data-bs-toggle="modal" data-bs-target="#new-chat-form">+</button>
-                </li>
                 <!-- Tutorial Page Link -->
                 <li class="nav-item">
                     <button class="btn" onclick="showTutorial()">Tutorial
@@ -40,19 +38,16 @@
         </div>
     </nav>
 
+    <!-- Side Navigation Overlay -->
+    <div id="chats" class="sidenav">
+        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+        <button id="new-chat-btn" data-bs-toggle="modal" data-bs-target="#new-chat-form">+</button>
+        <input type="text" class="form-control mb-3" id="search-chat" placeholder="Search chats...">
+        <ul id="chat-list"></ul>
+    </div>
+
     <div class="container">
         <div class="row">
-            <div class="col-md-3">
-                <div class="sidebar" id="sidebar">
-                    <!-- Button to toggle sidebar -->
-                    <button id="toggle-sidebar-btn" class="btn btn-secondary">Chats</button>
-                    <!-- Search input -->
-                    <input type="text" class="form-control mb-3" id="search-chat" placeholder="Search chats..." style="display: none;">
-                    <!-- Chat list display area -->
-                    <ul id="chat-list" style="display: none;">
-                    </ul>
-                </div>
-            </div>
             <div class="col-md-9">
                 <div class="chat-display">
                     <!-- Group name display area -->
@@ -62,13 +57,14 @@
                         <p>Click on a group or create a <a href="#new-chat-form" data-bs-toggle="modal">new chat</a>.</p>
                     </div>
                     <!-- Chat input area -->
-                <div class="chat-input">
-                    <div class="input-group">
-                        <!-- File input button masked by upload file button -->
-                        <input type="file" id="fileInput" style="display: none;">
-                        <button class="btn" id="uploadFile" onclick="openFileInput()"><i class="bi bi-upload"></i></button>
-                        <input type="text" class="form-control" id="message-input" placeholder="Type your message...">
-                        <button class="btn btn-primary" id="send-button" style="align-items: center;"><i class="bi bi-send"></i></button>
+                    <div class="chat-input">
+                        <div class="input-group">
+                            <!-- File input button masked by upload file button -->
+                            <input type="file" id="fileInput" style="display: none;">
+                            <button class="btn" id="uploadFile" onclick="openFileInput()"><i class="bi bi-upload"></i></button>
+                            <input type="text" class="form-control" id="message-input" placeholder="Type your message...">
+                            <button class="btn btn-primary" id="send-button" style="align-items: center;"><i class="bi bi-send"></i></button>
+                        </div>
                     </div>
                 </div>
             </div>
