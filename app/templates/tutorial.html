@@ -10,9 +10,30 @@
     <link rel="stylesheet" href="../static/css/tutorial.css">
 </head>
 <body>
+
+<nav class ="navbar navbar-expand-lg navbar-dark bg-dark">]
+    <div class ="container-fluid">
+
+    <p class="navbar-brand" style="color: white; margin: 0;">Welcome to the Tutorial Page</p>
+    
+    
+
+    <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ms-auto">
     <!-- Back button -->
+    <li class="nav-item">
     <button class="btn back-button" onclick="goBack()"><i class="bi bi-arrow-bar-left"></i></button>
-    <!-- carousel functionality  -->
+    
+
+    </li>
+    </ul>
+    </div>
+    </div>
+
+</nav>
+
+
+<!-- carousel functionality  -->
    <div class="carousel" id="tutorial-slide">
         <!-- Indicators/dots -->
         <div class="carousel-indicators">
@@ -20,7 +41,6 @@
             <button type="button" data-bs-target="#tutorial-slide" data-bs-slide-to="1"></button>
             <button type="button" data-bs-target="#tutorial-slide" data-bs-slide-to="2"></button>
         </div>
-
         <!-- The slideshow/carousel -->
         <div class="carousel-inner">
             <div class="carousel-item active">
