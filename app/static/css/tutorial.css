@@ -3,6 +3,26 @@ body {
     font-family: Arial, sans-serif;
 }
 
+h1{
+    border: 2px solid grey;
+    padding-bottom: 30px;
+    padding-top:30px;
+
+
+} 
+h5 {
+    border: 2px solid grey;
+    padding-bottom: 30px;
+
+}
+
+
+img {
+    opacity: 0.8;
+    border: 2px solid grey;
+    border-radius: 5px;
+    }
+
 
 .back-button {
 
@@ -25,17 +45,19 @@ body {
 }
 
 .carousel {
-    background-color: white; 
+    background-color: rgb(33, 37, 41, 1) ; 
     border: 1px solid gray; 
-    margin: auto; /* center the carousel horizontally */
-    margin-top: 20%; /* center the carousel vertically */
+    margin: auto;
+    margin-bottom: 100px; /* center the carousel horizontally */
+    margin-top: 100px; /* center the carousel vertically */
     border-radius: 7px;
     text-align: center; 
     width: 60%;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.4); 
+    box-shadow: 0 0 10px rgb(17, 17, 17); 
 }
 
 .carousel-item {
+    color: whitesmoke;
     padding: 20px;
     margin-bottom: 5px;
     text-align: center;
@@ -46,7 +68,7 @@ body {
 }
 
 .carousel-indicators button.active {
-    background-color: black !important; /* ensures active indicator is black */
+    background-color: white !important; /* ensures active indicator is black */
 }
 
 .carousel-control-prev, .carousel-control-next{
