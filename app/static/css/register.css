@@ -4,11 +4,12 @@ body {
 }
 
 .container {
-    max-width: 35%;
+    width: 90%; 
+    max-width: 600px; 
     margin: 100px auto;
     background: white;
-    padding: 25px;
-    padding-top: 5px;
+    padding: 5%; 
+    padding-top: 2%;
     border-radius: 20px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
 }

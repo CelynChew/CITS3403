@@ -46,6 +46,30 @@ def login():
         print(form.errors)
     return render_template('login.html', error_message=error_message, form=form)
 
+## Route to handle user login
+@app.route('/login-m', methods=['GET', 'POST'])
+def login_m():
+    error_message = None
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+        print("Username:", username)
+        print("Password:", password)
+        user = User.query.filter_by(username=username).first()
+        if user:
+            if user.password == password:
+                login_user(user)
+                session['username'] = username
+                return redirect(url_for('chatroom', username=username))
+            else:
+                error_message = 'Invalid password'
+        else:
+            error_message = 'User not found'
+    else:
+        print(form.errors)
+    return render_template('login-m.html', error_message=error_message, form=form)
+
 # Route to handle user logout
 @app.route('/logout')
 @login_required

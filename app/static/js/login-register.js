@@ -35,3 +35,22 @@ function register() {
     }
 }
 
+// Function to check if the screen size is small (e.g., mobile)
+function isMobile() {
+    return window.innerWidth <= 768; // Adjust this threshold as needed
+}
+
+// Function to switch between desktop and mobile content
+function switchContent() {
+    if (isMobile()) {
+        document.getElementById('content').style.display = 'none';
+        document.getElementById('mobile-content').style.display = 'block';
+    } else {
+        document.getElementById('content').style.display = 'block';
+        document.getElementById('mobile-content').style.display = 'none';
+    }
+}
+
+// Call the switchContent function initially and on window resize
+switchContent();
+window.addEventListener('resize', switchContent);
