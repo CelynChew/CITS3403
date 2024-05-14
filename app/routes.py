@@ -61,7 +61,7 @@ def login_m():
             if user.password == password:
                 login_user(user)
                 session['username'] = username
-                return redirect(url_for('chatroom', username=username))
+                return redirect(url_for('chatroom_m', username=username))
             else:
                 error_message = 'Invalid password'
         else:
