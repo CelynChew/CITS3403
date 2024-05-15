@@ -1,12 +1,10 @@
 body {
-    background-color: whitesmoke;
+    background-color: white;
     font-family: Arial, sans-serif;
 }
 
 h1{
-    border: 2px solid grey;
-    padding-bottom: 30px;
-    padding-top:30px;
+    
 
 
 } 
