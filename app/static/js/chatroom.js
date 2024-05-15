@@ -44,6 +44,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Trigger send button on enter
+    var input = document.getElementById('message-input')
+    // Event listener for when user presses enter
+    input.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            // Cancel the default action, if needed
+            event.preventDefault();
+            // Simulate a click on the send button
+            document.querySelector('#send-button').click();
+        }
+    });
+
 })
 
 // Function to fetch messages and update the chat display
