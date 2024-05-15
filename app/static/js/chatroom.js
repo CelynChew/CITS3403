@@ -8,10 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Display incoming message
     socket.on('message', data => {
-        const p = document.createElement('p');
+        const chatMessagesDiv = document.getElementById('chat-messages');
+        const messageElement = document.createElement('p');
         const formattedMessage = data.msg; // Extract the formatted message
-        p.textContent = formattedMessage; // Set the text content to the formatted message
-        document.querySelector('#chat-messages').append(p);
+        messageElement.textContent = formattedMessage; // Set the text content to the formatted message
+        chatMessagesDiv.appendChild(messageElement);
+        // Scroll to the bottom of the chat messages div to show the latest messages
+        chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
     });
 
     // Function to get the username from the HTML
@@ -40,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
             messageInput.value = ''; // Clear the message input field
         }
     }
+
 })
 
 // Function to fetch messages and update the chat display

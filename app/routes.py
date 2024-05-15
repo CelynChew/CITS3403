@@ -117,8 +117,14 @@ def chatroom():
                   .join(User, UserChat.user_id == User.id)
                   .filter(User.username == username)
                   .all())
-    
-    return render_template('chatroom.html', user_chats=user_chats, username=username)
+
+    # Fetch messages for each chatroom
+    chat_messages = {}
+    for chat in user_chats:
+        messages = Message.query.filter_by(chat_id=chat.chat_id).all()
+        chat_messages[chat.chat_name] = messages
+        
+    return render_template('chatroom.html', user_chats=user_chats, username=username, chat_messages=chat_messages)
 
 # Route to recieve file uploaded by users
 UPLOAD_FOLDER = os.path.join(app.root_path, 'uploads')
@@ -204,44 +210,44 @@ def handle_message(data):
             # Emit the message to all clients in the chat room
             socketio.emit('message', {'msg': formatted_message, 'username': username, 'time_stamp': timestamp.isoformat()}, room=chatroom)
             
-# Route to handle sending the message 
-@app.route('/send_message', methods=['POST'])
-@login_required
-def send_message():
-    if request.method == 'POST':
-        message = request.json['message']
-        username = session['username']
-        chat_name = request.json['chat_name']
-        timestamp = datetime.now()
+# # Route to handle sending the message 
+# @app.route('/send_message', methods=['POST'])
+# @login_required
+# def send_message():
+#     if request.method == 'POST':
+#         message = request.json['message']
+#         username = session['username']
+#         chat_name = request.json['chat_name']
+#         timestamp = datetime.now()
 
-        sender_info = User.query.filter_by(username=username).first()
-        receiver_info = User.query.filter_by(username=chat_name).first()
+#         sender_info = User.query.filter_by(username=username).first()
+#         receiver_info = User.query.filter_by(username=chat_name).first()
         
-        # Retrieve chats for logged-in user
-        user_chats = (Chats.query
-                      .join(UserChat, Chats.chat_id == UserChat.chat_id)
-                      .join(User, UserChat.user_id == User.id)
-                      .filter(User.username == username)
-                      .all())
-        print(user_chats)
+#         # Retrieve chats for logged-in user
+#         user_chats = (Chats.query
+#                       .join(UserChat, Chats.chat_id == UserChat.chat_id)
+#                       .join(User, UserChat.user_id == User.id)
+#                       .filter(User.username == username)
+#                       .all())
+#         print(user_chats)
 
-        chat = next((chat for chat in user_chats if chat.chat_name == chat_name), None)
+#         chat = next((chat for chat in user_chats if chat.chat_name == chat_name), None)
 
-        if chat == None:
-            chat = next((chat for chat in user_chats if chat.receiver_chat_name == chat_name), None)
-        print(chat)
+#         if chat == None:
+#             chat = next((chat for chat in user_chats if chat.receiver_chat_name == chat_name), None)
+#         print(chat)
 
-        if chat:
-            # Create a new Message object
-            new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, msg_text=message, timestamp=timestamp)
+#         if chat:
+#             # Create a new Message object
+#             new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, msg_text=message, timestamp=timestamp)
                     
-            # Insert message into the messages table
-            db.session.add(new_message)
-            db.session.commit()
+#             # Insert message into the messages table
+#             db.session.add(new_message)
+#             db.session.commit()
 
-            return jsonify({"message": "Message sent successfully"})
-        else:
-            return jsonify({"error": "Chat not found"}), 404
+#             return jsonify({"message": "Message sent successfully"})
+#         else:
+#             return jsonify({"error": "Chat not found"}), 404
         
         
 # Route to retrieve chatId based on chatName
@@ -273,7 +279,7 @@ def get_chat_id(chatName):
             return jsonify({"error": "Chat not found"}), 404
     else:
         return jsonify({"error": "User not logged in"}), 401
-
+    
 # Route to display messages
 @app.route('/get_messages/<int:chat_id>', methods=['GET'])
 @login_required
@@ -449,4 +455,4 @@ def data():
     return jsonify(users = user_data, msgs = msgs_data, chats = chats_data, user_chats = user_chats_data)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(debug=True)
