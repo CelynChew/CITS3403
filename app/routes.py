@@ -118,9 +118,6 @@ def chatroom():
     return render_template('chatroom.html', user_chats=user_chats, username=username)
 
 # Route to recieve file uploaded by users
-UPLOAD_FOLDER = os.path.join(app.root_path, 'uploads')
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 @app.route('/upload', methods=['POST'])
 def upload_file():
     file = request.files['file']
@@ -150,10 +147,10 @@ def upload_file():
         print(file_content)
         
         # Save the file to the upload folder
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-        file.save(file_path)
+        #file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+        #file.save(file_path)
 
-        new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, file_path=file_path, timestamp=timestamp)
+        new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, file_name=file.filename, timestamp=timestamp)
         
         db.session.add(new_message)
         db.session.commit()
@@ -239,6 +236,10 @@ def get_chat_id(chatName):
     else:
         return jsonify({"error": "User not logged in"}), 401
 
+
+UPLOAD_FOLDER = os.path.join(app.root_path, 'uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 # Route to display messages
 @app.route('/get_messages/<int:chat_id>', methods=['GET'])
 @login_required
@@ -258,13 +259,25 @@ def get_messages(chat_id):
             messages = Message.query.filter_by(chat_id=chat_id).all()
 
             # Convert the messages to a list of dictionaries
-            messages_list = [{'chat_id': chat_id, 
-                              'sender_username': message.sender.username, 
-                              'receiver_username': message.receiver.username, 
-                              'message': message.msg_text, 
-                              'file_path':message.file_path,
-                              'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M')} 
-                             for message in messages]
+            messages_list = []
+            for message in messages:
+                message_data = {
+                    'chat_id': chat_id, 
+                    'sender_username': message.sender.username, 
+                    'receiver_username': message.receiver.username, 
+                    'message': message.msg_text, 
+                    'file_name': message.file_name,
+                    'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M')
+                }
+
+                # Add URL for file if it exists
+                if message.file_name:
+                    file_path = os.path.join(app.config['UPLOAD_FOLDER'], message.file_name)
+                    message_data['file_path'] = file_path
+                    print(file_path)
+
+                messages_list.append(message_data)
+
             return jsonify(messages_list)
         else:
             return jsonify({"error": "User is not a participant in this chat"})
@@ -396,7 +409,7 @@ def data():
         'reciever_id':msg.receiver_id,
         'chat_id': msg.chat_id,
         'msg_text': msg.msg_text,
-        'file_path': msg.file_path,
+        'file_name': msg.file_name,
         'timestamp': msg.timestamp} for msg in msgs]
     
     chats_data = [{
