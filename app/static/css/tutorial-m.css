@@ -1,0 +1,73 @@
+.carousel {
+width: 100%;
+max-width: 600px;
+
+}
+
+body {
+    background-color: white;
+    font-family: Arial, sans-serif;
+}
+
+h5 {
+    border: 2px solid grey;
+    padding-bottom: 30px;
+
+}
+
+
+img {
+
+    height:auto;
+    border: 2px solid grey;
+    border-radius: 5px;
+    }
+
+
+.back-button {
+    padding: 10px; 
+    background-color: #5b5b5b; 
+    color: white; 
+    border: none; 
+    border-radius: 5px; 
+    font-weight: bold; 
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+    transition: 0.3s; 
+}
+
+.back-button:hover {
+    background-color: #454545; 
+    transform: scale(1.05);
+    box-shadow: 0 6px 8px rgba(0, 0, 0, 0.2); 
+}
+
+.carousel {
+    background-color: rgb(33, 37, 41, 1) ; 
+    border: 1px solid gray; 
+    margin: auto;
+    margin-bottom: 100px; /* center the carousel horizontally */
+    margin-top: 100px; /* center the carousel vertically */
+    border-radius: 7px;
+    text-align: center; 
+    width: 60%;
+    box-shadow: 0 0 10px rgb(17, 17, 17); 
+}
+
+.carousel-item {
+    color: whitesmoke;
+    padding: 20px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.carousel-indicators button{
+    background-color: gray !important; /* ensures inactive indicator is gray */
+}
+
+.carousel-indicators button.active {
+    background-color: white !important; /* ensures active indicator is black */
+}
+
+.carousel-control-prev, .carousel-control-next{
+    filter: invert(); /* makes prev and next arrows visible */
+}
