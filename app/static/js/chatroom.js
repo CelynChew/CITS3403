@@ -392,7 +392,7 @@ function showTutorial() {
 
 // Function to check if the screen size is small 
 function isMobile() {
-    return window.innerWidth <= 768; 
+    return window.innerWidth <= 900; 
 }
 
 let isMobileScreen = isMobile(); // Store initial screen size state
