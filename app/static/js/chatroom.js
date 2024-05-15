@@ -270,6 +270,8 @@ function deleteChat(chatId, chatListItem) {
     .then(data => {
         // Remove chat item from the chat list
         chatListItem.remove();
+
+        location.reload();
     })
     .catch(error => {
         console.error('There was a problem deleting the chat:', error);
