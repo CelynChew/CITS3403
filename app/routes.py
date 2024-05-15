@@ -93,10 +93,17 @@ def registration():
 def intro(username):
     return render_template('intro.html', username=username)
 
-# Defining route for using chatroom features
+# Defining route for using Tutorial
 @app.route('/tutorial')
 def tutorial():
     return render_template('tutorial.html')
+
+
+# Defining route for using Tutorial (Mobile)
+@app.route('/tutorial-m')
+def tutorial_m():
+    return render_template('tutorial-m.html')
+
 
 # Route to serve the chatroom
 @app.route('/chatroom')
