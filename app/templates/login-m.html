@@ -58,6 +58,31 @@
         </div>
     </div>
 
+    <script>
+        // Function to check if the screen size is small 
+        function isMobile() {
+            return window.innerWidth <= 768; 
+        }
+
+        let isMobileScreen = isMobile(); // Store initial screen size state
+
+        // Function to check window width and redirect accordingly
+        function switchContent() {
+            const currentIsMobile = isMobile(); // Get current screen size
+            if (currentIsMobile !== isMobileScreen) { // Check if there's a change in screen size
+                isMobileScreen = currentIsMobile; // Update the stored screen size state
+                if (isMobileScreen) { 
+                    window.location.href = "/login-m"; // Redirect to mobile login
+                } else {
+                    window.location.href = "/"; // Redirect to desktop login view
+                }
+            }
+        }
+
+        // Listener to switch content on screen resizing
+        window.addEventListener('resize', switchContent);
+    </script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="../static/js/login-register.js"></script>
 </body>
