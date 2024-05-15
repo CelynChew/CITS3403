@@ -1,3 +1,47 @@
+// Establish flask-socketio connection
+document.addEventListener('DOMContentLoaded', () => {
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+    socket.on('connect', () => {
+        socket.send("I am connected");
+    });
+
+    // Display incoming message
+    socket.on('message', data => {
+        const p = document.createElement('p');
+        const formattedMessage = data.msg; // Extract the formatted message
+        p.textContent = formattedMessage; // Set the text content to the formatted message
+        document.querySelector('#chat-messages').append(p);
+    });
+
+    // Function to get the username from the HTML
+    function getUsername() {
+        // Find the element that displays the username
+        const usernameElement = document.querySelector('.navbar-brand');
+        if (usernameElement) {
+            // Extract the username from the element's text content
+            return usernameElement.textContent.trim().split(', ')[1];
+        }
+        return null;
+    }
+
+    // Set the global username variable
+    let username = getUsername();
+
+    // Send message 
+    document.querySelector('#send-button').onclick = () => {
+        var messageInput = document.querySelector('#message-input');
+        var messageContent = messageInput.value.trim();
+        //socket.send({'msg': document.querySelector('#message-input').value, 'username': username});
+        if (messageContent !== '') {
+            var currentChatName = document.getElementById('group-name').textContent.trim();
+            var chatName = currentChatName; // Get the current chat name
+            socket.emit('message', {'msg': messageContent, 'username': username, 'chatName': chatName});
+            messageInput.value = ''; // Clear the message input field
+        }
+    }
+})
+
 // Function to fetch messages and update the chat display
 function updateChatDisplay(chatId, chatName) {
     fetch(`/get_messages/${chatId}`)

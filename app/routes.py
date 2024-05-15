@@ -3,9 +3,11 @@ from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from .models import User, Message, Chats, UserChat
 from app import app, db
+from flask_socketio import send, emit
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from config import Config
 import os
+from .extensions import socketio
 
 app.config.from_object(Config)
 
@@ -163,6 +165,45 @@ def upload_file():
     else:
         return 'No file uploaded'
 
+# Checking the socketio connetion 
+@socketio.on("connect")
+def handle_connect():
+    print("Client connected!")
+
+# Sending the message in real-time using flask-socketio
+@socketio.on('message')
+def handle_message(data):      
+    chatroom = session.get('chatroom')
+    
+    if isinstance(data, dict):
+        message = data.get('msg')
+        username = session['username']
+        chat_name = data.get('chatName')
+        timestamp = datetime.now()
+        formatted_message = f"{username}: {message} ({timestamp.strftime('%Y-%m-%d %H:%M')})"
+        
+        print("Received message data:", data)
+        
+        sender_info = User.query.filter_by(username=username).first()
+        receiver_info = User.query.filter_by(username=chat_name).first()
+        chat = Chats.query.filter_by(chat_name=chat_name).first()
+        
+        print(chat)
+        
+        if chat == None:
+            chat = Chats.query.filter_by(receiver_chat_name=chat_name).first()
+                
+        if chat:
+            # Create a new Message object
+            new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, msg_text=message, timestamp=timestamp)
+                    
+            # Insert message into the messages table
+            db.session.add(new_message)
+            db.session.commit()
+
+            # Emit the message to all clients in the chat room
+            socketio.emit('message', {'msg': formatted_message, 'username': username, 'time_stamp': timestamp.isoformat()}, room=chatroom)
+            
 # Route to handle sending the message 
 @app.route('/send_message', methods=['POST'])
 @login_required

@@ -2,3 +2,4 @@ Flask
 Flask-Migrate
 flask-sqlalchemy
 flask_login
+flask-socketio
