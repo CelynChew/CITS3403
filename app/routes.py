@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session, send_from_directory
 from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from .models import User, Message, Chats, UserChat
@@ -118,6 +118,9 @@ def chatroom():
     return render_template('chatroom.html', user_chats=user_chats, username=username)
 
 # Route to recieve file uploaded by users
+UPLOAD_FOLDER = os.path.join(app.root_path, 'uploads')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     file = request.files['file']
@@ -146,9 +149,13 @@ def upload_file():
         print("Chat Name:", chat_name)  # Print the chat name
         print(file_content)
         
+        # Reset file handle position to the beginning of the file
+        file.seek(0)
+
         # Save the file to the upload folder
-        #file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
-        #file.save(file_path)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], (file.filename))
+        with open(file_path, 'wb') as f:
+            f.write(file.read())
 
         new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, file_name=file.filename, timestamp=timestamp)
         
@@ -158,6 +165,11 @@ def upload_file():
         return jsonify({"message": "Message sent successfully"})
     else:
         return 'No file uploaded'
+
+# Route to serve uploaded files
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
 # Route to handle sending the message 
 @app.route('/send_message', methods=['POST'])
@@ -236,10 +248,6 @@ def get_chat_id(chatName):
     else:
         return jsonify({"error": "User not logged in"}), 401
 
-
-UPLOAD_FOLDER = os.path.join(app.root_path, 'uploads')
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
 # Route to display messages
 @app.route('/get_messages/<int:chat_id>', methods=['GET'])
 @login_required
@@ -269,12 +277,6 @@ def get_messages(chat_id):
                     'file_name': message.file_name,
                     'timestamp': message.timestamp.strftime('%Y-%m-%d %H:%M')
                 }
-
-                # Add URL for file if it exists
-                if message.file_name:
-                    file_path = os.path.join(app.config['UPLOAD_FOLDER'], message.file_name)
-                    message_data['file_path'] = file_path
-                    print(file_path)
 
                 messages_list.append(message_data)
 
