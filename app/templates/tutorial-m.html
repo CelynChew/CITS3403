@@ -12,31 +12,24 @@
 </head>
 <body>
 
-<nav class ="navbar navbar-expand-lg navbar-dark bg-dark">]
-    <div class ="container-fluid">
+    <!-- Dropdown Menu for Buttons -->
+    <nav class ="navbar navbar-expand-lg navbar-dark bg-dark">]
+        
+        <div class ="container-fluid">
+            <p class="navbar-brand" style="color: white; margin: 0;">Tutorial Page</p>
 
-    <p class="navbar-brand" style="color: white; margin: 0;">Tutorial</p>
-    
-    
+            <div class="btn-group dropstart">
+                <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-list"></i>
+                </button>
+                <ul class="dropdown-menu">
+                  <li><a class="dropdown-item" href="/chatroom">Chatroom</a></li>
+                  <li><a class="dropdown-item" href="/">Login / Logout</a></li>
+                </ul>
+              </div>
+      </div>
+      </nav>
 
-
-    <ul class="navbar-nav ms-auto">
-        <li class="nav-item">
-        <button class = "btn btn-primary" style="margin-top: 3px;" onclick= chatroomRedirect()>Chatroom</button> 
-      </li>
-
-    <div class="collapse navbar-collapse" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-            <!-- Logout Button -->
-            <li class="nav-item">
-            <button class="btn btn-danger" style="margin-top: 3px;" onclick="getLogin()">Login/Logout</button>
-            </li>
-    </ul>
-    </div>
-    </ul>
-    </div>
-
-</nav>
 
 
 <!-- carousel functionality  -->
@@ -89,7 +82,7 @@
 
         // Function to check if Tutorial is in Mobile Size
         function isMobile() {
-            return window.innerWidth <= 768; 
+            return window.innerWidth <= 1000; 
         }
 
         let isMobileScreen = isMobile(); // Store initial screen size state

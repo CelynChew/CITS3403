@@ -16,9 +16,10 @@
 
     <p class="navbar-brand" style="color: white; margin: 0;">Welcome to the Tutorial Page</p>
     
+    <!-- Chatroom Redirect -->
     <ul class="navbar-nav ms-auto">
         <li class="nav-item">
-        <button class = "btn btn-primary" style="margin-top: 3px;" onclick= chatroomRedirect()>Chatroom</button> 
+        <button class = "btn btn-primary" style="margin-top: 3px; margin-right: 30px;" onclick= chatroomRedirect()>Chatroom</button> 
       </li>
 
     <div class="collapse navbar-collapse" id="navbarNav">
@@ -87,7 +88,7 @@
     
     // Function to check if the screen size is small 
     function isMobile() {
-            return window.innerWidth <= 768; 
+            return window.innerWidth <= 1000; 
         }
 
         let isMobileScreen = isMobile(); // Store initial screen size state

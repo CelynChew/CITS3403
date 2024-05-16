@@ -13,6 +13,7 @@ h5 {
 img {
     border: 2px solid grey;
     border-radius: 5px;
+    height: auto;
     }
 
 .carousel {
