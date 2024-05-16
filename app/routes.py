@@ -119,6 +119,12 @@ def chatroom():
 
 # Route to recieve file uploaded by users
 UPLOAD_FOLDER = os.path.join(app.root_path, 'uploads')
+
+# Check if the folder exists
+if not os.path.exists(UPLOAD_FOLDER):
+    # Create file if it does not exist
+    os.makedirs(UPLOAD_FOLDER)
+
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 @app.route('/upload', methods=['POST'])
