@@ -106,6 +106,17 @@ class TestUserModel(unittest.TestCase):
         db.session.delete(test_user)
         db.session.commit()
 
+    # Test for logout
+    def test_logout(self):
+        # Log in as a user (simulating authentication)
+        with self.app.session_transaction() as session:
+            session['username'] = 'test_user'
+        
+        # Request to logout
+        response = self.app.get('/logout', follow_redirects=True)
+        
+        self.assertEqual(response.status_code, 200) # Check for successful request
+        self.assertIn(b'Login', response.data) # Check if redirected to Login page
 
 
 if __name__ == '__main__':
