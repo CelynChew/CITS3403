@@ -3,9 +3,12 @@ import unittest
 from app import app, db
 from app.models import User
 from config import TestConfig
+import os
 
 class TestUserModel(unittest.TestCase):
     def setUp(self):
+        os.environ['FLASK_ENV'] = 'test'
+        
         self.app = app.test_client()
         self.app_context = app.app_context()
         self.app_context.push()
