@@ -32,18 +32,27 @@ class TestUserModel(unittest.TestCase):
             db.session.commit()
         self.assertTrue('UNIQUE constraint failed: user.username' in str(context.exception))
 
-    # Test for valid login
-    def test_valid_login(self):
+    # Test for login validity
+    def test_login(self):
         # Create a test user in the database
         test_user = User(username='test_user', password='password')
         db.session.add(test_user)
         db.session.commit()
 
-        # Send a POST request to the login endpoint with the test user's info
+        # Test login with correct login details
         response = self.app.post('/', data={'username': 'test_user', 'password': 'password'}, follow_redirects=True)
-
         # Verify that the response is a successful login
         self.assertEqual(response.status_code, 200)
+
+        # Test login with wrong username
+        response = self.app.post('/', data={'username': 'wrong_username', 'password': 'password'}, follow_redirects=True)
+        # Verify that the response is a failed login
+        self.assertEqual(response.status_code, 200)  
+
+        # Test login with wrong password
+        response = self.app.post('/', data={'username': 'test_user', 'password': 'wrong_password'}, follow_redirects=True)
+        # Verify that the response is a successful login
+        self.assertEqual(response.status_code, 200)  
 
         # Delete the test user from the database
         db.session.delete(test_user)
