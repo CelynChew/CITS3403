@@ -21,7 +21,7 @@ def before_request():
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-## Route to handle user login
+# Route to handle user login
 @app.route('/', methods=['GET', 'POST'])
 def login():
     error_message = None
@@ -86,12 +86,6 @@ def registration():
             return redirect(url_for('login'))
 
     return render_template('registration.html')
-
-# Route to serve the introduction page
-@app.route('/intro/<username>')
-@login_required
-def intro(username):
-    return render_template('intro.html', username=username)
 
 # Defining route for using chatroom features
 @app.route('/tutorial')
