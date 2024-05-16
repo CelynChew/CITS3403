@@ -16,18 +16,20 @@
 
     <p class="navbar-brand" style="color: white; margin: 0;">Welcome to the Tutorial Page</p>
     
-    
+    <ul class="navbar-nav ms-auto">
+        <li class="nav-item">
+        <button class = "btn btn-primary" style="margin-top: 3px;" onclick= chatroomRedirect()>Chatroom</button> 
+      </li>
 
     <div class="collapse navbar-collapse" id="navbarNav">
         <ul class="navbar-nav ms-auto">
-    <!-- Back button -->
-    <li class="nav-item">
-    <button class="btn back-button" onclick="goBack()"><i class="bi bi-arrow-bar-left"></i></button>
-    
-
-    </li>
+            <!-- Logout Button -->
+            <li class="nav-item">
+            <button class="btn btn-danger" style="margin-top: 3px;" onclick="getLogin()">Login / Logout</button>
+            </li>
     </ul>
     </div>
+    </ul>
     </div>
 
 </nav>
@@ -70,10 +72,19 @@
    </div>
 
    <script>
-        function goBack() {
-            window.history.back();
-        }
+        
+    function getLogin() {
 
+        window.location.href = "/"
+    }
+    
+    function chatroomRedirect() {
+
+        window.location.href = '/chatroom'
+        
+    }
+
+    
     // Function to check if the screen size is small 
     function isMobile() {
             return window.innerWidth <= 768; 

@@ -408,7 +408,7 @@ function LoggingOut() {
     });
 }
 
-// Function for going to tutotial page
+// Function for going to tutorial page
 function showTutorial() {
     if (window.innerWidth <= 768) {
         window.location.href = "/tutorial-m";
