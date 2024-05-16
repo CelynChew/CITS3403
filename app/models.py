@@ -28,11 +28,11 @@ class Message(db.Model):
     receiver_id = db.Column(db.Integer, db.ForeignKey('user.id', name='fk_receiver_id', ondelete='CASCADE'), nullable=False)
     chat_id = db.Column(db.Integer, db.ForeignKey('chats.chat_id', ondelete='CASCADE'), nullable=False)
     msg_text = db.Column(db.Text)
-    file_path = db.Column(db.Text)  
+    file_name = db.Column(db.Text)  
     timestamp = db.Column(db.DateTime, nullable=False)
 
-    # Check that either msg_text or file_path is not NULL
-    __table_args__ = (CheckConstraint('msg_text IS NOT NULL OR file_path IS NOT NULL', name = 'msg_text_or_file_path_required'),)
+    # Check that either msg_text or file_name is not NULL
+    __table_args__ = (CheckConstraint('msg_text IS NOT NULL OR file_name IS NOT NULL', name = 'msg_text_or_file_name_required'),)
 
     # Relationship between Message and User model
     sender = db.relationship('User', back_populates='sent_messages', foreign_keys=[sender_id])
