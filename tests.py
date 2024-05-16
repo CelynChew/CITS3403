@@ -58,5 +58,23 @@ class TestUserModel(unittest.TestCase):
         db.session.delete(test_user)
         db.session.commit()
 
+    # Test for registration
+    def test_registration(self):
+        # Test registration with matching passwords
+        response = self.app.post('/register', data={'uName': 'test_user', 'password': 'password', 'retypePassword': 'password'}, follow_redirects=True)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Login', response.data) # Check if redirected to Login page
+        self.assertIsNotNone(User.query.filter_by(username='test_user').first()) # Check if test_user is added to database
+
+        # Test registration with non-matching passwords
+        response = self.app.post('/register', data={'uName': 'test_user', 'password': 'password', 'retypePassword': 'wrong_password'}, follow_redirects=True)
+        self.assertEqual(response.status_code, 200) 
+        self.assertIn(b'Passwords do not match!', response.data) 
+
+        # Delete test_user from the database
+        test_user = User.query.filter_by(username='test_user').first()
+        db.session.delete(test_user)
+        db.session.commit()
+
 if __name__ == '__main__':
     unittest.main()
