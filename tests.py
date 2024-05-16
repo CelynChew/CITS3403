@@ -1,9 +1,10 @@
 import unittest
 
 from app import app, db
-from app.models import User
+from app.models import User, Chats
 from config import TestConfig
 import os
+from datetime import datetime
 
 class TestUserModel(unittest.TestCase):
     def setUp(self):
@@ -78,6 +79,34 @@ class TestUserModel(unittest.TestCase):
         test_user = User.query.filter_by(username='test_user').first()
         db.session.delete(test_user)
         db.session.commit()
+
+    # Testing access to chatroom
+    def test_chatroom_redirect_if_not_logged_in(self):
+        response = self.app.get('/chatroom')
+        self.assertEqual(response.status_code, 302)  # Check if the page was redirected
+        self.assertIn('/', response.location)   # Check if redirected to login page
+
+    def test_chatroom_served_when_logged_in(self):
+        # Create a test user
+        test_user = User(username='test_user', password='password')
+        db.session.add(test_user)
+        db.session.commit()
+
+        # Log in the test user
+        with self.app as c:
+            response = c.post('/', data={'username': 'test_user', 'password': 'password'}, follow_redirects=True)
+            self.assertEqual(response.status_code, 200)  # Check if login was successful
+
+            # After login, make a GET request to the chatroom page
+            response = c.get('/chatroom')
+            self.assertEqual(response.status_code, 200)  # Check if the request was successful
+            self.assertIn(b'Chatroom', response.data)  # Check if redirected to chatroom
+        
+        # Delete test_user
+        db.session.delete(test_user)
+        db.session.commit()
+
+
 
 if __name__ == '__main__':
     unittest.main()
