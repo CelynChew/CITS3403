@@ -122,17 +122,10 @@ def registration():
 def intro(username):
     return render_template('intro.html', username=username)
 
-# Defining route for using Tutorial
+# Defining route for using chatroom features
 @app.route('/tutorial')
 def tutorial():
     return render_template('tutorial.html')
-
-
-# Defining route for using Tutorial (Mobile)
-@app.route('/tutorial-m')
-def tutorial_m():
-    return render_template('tutorial-m.html')
-
 
 # Route to serve the chatroom
 @app.route('/chatroom', methods=['GET', 'POST'])
@@ -187,29 +180,47 @@ def chatroom():
 @login_required
 def chatroom_m():
     if 'username' not in session:
-        return render_template('login-m.html', alert_message="Oops.. You need to log in before accessing the chatroom.") # Redirect user if not authenticated
-    
+        return render_template('login.html', alert_message="Oops.. You need to log in before accessing the chatroom.") # Redirect user if not authenticated
+
     # Get the username from the session or query parameter
     username = session.get('username') or request.args.get('username')
-    
+
+    form = SendMessageForm()
+
+    if form.validate_on_submit():
+        chat_name = form.chat_name.data
+        message = form.message.data
+        timestamp = datetime.now()
+        
+        sender_info = User.query.filter_by(username=username).first()
+        receiver_info = User.query.filter_by(username=chat_name).first()
+        chat = Chats.query.filter_by(chat_name=chat_name).first()
+        
+        if chat is None:
+            chat = Chats.query.filter_by(receiver_chat_name=chat_name).first()
+
+        if chat:
+            # Create a new Message object
+            new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, msg_text=message, timestamp=timestamp)
+
+            # Insert message into the messages table
+            db.session.add(new_message)
+            db.session.commit()
+        
     # Retrieve chats for logged in user
     user_chats = (Chats.query
                   .join(UserChat, Chats.chat_id == UserChat.chat_id)
                   .join(User, UserChat.user_id == User.id)
                   .filter(User.username == username)
                   .all())
-    
-    return render_template('chatroom-m.html', user_chats=user_chats, username=username)
 
-# Route to recieve file uploaded by users
-UPLOAD_FOLDER = os.path.join(app.root_path, 'uploads')
+    # Fetch messages for each chatroom
+    chat_messages = {}
+    for chat in user_chats:
+        messages = Message.query.filter_by(chat_id=chat.chat_id).all()
+        chat_messages[chat.chat_name] = messages
 
-# Check if the folder exists
-if not os.path.exists(UPLOAD_FOLDER):
-    # Create file if it does not exist
-    os.makedirs(UPLOAD_FOLDER)
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    return render_template('chatroom.html', user_chats=user_chats, username=username, chat_messages=chat_messages, form=form)
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
