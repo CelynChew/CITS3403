@@ -67,13 +67,21 @@
                         <p>Click on a group or create a <a href="#new-chat-form" data-bs-toggle="modal">new chat</a>.</p>
                     </div>
                     <!-- Chat input area -->
-                <div class="chat-input">
-                    <div class="input-group">
-                        <!-- File input button masked by upload file button -->
-                        <input type="file" id="fileInput" style="display: none;">
-                        <button class="btn" id="uploadFile" onclick="openFileInput()" disabled><i class="bi bi-upload"></i></button>
-                        <input type="text" class="form-control" id="message-input" placeholder="Type your message..." disabled>
-                        <button class="btn btn-primary" id="send-button" style="align-items: center;" disabled><i class="bi bi-send"></i></button>
+                    <div class="chat-input">
+                        <!-- WTForms generated form -->
+                        <form action="{{ url_for('chatroom') }}" method="post" enctype="multipart/form-data">
+                            <!-- Include hidden CSRF token field -->
+                            {{ form.hidden_tag() }}
+                            <div class="input-group">
+                                <!-- File input button masked by upload file button -->
+                                <input type="file" id="fileInput" name="file" style="display: none;">
+                                <button class="btn" id="uploadFile" onclick="openFileInput()"><i class="bi bi-upload"></i></button>
+                                <!-- Message input field -->
+                                {{ form.message(class_="form-control", id="message-input", placeholder="Type your message...") }}
+                                <!-- Submit button -->
+                                {{ form.submit(class_="btn btn-primary", id="send-button", style="align-items: center;") }}
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
