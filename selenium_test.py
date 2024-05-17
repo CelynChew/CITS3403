@@ -28,6 +28,7 @@ class TestSelenium(unittest.TestCase):
     # Test for creating chats
     # Test for sending messages
     # Test for deleting chats
+    # Test for logging out
     def test_login_and_chat_functionality(self):
         driver = self.driver
 
@@ -116,7 +117,15 @@ class TestSelenium(unittest.TestCase):
         # Check that the chat item has been deleted
         chat_items = driver.find_elements(By.XPATH, "//ul[@id='chat-list']/li")
         self.assertEqual(len(chat_items), 0)
-        
+    
+        # Test for logging out
+        # Click logout button
+        logout_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.ID, "logout")))
+        driver.execute_script("arguments[0].click();", logout_button)
+
+        # Check that the page is redirected to login page
+        WebDriverWait(driver, 10).until(EC.title_contains("Login"))
+        self.assertIn("Login", driver.title)
 
     # Test for redirection to tutorial page (from landing)
     def test_landing_to_tutorial(self):
