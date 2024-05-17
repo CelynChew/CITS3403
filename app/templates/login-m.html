@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
 <head>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <!-- Bootstrap -->
@@ -9,25 +7,15 @@
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
     <!-- login.css -->
-    <link rel="stylesheet" href="../static/css/login.css">
+    <link rel="stylesheet" href="../static/css/login-m.css">
 </head>
 <body>
-    <div class="container" id="content">
+    <div class="container">
         <div class="row">
-            <!-- Left Column (Intro) -->
-            <div class="col-md-7">
-                <div class="intro-section">
-                    <h1>Welcome to ChatSome!</h1>
-                    <p>A prototype chatroom with basic features</p>
-                    <!-- Tutorial button -->
-                    <a href="/tutorial" class="btn btn-secondary">Tutorial</a>
-                </div>
-            </div>
-            <!-- Right Column (Login Form) -->
             <div class="col-md-5">
                 <div class="login-section">
                     <h2>Login</h2>
-                    <form id="loginForm" action="/" method="POST">
+                    <form id="loginForm" action="/login-m" method="POST">
                         {{ form.csrf_token }}
                         <!-- Username input -->
                         <div class="mb-3">
@@ -61,28 +49,10 @@
                         {% if alert_message %}
                         <script>
                             alert("{{ alert_message }}");
-                            window.location.href = "/";
+                            window.location.href = "/login-m";
                         </script>
                         {% endif %}
                     </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="mobile-content" style="display: none;">
-        <div class="container" style=" width: 90%;">
-            <div class="row">
-                <!-- Product Description Section -->
-                <div class="col-md-12">
-                    <div class="product-description">
-                        <h2>Welcome to ChatSome!</h2>
-                        <p>A prototype chatroom with basic features</p>
-                        <!-- Links to Login and Register -->
-                        <div class="mb-3">
-                            <p><a href="../login-m">Login</a> or <a href="../register">Register</a> to access all features.</p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -94,22 +64,25 @@
             return window.innerWidth <= 900; 
         }
 
-        // Function to switch between desktop and mobile content
+        let isMobileScreen = isMobile(); // Store initial screen size state
+
+        // Function to check window width and redirect accordingly
         function switchContent() {
-            if (isMobile()) {
-                document.getElementById('content').style.display = 'none';
-                document.getElementById('mobile-content').style.display = 'block';
-            } else {
-                document.getElementById('content').style.display = 'block';
-                document.getElementById('mobile-content').style.display = 'none';
+            const currentIsMobile = isMobile(); // Get current screen size
+            if (currentIsMobile !== isMobileScreen) { // Check if there's a change in screen size
+                isMobileScreen = currentIsMobile; // Update the stored screen size state
+                if (isMobileScreen) { 
+                    window.location.href = "/login-m"; // Redirect to mobile login
+                } else {
+                    window.location.href = "/"; // Redirect to desktop login view
+                }
             }
         }
 
-        // Call the switchContent function initially and on window resize
-        switchContent();
+        // Listener to switch content on screen resizing
         window.addEventListener('resize', switchContent);
     </script>
-    
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="../static/js/login-register.js"></script>
 </body>

@@ -5,13 +5,14 @@ body {
 }
 
 .container {
-    margin: auto; 
+    width: 90%; 
+    max-width: 600px; 
+    margin: 100px auto;
     background: white;
-    padding: 25px;
+    padding: 5%; 
+    padding-top: 7%;
     border-radius: 20px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-    padding-top: 10vh;
-    height: 80vh; 
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
 }
 
 h2 {
@@ -27,7 +28,7 @@ label, input {
 }
 
 input[type="text"] {
-    width: calc(100% - 6%);
+    width: calc(100% - 3%);
     padding: 10px;
     border: 1px solid rgb(204, 204, 204); /* Light gray border */
     border-radius: 5px;
