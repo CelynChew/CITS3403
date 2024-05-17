@@ -1,6 +1,6 @@
 // Establish flask-socketio connection
 document.addEventListener('DOMContentLoaded', () => {
-    var socket = io.connect('http://' + document.domain + ':' + location.port);
+    const socket = io.connect('http://' + document.domain + ':' + location.port);
 
     socket.on('connect', () => {
         socket.send("I am connected");
