@@ -23,26 +23,36 @@ class TestSelenium(unittest.TestCase):
         heading = self.driver.find_element(By.TAG_NAME, "h1")
         self.assertEqual(heading.text, "Welcome to ChatSome!")
 
-    # Test for valid registration
-    def test_registration_and_home_page_redirections(self):
+    # Test for redirection from base page to registration page.
+    # Test for valid registration and login
+    def test_for_registration_redirection_and_login(self):
         driver = self.driver
-        
+
         # Test for redirection from login to register page
         driver.get(self.base_url)
         register_link = driver.find_element(By.CSS_SELECTOR, "a[href='../register']")
         register_link.click()
         WebDriverWait(driver, 10).until(EC.title_contains("Registration"))
         self.assertIn("Registration", driver.title)
-        
+
         # Test for valid registration
-        driver.get(f"{self.base_url}/register")
         driver.find_element(By.ID, "uName").send_keys("test_user")
         driver.find_element(By.ID, "password").send_keys("password")
         driver.find_element(By.ID, "retypePassword").send_keys("password")
         driver.find_element(By.ID, "submit-btn").click()
+        
         # Check that the page is redirected to login page
         WebDriverWait(driver, 10).until(EC.title_contains("Login"))
         self.assertIn("Login", driver.title)
+
+        # Test for valid login after registration
+        driver.find_element(By.ID, "username").send_keys("test_user")
+        driver.find_element(By.ID, "password").send_keys("password")
+        driver.find_element(By.ID, "login-btn").click()
+
+        # Wait for successful entry into the chat room
+        WebDriverWait(driver, 10).until(EC.title_contains("Chatroom"))
+        self.assertIn("Chatroom", driver.title)
 
     # Test for redirection to tutorial page (from landing)
     def test_landing_to_tutorial(self):
@@ -55,6 +65,5 @@ class TestSelenium(unittest.TestCase):
         WebDriverWait(driver, 10).until(EC.title_contains("Tutorial"))
         self.assertIn("Tutorial", driver.title)
 
-        
 if __name__ == '__main__':
     unittest.main()
