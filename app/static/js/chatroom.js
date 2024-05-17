@@ -74,15 +74,14 @@ function updateChatDisplay(chatId, chatName) {
             // Loop through the messages and append them to the chat messages div
             data.forEach(message => {
                 const messageElement = document.createElement('p');
-                // Check if msg_text field is null to decide which content to append into chat display area
+                // Check if file_name field is null to decide which content to append into chat display area
                 let content;
-                if (message.message !== null) {
-                    content = message.message;
+                if (message.file_name !== null) {
+                    // Creating a download link for files
+                    const fileName = message.file_name;
+                    content = `<a href="/uploads/${fileName}" download="${fileName}">Download ${fileName}</a>`;
                 } else {
-                    // Creating a download link
-                    // Extract filename from the file path by getting last element of array
-                    const fileName = message.file_path.split('/').pop();
-                    content = `<a href="${message.file_path}" download="${fileName}">Download ${fileName}</a>`;
+                    content = message.message; // Display message text
                 }
                 messageElement.innerHTML = `${message.sender_username}: ${content} (${message.timestamp})`;
                 chatMessagesDiv.appendChild(messageElement);
@@ -138,8 +137,20 @@ function sendFileToFlask(event, chatName) {
         })
         .then(response => {
             if (response.ok) {
-                // For checking
-                console.log('File uploaded successfully');
+                // File uploaded successfully
+                // Fetch chat ID based on chat name
+                fetch(`/get_chat_id/${chatName}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Call updateChatDisplay with the retrieved chat ID and chat name
+                        updateChatDisplay(data.chatId, chatName);
+                    })
+                    .catch(error => console.error('Error fetching chat ID:', error));
             } else {
                 console.error('File upload failed');
             }
@@ -245,7 +256,6 @@ var newChatModal = document.getElementById('new-chat-form');
 function createChat() {
     // Get values from input fields and remove extra white spaces
     var members = membersInput.value.trim();
-    var groupName = groupNameInput.value.trim();
 
     // Exit the function if member field is empty
     if (members === "") {
@@ -253,13 +263,7 @@ function createChat() {
         return;
     }
 
-    var chatName;
-    // Construct the chat item string based on whether a group name is provided
-    if (groupName !== "") {
-        chatName = groupName; // Use group name only
-    } else {
-        chatName = members; // Use members only
-    }
+    var chatName = members;
 
     // Send a POST request to the Flask backend to create chat
     fetch(`/create_chat`, {
@@ -326,6 +330,8 @@ function deleteChat(chatId, chatListItem) {
     .then(data => {
         // Remove chat item from the chat list
         chatListItem.remove();
+
+        location.reload();
     })
     .catch(error => {
         console.error('There was a problem deleting the chat:', error);
@@ -390,6 +396,17 @@ function clearFields() {
 
 // Get the group name element
 var groupNameElement = document.getElementById('group-name');
+// Get message input, upload button, and send button elements
+var messageInput = document.getElementById('message-input');
+var uploadButton = document.getElementById('uploadFile');
+var sendButton = document.getElementById('send-button');
+
+// Function to enable message input, upload button, and send button
+function enableInputs() {
+    messageInput.disabled = false;
+    uploadButton.disabled = false;
+    sendButton.disabled = false;
+}
 
 // Listener for updating chat display header
 chatList.addEventListener('click', function(event) {
@@ -407,6 +424,13 @@ chatList.addEventListener('click', function(event) {
         
         // Updating the displayed chat name
         groupNameElement.textContent = groupName;
+        // Enable message input, upload and send buttons
+        enableInputs();
+    } else {
+        // Otherwise, disable the inputs
+        messageInput.disabled = true;
+        uploadButton.disabled = true;
+        sendButton.disabled = true;
     }
 });
 
