@@ -26,6 +26,7 @@ class TestSelenium(unittest.TestCase):
     # Test for redirection from base page to registration page.
     # Test for valid registration and login
     # Test for creating chats
+    # Test for sending messages
     # Test for deleting chats
     def test_login_and_chat_functionality(self):
         driver = self.driver
@@ -74,6 +75,30 @@ class TestSelenium(unittest.TestCase):
         # Check that new chat has been added to the chat list
         new_chat = driver.find_element(By.XPATH, "//li[contains(text(), 'test_user')]")
         self.assertIsNotNone(new_chat)
+
+        # Test for sending messages
+        # Find the chat item and simulate a click 
+        chat_item = driver.find_element(By.XPATH, "//ul[@id='chat-list']/li[1]")
+        driver.execute_script("arguments[0].click();", chat_item)
+
+        # Wait for the chat display area to load
+        WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.CLASS_NAME, "group-name")))
+
+        # Find message input area
+        message_input = driver.find_element(By.ID, "message-input")
+        # Enter message
+        message_input.send_keys("Test message.")
+
+        # Click the send button
+        send_button = driver.find_element(By.ID, "send-button")
+        send_button.click()
+
+        # Wait for the message to appear in the chat display area
+        WebDriverWait(driver, 10).until(EC.text_to_be_present_in_element((By.XPATH, "//div[@class='chat-messages']"), "Test message."))
+
+        # Check if the message was sent successfully
+        chat_messages = driver.find_element(By.CLASS_NAME, "chat-messages")
+        self.assertIn("Test message.", chat_messages.text)
 
         # Test for deleting chats
         # Wait for the chat list to load
