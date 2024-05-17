@@ -48,4 +48,8 @@ Run Server:
 
 ```flask run```
 
+For mobile:
+
+1. Connect your laptop to your phone's mobile hotspot
+2. Run ```flask run --host=0.0.0.0``` and use the second link. 
 ## How to run the tests for the application

@@ -1,4 +1,5 @@
-from app import db
+from app import app, db, socketio
 
+# Changing socketio to implement real-time chat app
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(app, debug=True)
