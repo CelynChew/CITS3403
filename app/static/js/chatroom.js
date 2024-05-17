@@ -469,9 +469,15 @@ function LoggingOut() {
     });
 }
 
-// Function for going to tutotial page
+// Function for going to tutorial page
 function showTutorial() {
-    window.location.href = "/tutorial"; 
+    if (window.innerWidth <= 768) {
+        window.location.href = "/tutorial-m";
+    }
+    else {
+        window.location.href = "/tutorial";
+    }
+     
 }
 
 // Function to check if the screen size is small 
