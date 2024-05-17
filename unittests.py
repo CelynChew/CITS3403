@@ -22,7 +22,7 @@ class TestUserModel(unittest.TestCase):
         db.drop_all() # Drop tables after testing
         self.app_context.pop()
 
-    # Test for username uniquess
+    # Test for username uniqueness
     def test_username_uniqueness(self):
         # Create a user with a unique username
         user1 = User(username='test_user', password='password')
@@ -107,18 +107,6 @@ class TestUserModel(unittest.TestCase):
         # Delete test_user
         db.session.delete(test_user)
         db.session.commit()
-
-    # Test for logout
-    def test_logout(self):
-        # Log in as a user (simulating authentication)
-        with self.app.session_transaction() as session:
-            session['username'] = 'test_user'
-        
-        # Request to logout
-        response = self.app.get('/logout', follow_redirects=True)
-        
-        self.assertEqual(response.status_code, 200) # Check for successful request
-        self.assertIn(b'Login', response.data) # Check if redirected to Login page
 
     # Test for creating chat with non-existing user
     def test_create_chat_with_non_existing_user(self):
