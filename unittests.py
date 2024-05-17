@@ -210,5 +210,61 @@ class TestUserModel(unittest.TestCase):
         db.session.delete(test_user2)
         db.session.commit()
 
+    # Test for sending messages
+    def test_send_message(self):
+        # Create test users
+        test_sender = User(username='test_sender', password='password')
+        test_receiver = User(username='test_receiver', password='password')
+        db.session.add(test_sender)
+        db.session.add(test_receiver)
+        db.session.commit()
+
+        # Login as the sender
+        self.app.post('/', data={'username': 'test_sender', 'password': 'password'}, follow_redirects=True)
+
+        # Create a chat 
+        chat = Chats(chat_name='test_receiver', receiver_chat_name='sender', created_by=test_sender.id, created_at=datetime.now())
+        db.session.add(chat)
+        db.session.commit()
+
+        # Link the chat to in UserChat model
+        sender_user_chat = UserChat(user_id=test_sender.id, chat_id=chat.chat_id)
+        receiver_user_chat = UserChat(user_id=test_receiver.id, chat_id=chat.chat_id)
+        db.session.add(sender_user_chat)
+        db.session.add(receiver_user_chat)
+        db.session.commit()
+
+        # Prepare data for sending a message
+        message_data = {
+            'message': 'Test message',
+            'chat_name': 'test_receiver'
+        }
+
+        # Send a POST request to send_message route
+        response = self.app.post('/send_message', json=message_data)
+
+        # Check if the message was sent successfully
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Message sent successfully", response.data)
+
+        # Check that the message was added to the database
+        sent_message = Message.query.filter_by(sender_id=test_sender.id, chat_id=chat.chat_id, msg_text='Test message').first()
+        self.assertIsNotNone(sent_message)
+
+        # Delete added data
+        # Delete messages first - avoids foreign key issues
+        messages = Message.query.filter_by(chat_id=chat.chat_id).all()
+        for message in messages:
+            db.session.delete(message)
+        db.session.commit()
+
+        # Delete UserChat entries
+        db.session.delete(sender_user_chat)
+        db.session.delete(receiver_user_chat)
+        db.session.delete(test_sender)
+        db.session.delete(test_receiver)
+        db.session.delete(chat)
+        db.session.commit()
+
 if __name__ == '__main__':
     unittest.main()
