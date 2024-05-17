@@ -121,14 +121,14 @@ class TestUserModel(unittest.TestCase):
     # Test for creating chat restrictions
     def test_create_chat_with_non_existing_user(self):
         # Create test user
-        test_user = User(username='test_user', password='test_password')
+        test_user = User(username='test_user', password='password')
         db.session.add(test_user)
         db.session.commit()
 
         # Log in as the test user by sending a POST request to the login route
         login_data = {
             'username': 'test_user',
-            'password': 'test_password'
+            'password': 'password'
         }
         self.app.post('/', data=login_data, follow_redirects=True)
 
@@ -145,6 +145,44 @@ class TestUserModel(unittest.TestCase):
 
         # Delete test
         db.session.delete(test_user)
+        db.session.commit()
+
+    # Test for deleing chats
+    def test_delete_chat(self):
+        # Create test user
+        test_user = User(username='test_user', password='password')
+        test_user2 = User(username='test_user2', password='password')
+        db.session.add(test_user)
+        db.session.add(test_user2)
+        db.session.commit()
+
+        # Log in as the test user
+        login_data = {
+            'username': 'test_user',
+            'password': 'password'
+        }
+        self.app.post('/', data=login_data, follow_redirects=True)
+
+        # Create a test chat
+        chat = Chats(chat_name='test_user2', receiver_chat_name='test_user', created_by=test_user.id, created_at=datetime.now())
+        db.session.add(chat)
+        db.session.commit()
+
+        # Prepare data for deleting the chat
+        delete_data = {
+            'chat_id': chat.chat_id
+        }
+
+        # Send a DELETE request to the /chats route
+        response = self.app.delete('/chats', json=delete_data)
+
+        # Check if the chat deleted successfully
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Chat deleted successfully', response.data)
+
+        # Clean up test data
+        db.session.delete(test_user)
+        db.session.delete(test_user2)
         db.session.commit()
 
 if __name__ == '__main__':
