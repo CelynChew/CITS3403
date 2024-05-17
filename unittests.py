@@ -290,28 +290,47 @@ class TestUserModel(unittest.TestCase):
         db.session.add(receiver_user_chat)
         db.session.commit()
 
-        # Prepare data for file upload
-        data = {
-            'chat_name': 'test_receiver'
-        }
-        file_data = {
-            'file': (BytesIO(b'this is a test file'), 'test_file.txt')
-        }
+        # Define different file types to test
+        file_types = [
+            (b'this is a test image file', 'test_image.png'),
+            (b'this is another test image file', 'test_image.jpg'),
+            (b'this is a test pdf file', 'test_document.pdf'),
+            (b'this is a test microsoft word file', 'test_document.doc'),
+            (b'this is a test mac word file', 'test_document.docx'),
+            (b'this is a test excel file', 'test_document.xlsx'),
+            (b'this is a test audio file', 'test_audio.mp3'),
+            (b'this is a test mp4 file', 'test_audio.mp4'),
+            (b'this is a test mov file', 'test_audio.mov')
+        ]
 
-        # Send a POST request to upload_file route
-        response = self.app.post('/upload', data={**data, **file_data}, content_type='multipart/form-data')
+        for file_content, file_name in file_types:
+            with self.subTest(file_name=file_name):
+                # Prepare data for file upload
+                data = {
+                    'chat_name': 'test_receiver'
+                }
+                file_data = {
+                    'file': (BytesIO(file_content), file_name)
+                }
 
-        # Check if the file was uploaded successfully
-        self.assertEqual(response.status_code, 200)
-        self.assertIn(b"File uploaded successfully", response.data)
+                # Send a POST request to upload_file route
+                response = self.app.post('/upload', data={**data, **file_data}, content_type='multipart/form-data')
 
-        # Verify the file exists in the upload folder
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'test_file.txt')
-        self.assertTrue(os.path.exists(file_path))
+                # Check if the file was uploaded successfully
+                self.assertEqual(response.status_code, 200)
+                self.assertIn(b"File uploaded successfully", response.data)
 
-        # Verify the message was added to the database
-        sent_message = Message.query.filter_by(sender_id=test_sender.id, chat_id=chat.chat_id, file_name='test_file.txt').first()
-        self.assertIsNotNone(sent_message)
+                # Verify the file exists in the upload folder
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], file_name)
+                self.assertTrue(os.path.exists(file_path))
+
+                # Verify the message was added to the database
+                sent_message = Message.query.filter_by(sender_id=test_sender.id, chat_id=chat.chat_id, file_name=file_name).first()
+                self.assertIsNotNone(sent_message, f"The {file_name} message was not added to the database.")
+
+                # Remove uploaded file
+                if os.path.exists(file_path):
+                    os.remove(file_path)
 
         # Delete added data
         # Delete messages first - avoids foreign key issues
@@ -326,10 +345,6 @@ class TestUserModel(unittest.TestCase):
         db.session.delete(test_sender)
         db.session.delete(test_receiver)
         db.session.commit()
-
-        # Remove uploaded file
-        if os.path.exists(file_path):
-            os.remove(file_path)
 
 if __name__ == '__main__':
     unittest.main()
