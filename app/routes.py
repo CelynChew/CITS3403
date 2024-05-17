@@ -185,13 +185,11 @@ def send_message():
                       .join(User, UserChat.user_id == User.id)
                       .filter(User.username == username)
                       .all())
-        print(user_chats)
 
         chat = next((chat for chat in user_chats if chat.chat_name == chat_name), None)
 
         if chat == None:
             chat = next((chat for chat in user_chats if chat.receiver_chat_name == chat_name), None)
-        print(chat)
 
         if chat:
             # Create a new Message object
@@ -233,10 +231,8 @@ def get_chat_id(chatName):
                         return jsonify({"error": "User is not the creator of the chat"}), 403
 
             # If the loop completes without finding the chat
-            print("Chat not found")
             return jsonify({"error": "Chat not found"}), 404
         else:
-            print("User not found")
             return jsonify({"error": "User not found"}), 404
     else:
         return jsonify({"error": "User not logged in"}), 401

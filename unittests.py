@@ -6,6 +6,7 @@ from config import TestConfig
 import os
 from datetime import datetime
 from io import BytesIO
+import json
 
 class TestUserModel(unittest.TestCase):
     def setUp(self):
@@ -344,6 +345,69 @@ class TestUserModel(unittest.TestCase):
         db.session.delete(chat)
         db.session.delete(test_sender)
         db.session.delete(test_receiver)
+        db.session.commit()
+    
+    # Test that the right messages are displayed
+    def test_get_messages(self):
+        # Create test users
+        test_user1 = User(username='test_user1', password='password')
+        test_user2 = User(username='test_user2', password='password')
+        db.session.add(test_user1)
+        db.session.add(test_user2)
+        db.session.commit()
+
+        # Login as test_user1
+        self.app.post('/', data={'username': 'test_user1', 'password': 'password'}, follow_redirects=True)
+
+        # Create a chat
+        chat = Chats(chat_name='test_user2', receiver_chat_name='test_user1', created_by=test_user1.id, created_at=datetime.now())
+        db.session.add(chat)
+        db.session.commit()
+
+        # Link the chat to UserChat model
+        user_chat1 = UserChat(user_id=test_user1.id, chat_id=chat.chat_id)
+        user_chat2 = UserChat(user_id=test_user2.id, chat_id=chat.chat_id)
+        db.session.add(user_chat1)
+        db.session.add(user_chat2)
+        db.session.commit()
+
+        # Add messages to the chat
+        message1 = Message(sender_id=test_user1.id, receiver_id=test_user2.id, chat_id=chat.chat_id, msg_text="Test msg 1", timestamp=datetime.now())
+        message2 = Message(sender_id=test_user2.id, receiver_id=test_user1.id, chat_id=chat.chat_id, msg_text="Test msg 2", timestamp=datetime.now())
+        db.session.add(message1)
+        db.session.add(message2)
+        db.session.commit()
+
+        # Get chat ID for the test_user1 and test_user2 chat
+        response = self.app.get('/get_chat_id/test_user2')
+        self.assertEqual(response.status_code, 200)
+        chat_id = json.loads(response.data)['chatId']
+
+        # Get messages for the chat
+        response = self.app.get(f'/get_messages/{chat_id}')
+        self.assertEqual(response.status_code, 200)
+
+        # Check if the expected messages are in the response
+        messages = json.loads(response.data)
+        self.assertEqual(len(messages), 2)  # Check if there are 2 messages
+
+        # Check the message content
+        self.assertEqual(messages[0]['sender_username'], 'test_user1')
+        self.assertEqual(messages[0]['receiver_username'], 'test_user2')
+        self.assertEqual(messages[0]['message'], 'Test msg 1')
+
+        self.assertEqual(messages[1]['sender_username'], 'test_user2')
+        self.assertEqual(messages[1]['receiver_username'], 'test_user1')
+        self.assertEqual(messages[1]['message'], 'Test msg 2')
+
+        # Delete added data
+        db.session.delete(user_chat1)
+        db.session.delete(user_chat2)
+        db.session.delete(chat)
+        db.session.delete(test_user1)
+        db.session.delete(test_user2)
+        db.session.delete(message1)
+        db.session.delete(message2)
         db.session.commit()
 
 if __name__ == '__main__':
