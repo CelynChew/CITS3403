@@ -25,7 +25,7 @@
       </li>
             <!-- Logout Button -->
             <li class="nav-item">
-            <button class="btn btn-danger" style="margin-top: 3px;" onclick="getLogin()">Login / Logout</button>
+            <button class="btn btn-danger" style="margin-top: 3px;" onclick="LoggingOut()">Login / Logout</button>
             </li>
     </ul>
     </div>
@@ -71,11 +71,24 @@
 
    <script>
         
-    function getLogin() {
-
-        window.location.href = "/"
-    }
+    // Log Out Redirection
+    function LoggingOut() {
+    window.location.href = "/";
+    fetch('/logout', {
+        method: 'GET',
+        credentials: 'same-origin' // Include cookies in the request
+    })
+    .then(response => {
+        // Handle successful logout
+        window.location.href = "/";
+    })
+    .catch(error => {
+        // Handle errors
+        console.error('Logout error:', error);
+    });
+}
     
+    // Chatroom Redirection
     function chatroomRedirect() {
 
         window.location.href = '/chatroom'
@@ -88,20 +101,20 @@
             return window.innerWidth <= 1000; 
         }
 
-        let isMobileScreen = isMobile(); // Store initial screen size state
+    let isMobileScreen = isMobile(); // Store initial screen size state
 
         // Function to check window width and redirect accordingly
-        function switchContent() {
-            const currentIsMobile = isMobile(); // Get current screen size
-            if (currentIsMobile !== isMobileScreen) { // Check if there's a change in screen size
-                isMobileScreen = currentIsMobile; // Update the stored screen size state
-                if (isMobileScreen) { 
-                    window.location.href = "/tutorial-m"; // Redirect to mobile login
-                } else {
-                    window.location.href = "/tutorial"; // Redirect to desktop login view
-                }
+    function switchContent() {
+        const currentIsMobile = isMobile(); // Get current screen size
+        if (currentIsMobile !== isMobileScreen) { // Check if there's a change in screen size
+            isMobileScreen = currentIsMobile; // Update the stored screen size state
+            if (isMobileScreen) { 
+                window.location.href = "/tutorial-m"; // Redirect to mobile login
+            } else {
+                window.location.href = "/tutorial"; // Redirect to desktop login view
             }
         }
+    }
 
         // Listener to switch content on screen resizing
         window.addEventListener('resize', switchContent);
