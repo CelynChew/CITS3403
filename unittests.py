@@ -118,7 +118,7 @@ class TestUserModel(unittest.TestCase):
         self.assertEqual(response.status_code, 200) # Check for successful request
         self.assertIn(b'Login', response.data) # Check if redirected to Login page
 
-    # Test for creating chat restrictions
+    # Test for creating chat with non-existing user
     def test_create_chat_with_non_existing_user(self):
         # Create test user
         test_user = User(username='test_user', password='password')
@@ -146,6 +146,31 @@ class TestUserModel(unittest.TestCase):
         # Delete test
         db.session.delete(test_user)
         db.session.commit()
+    
+    # Test for successful chat creation and restrict duplicate chat creation
+    def test_create_duplicate_chat(self):
+        # Create a test users
+        test_user = User(username='test_user', password='password')
+        test_user2 = User(username='test_user2', password='password')
+        db.session.add(test_user)
+        db.session.add(test_user2)
+        db.session.commit()
+
+        # Log in as the test user
+        self.app.post('/', data={'username': 'test_user', 'password': 'password'}, follow_redirects=True)
+
+        # Prepare data for creating a chat
+        chat_data = {'chat_name': 'test_user2'}
+
+        # Test for successful chat creation
+        response1 = self.app.post('/create_chat', json=chat_data)
+        self.assertEqual(response1.status_code, 200)
+        self.assertIn(b"Chat created successfully", response1.data)
+
+        # Attempt to create a second chat with the same name
+        response2 = self.app.post('/create_chat', json=chat_data)
+        self.assertEqual(response2.status_code, 200)
+        self.assertIn(b"Chat with test_user2 already exists", response2.data)
 
     # Test for deleing chats
     def test_delete_chat(self):
