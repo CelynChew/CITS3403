@@ -28,7 +28,9 @@ Windows ``` .venv/Scripts/activate```     IF ERROR ```Set-ExecutionPolicy -Execu
 
 Install Requirements (if needed):
 
-```pip install -r requirements.txt```
+1. Update pip: ```pip install --upgrade pip```
+
+2. Requirements: ```pip install -r requirements.txt```
 
 Initialise Database: 
 
