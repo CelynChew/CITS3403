@@ -24,7 +24,7 @@ def before_request():
 def load_user(user_id):
     return User.query.get(int(user_id))
 
-## Route to handle user login
+# Route to handle user login
 @app.route('/', methods=['GET', 'POST'])
 def login():
     error_message = None
@@ -245,11 +245,6 @@ def upload_file():
         chat = next((chat for chat in user_chats if chat.receiver_chat_name == chat_name), None)
 
     if file and chat:
-        # Read the content of the file
-        file_content = file.read()
-        print("Chat Name:", chat_name)  # Print the chat name
-        print(file_content)
-        
         # Reset file handle position to the beginning of the file
         file.seek(0)
 
@@ -263,7 +258,7 @@ def upload_file():
         db.session.add(new_message)
         db.session.commit()
        
-        return jsonify({"message": "Message sent successfully"})
+        return jsonify({"message": "File uploaded successfully"})
     else:
         return 'No file uploaded'
 
@@ -295,11 +290,18 @@ def handle_message(data):
         receiver_info = User.query.filter_by(username=chat_name).first()
         chat = Chats.query.filter_by(chat_name=chat_name).first()
         
-        print(chat)
-        
-        if chat is None:
-            chat = Chats.query.filter_by(receiver_chat_name=chat_name).first()
-                
+        # Retrieve chats for logged-in user
+        user_chats = (Chats.query
+                      .join(UserChat, Chats.chat_id == UserChat.chat_id)
+                      .join(User, UserChat.user_id == User.id)
+                      .filter(User.username == username)
+                      .all())
+
+        chat = next((chat for chat in user_chats if chat.chat_name == chat_name), None)
+
+        if chat == None:
+            chat = next((chat for chat in user_chats if chat.receiver_chat_name == chat_name), None)
+            
         if chat:
             # Create a new Message object
             new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, msg_text=message, timestamp=timestamp)
@@ -356,7 +358,6 @@ def handle_message(data):
 def get_chat_id(chatName):
     if 'username' in session:  # Check if user is logged in
         logged_in_username = session['username']
-        print("Chat name:", chatName)
 
         # Retrieve the logged-in user from the database
         logged_in_user = User.query.filter_by(username=logged_in_username).first()
@@ -373,16 +374,13 @@ def get_chat_id(chatName):
             for chat in user_chats:
                 if chat.chat_name == chatName or chat.receiver_chat_name == chatName:  # Check if the chat name matches
                     if chat.created_by == logged_in_user.id or chat.receiver_chat_name == chatName:  # Check if the logged-in user is the creator
-                        print("Chat id:", chat.chat_id)
                         return jsonify({"chatId": chat.chat_id})
                     else:
                         return jsonify({"error": "User is not the creator of the chat"}), 403
 
             # If the loop completes without finding the chat
-            print("Chat not found")
             return jsonify({"error": "Chat not found"}), 404
         else:
-            print("User not found")
             return jsonify({"error": "User not found"}), 404
     else:
         return jsonify({"error": "User not logged in"}), 401
