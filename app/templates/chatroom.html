@@ -22,7 +22,7 @@
                 <p class="navbar-brand" style="color: white; margin: 0;">Welcome, {{ username }}!</p>
             {% endif %}
             <!-- Navbar links -->
-            <ul class="navbar-nav ms-auto">
+            <ul class="navbar-nav ms-auto flex-row">
                 <!-- Tutorial Page Link -->
                 <li class="nav-item">
                     <button class="btn" onclick="showTutorial()">Tutorial
@@ -34,12 +34,11 @@
                 <li class="nav-item">
                     <button class="btn btn-danger" style="margin-top: 3px;" onclick="LoggingOut()">Logout</button>
                 </li>
-                <!-- Link to Profile Change Page -->
                 <li class="nav-item">
                 <a href="{{ url_for('edit_profile', username=current_user.username) }}">
                 <i class="bi bi-person-circle" style="color: white; font-size: 30px; padding: 20px; top: 3px;"></i></a>
-                </li>
- 
+                    </li>
+                
             </ul>
         </div>
     </nav>

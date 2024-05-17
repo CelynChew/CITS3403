@@ -471,7 +471,23 @@ function LoggingOut() {
 
 // Function for going to tutotial page
 function showTutorial() {
-    window.location.href = "/tutorial"; 
+    if (window.innerWidth <= 1000) {
+    window.location.href = "/tutorial-m"; }
+    else {
+        window.location.href = "/tutorial";
+    }
+}
+
+// Listener to switch content on screen resizing
+window.addEventListener('resize', switchContent);
+
+// Functions to open and close sidenav bar
+function openNav() {
+    document.getElementById("chats").style.width = "250px";
+}
+
+function closeNav() {
+    document.getElementById("chats").style.width = "0";
 }
 
 // Function to check if the screen size is small 
