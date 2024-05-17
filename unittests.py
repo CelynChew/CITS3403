@@ -5,6 +5,7 @@ from app.models import User, Chats, UserChat, Message
 from config import TestConfig
 import os
 from datetime import datetime
+from io import BytesIO
 
 class TestUserModel(unittest.TestCase):
     def setUp(self):
@@ -258,13 +259,77 @@ class TestUserModel(unittest.TestCase):
             db.session.delete(message)
         db.session.commit()
 
-        # Delete UserChat entries
         db.session.delete(sender_user_chat)
         db.session.delete(receiver_user_chat)
         db.session.delete(test_sender)
         db.session.delete(test_receiver)
         db.session.delete(chat)
         db.session.commit()
+
+    # Test for uploading files
+    def test_upload_file(self):
+        # Create test users
+        test_sender = User(username='test_sender', password='password')
+        test_receiver = User(username='test_receiver', password='password')
+        db.session.add(test_sender)
+        db.session.add(test_receiver)
+        db.session.commit()
+
+        # Login as the sender
+        self.app.post('/', data={'username': 'test_sender', 'password': 'password'}, follow_redirects=True)
+
+        # Create a chat
+        chat = Chats(chat_name='test_receiver', receiver_chat_name='test_sender', created_by=test_sender.id, created_at=datetime.now())
+        db.session.add(chat)
+        db.session.commit()
+
+        # Link the chat to UserChat model
+        sender_user_chat = UserChat(user_id=test_sender.id, chat_id=chat.chat_id)
+        receiver_user_chat = UserChat(user_id=test_receiver.id, chat_id=chat.chat_id)
+        db.session.add(sender_user_chat)
+        db.session.add(receiver_user_chat)
+        db.session.commit()
+
+        # Prepare data for file upload
+        data = {
+            'chat_name': 'test_receiver'
+        }
+        file_data = {
+            'file': (BytesIO(b'this is a test file'), 'test_file.txt')
+        }
+
+        # Send a POST request to upload_file route
+        response = self.app.post('/upload', data={**data, **file_data}, content_type='multipart/form-data')
+
+        # Check if the file was uploaded successfully
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"File uploaded successfully", response.data)
+
+        # Verify the file exists in the upload folder
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], 'test_file.txt')
+        self.assertTrue(os.path.exists(file_path))
+
+        # Verify the message was added to the database
+        sent_message = Message.query.filter_by(sender_id=test_sender.id, chat_id=chat.chat_id, file_name='test_file.txt').first()
+        self.assertIsNotNone(sent_message)
+
+        # Delete added data
+        # Delete messages first - avoids foreign key issues
+        messages = Message.query.filter_by(chat_id=chat.chat_id).all()
+        for message in messages:
+            db.session.delete(message)
+        db.session.commit()
+
+        db.session.delete(sender_user_chat)
+        db.session.delete(receiver_user_chat)
+        db.session.delete(chat)
+        db.session.delete(test_sender)
+        db.session.delete(test_receiver)
+        db.session.commit()
+
+        # Remove uploaded file
+        if os.path.exists(file_path):
+            os.remove(file_path)
 
 if __name__ == '__main__':
     unittest.main()
