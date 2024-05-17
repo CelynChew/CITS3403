@@ -1,7 +1,7 @@
 import unittest
 
 from app import app, db
-from app.models import User, Chats
+from app.models import User, Chats, UserChat, Message
 from config import TestConfig
 import os
 from datetime import datetime
@@ -118,6 +118,34 @@ class TestUserModel(unittest.TestCase):
         self.assertEqual(response.status_code, 200) # Check for successful request
         self.assertIn(b'Login', response.data) # Check if redirected to Login page
 
+    # Test for creating chat restrictions
+    def test_create_chat_with_non_existing_user(self):
+        # Create test user
+        test_user = User(username='test_user', password='test_password')
+        db.session.add(test_user)
+        db.session.commit()
+
+        # Log in as the test user by sending a POST request to the login route
+        login_data = {
+            'username': 'test_user',
+            'password': 'test_password'
+        }
+        self.app.post('/', data=login_data, follow_redirects=True)
+
+        # Prepare data to create chat with non-existing user
+        chat_data = {
+            'chat_name': 'non_existing_user'
+        }
+
+        # Send a POST request to create_chat route
+        response = self.app.post('/create_chat', json=chat_data)
+
+        # Check if response say that the user does not exist
+        self.assertIn(b'non_existing_user does not have an account', response.data)
+
+        # Delete test
+        db.session.delete(test_user)
+        db.session.commit()
 
 if __name__ == '__main__':
     unittest.main()
