@@ -128,15 +128,37 @@ def tutorial():
     return render_template('tutorial.html')
 
 # Route to serve the chatroom
-@app.route('/chatroom')
+@app.route('/chatroom', methods=['GET', 'POST'])
 @login_required
 def chatroom():
     if 'username' not in session:
         return render_template('login.html', alert_message="Oops.. You need to log in before accessing the chatroom.") # Redirect user if not authenticated
-    
+
     # Get the username from the session or query parameter
     username = session.get('username') or request.args.get('username')
-    
+
+    form = SendMessageForm()
+
+    if form.validate_on_submit():
+        chat_name = form.chat_name.data
+        message = form.message.data
+        timestamp = datetime.now()
+        
+        sender_info = User.query.filter_by(username=username).first()
+        receiver_info = User.query.filter_by(username=chat_name).first()
+        chat = Chats.query.filter_by(chat_name=chat_name).first()
+        
+        if chat is None:
+            chat = Chats.query.filter_by(receiver_chat_name=chat_name).first()
+
+        if chat:
+            # Create a new Message object
+            new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, msg_text=message, timestamp=timestamp)
+
+            # Insert message into the messages table
+            db.session.add(new_message)
+            db.session.commit()
+        
     # Retrieve chats for logged in user
     user_chats = (Chats.query
                   .join(UserChat, Chats.chat_id == UserChat.chat_id)
@@ -149,8 +171,9 @@ def chatroom():
     for chat in user_chats:
         messages = Message.query.filter_by(chat_id=chat.chat_id).all()
         chat_messages[chat.chat_name] = messages
-        
-    return render_template('chatroom.html', user_chats=user_chats, username=username, chat_messages=chat_messages)
+
+    return render_template('chatroom.html', user_chats=user_chats, username=username, chat_messages=chat_messages, form=form)
+
 
 # Chatroom mobile
 @app.route('/chatroom-m')
@@ -238,7 +261,7 @@ def handle_connect():
 
 # Sending the message in real-time using flask-socketio
 @socketio.on('message')
-def handle_message(data):      
+def handle_message(data):
     chatroom = session.get('chatroom')
     
     if isinstance(data, dict):
@@ -256,7 +279,7 @@ def handle_message(data):
         
         print(chat)
         
-        if chat == None:
+        if chat is None:
             chat = Chats.query.filter_by(receiver_chat_name=chat_name).first()
                 
         if chat:
