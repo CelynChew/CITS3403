@@ -434,12 +434,14 @@ def data():
 
     return jsonify(users = user_data, msgs = msgs_data, chats = chats_data, user_chats = user_chats_data)
 
+# Route to Serve the Edit Profile Page
 @app.route("/edit_profile", methods=['POST', 'GET'])
 @login_required
 def edit_profile():
     user = User.query.filter_by(username=current_user.username).first()
     username = user.username
     error_message = None
+    success = None
     if request.method == 'POST':
         oldpword = request.form['currentpword'] 
         newpword = request.form['newpword']
@@ -458,7 +460,7 @@ def edit_profile():
             user = User.query.filter_by(username=username, password=oldpword).first()
             user.password = newpword
             db.session.commit()
-            return render_template('edit_profile.html')
+            return render_template('edit_profile.html', success = "Password Successfully Changed")
     return render_template('edit_profile.html')
 
 if __name__ == '__main__':
