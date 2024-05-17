@@ -3,14 +3,17 @@ from config import Config, TestConfig
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
+from .extensions import socketio
 
 app = Flask(__name__)
 
 if app.config['TESTING']:
     app.config.from_object(TestConfig)
 else:
-    app.config.from_object(Config)
-    
+    app.config.from_object(Config)   
+
+socketio.init_app(app)
+app.config.from_object(Config)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 

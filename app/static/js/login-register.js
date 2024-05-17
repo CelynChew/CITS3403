@@ -34,4 +34,3 @@ function register() {
         return true; // Add this line to allow form submission
     }
 }
-

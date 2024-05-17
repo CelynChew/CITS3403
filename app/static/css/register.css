@@ -4,11 +4,11 @@ body {
 }
 
 .container {
-    max-width: 35%;
+    width: 90%;
     margin: 100px auto;
     background: white;
-    padding: 25px;
-    padding-top: 5px;
+    padding: 5%; 
+    padding-top: 1%;
     border-radius: 20px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
 }
@@ -36,4 +36,13 @@ label {
 #password-match-error {
     margin-top: 10px; /* Adding margin to separate error message from the button */
     text-align: center; /* Center aligning the error message */
+}
+
+/* Media query for desktop */
+@media only screen and (min-width: 900px) {
+    .container {
+        width: 60%; 
+        max-width: 40%; 
+        padding-bottom: 5%;
+    }
 }

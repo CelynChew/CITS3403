@@ -7,28 +7,76 @@ body {
     margin-top: 25px;
 }
 
-.chat-sidebar {
-    background-color: white; 
-    border-radius: 10px;
-    padding: 20px;
+#toggle-sidebar-btn {
+    margin-right: 10px;
+}
+
+.sidenav {
+    height: 100%;
+    width: 250px; /* Set a width to make it visible */
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: whitesmoke; /* Change background color if needed */
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+}
+
+.sidenav a {
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+}
+
+.sidenav a:hover {
+    color: #f1f1f1;
+}
+
+.sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 25px;
+    font-size: 36px;
+    margin-left: 50px;
 }
 
 #new-chat-btn {
     background-color: white;
     font-size: large;
-    padding-top: 5px;
+    padding-top: 3px;
+    padding-bottom: 3px;
     width: 30px;
-    height: 85%;
     border-radius: 5px;
     border: 1px solid lightgrey;
     display: flex; 
     justify-content: center;
     align-items: center;
+    margin: 10%;
+    margin-top: 0;
+    margin-bottom: 10px;
 }
 
 #new-chat-btn:hover {
     background-color: lightgray;
     transition: 0.2s;
+}
+
+#search-chat {
+    margin-bottom: 10px;
+    margin-top: 10px;
+    width: 80%;
+    margin-left: 10%;
+}
+
+#chat-list {
+    margin-bottom: 10px;
+    margin-top: 10px;
+    width: 80%;
+    margin-left: 10%;
 }
 
 .chat {
@@ -85,6 +133,7 @@ ul {
     border-color: lightgrey;
     border-bottom-left-radius: 5px;
     border-top-left-radius: 5px;
+    z-index: 0; /* Send button to the back so sidenav covers it when open */
 }
 
 #send-button {
@@ -100,9 +149,4 @@ ul {
 #search-chat {
     margin-bottom: 10px;
     margin-top: 10px;
-}
-
-#logout-btn {
-    border-radius: 20px;
-    margin-left: 20%;
 }

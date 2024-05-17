@@ -11,7 +11,7 @@
 | 22848932 | Celyn Chew | CelynChew |
 | 23641633  | Chuen Yui Lam  | Roy-Lam  |
 | 23251142  | Benjamin Cooper | bc163836 |
-|  |  |  |
+| 23237969 | Felicia Sindhu | sindhufelicia |
 
 ## Architecture of the application
 
@@ -50,4 +50,8 @@ Run Server:
 
 ```flask run```
 
+For mobile:
+
+1. Connect your laptop to your phone's mobile hotspot
+2. Run ```flask run --host=0.0.0.0``` and use the second link. 
 ## How to run the tests for the application
