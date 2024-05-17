@@ -3,9 +3,12 @@ from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from .models import User, Message, Chats, UserChat
 from app import app, db
+from flask_socketio import send, emit
 from flask_login import LoginManager, login_user, current_user, login_required, logout_user
 from config import Config
+from .forms import LoginForm, RegistrationForm, SendMessageForm
 import os
+from .extensions import socketio
 
 app.config.from_object(Config)
 
@@ -25,32 +28,56 @@ def load_user(user_id):
 @app.route('/', methods=['GET', 'POST'])
 def login():
     error_message = None
-    if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-
-        # Query database to find the user by username and password
-        user = User.query.filter_by(username=username, password=password).first()
-
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+        print("Username:", username)
+        print("Password:", password)
+        user = User.query.filter_by(username=username).first()
         if user:
-            login_user(user)
-            # Set the username in the session
-            session['username'] = username
-            # User authenticated successfully, redirect to chatroom with username as a query parameter
-            return redirect(url_for('chatroom', username=username))
+            if user.password == password:
+                login_user(user)
+                session['username'] = username
+                return redirect(url_for('chatroom', username=username))
+            else:
+                error_message = 'Invalid password'
         else:
-            # Authentication failed, render login page with error message
-            error_message = 'Invalid username or password'
-    
-    # If it's a GET request, render the login page
-    return render_template('login.html', error_message=error_message)
+            error_message = 'User not found'
+    else:
+        print(form.errors)
+    return render_template('login.html', error_message=error_message, form=form)
+
+## Route to handle user login
+@app.route('/login-m', methods=['GET', 'POST'])
+def login_m():
+    error_message = None
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+        print("Username:", username)
+        print("Password:", password)
+        user = User.query.filter_by(username=username).first()
+        if user:
+            if user.password == password:
+                login_user(user)
+                session['username'] = username
+                return redirect(url_for('chatroom_m', username=username))
+            else:
+                error_message = 'Invalid password'
+        else:
+            error_message = 'User not found'
+    else:
+        print(form.errors)
+    return render_template('login-m.html', error_message=error_message, form=form)
 
 # Route to handle user logout
 @app.route('/logout')
 @login_required
 def logout():
     logout_user()
-    session.clear()  # Clear the session
+    session.pop('username', None)  # Remove the username from the session
     # Remove the session cookie and set it to expire immediately
     response = redirect(url_for('login'))
     response.delete_cookie('session')
@@ -63,76 +90,137 @@ def unauthorized(error):
     return redirect(url_for('login'))
 
 # Route to serve the registration page
-@app.route('/register', methods=['GET', 'POST']) # GET for displaying registration form, POST for handling registration data.
+@app.route('/register', methods=['GET', 'POST'])
 def registration():
-    if request.method == 'POST':
-        username = request.form['uName']
-        password = request.form['password']
-        retype_password = request.form['retypePassword']
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+        retype_password = form.confirm_password.data
 
         if password != retype_password:
-            return render_template('registration.html', password_error='Passwords do not match!')
-        
+            return render_template('registration.html', form=form, password_error='Passwords do not match!')
+
         # Check if user already exists
-        user = User.query.filter_by(username = username).first()
+        user = User.query.filter_by(username=username).first()
         if user:
-            return render_template('registration.html', error_message='Username already exists!')
-        
+            return render_template('registration.html', form=form, error_message='Username already exists!')
+
         else:
-            user = User(username = username, password = password)
+            user = User(username=username, password=password)
             db.session.add(user)
             db.session.commit()
             # Redirect to a different page after successful registration
             return redirect(url_for('login'))
 
-    return render_template('registration.html')
-
+    # Render the registration form when the request method is GET
+    return render_template('registration.html', form=form)
+    
 # Route to serve the introduction page
 @app.route('/intro/<username>')
 @login_required
 def intro(username):
     return render_template('intro.html', username=username)
 
-# Defining route for using Tutorial
+# Defining route for using chatroom features
 @app.route('/tutorial')
 def tutorial():
     return render_template('tutorial.html')
 
-
-# Defining route for using Tutorial (Mobile)
-@app.route('/tutorial-m')
-def tutorial_m():
-    return render_template('tutorial-m.html')
-
-
 # Route to serve the chatroom
-@app.route('/chatroom')
+@app.route('/chatroom', methods=['GET', 'POST'])
 @login_required
 def chatroom():
     if 'username' not in session:
         return render_template('login.html', alert_message="Oops.. You need to log in before accessing the chatroom.") # Redirect user if not authenticated
-    
+
     # Get the username from the session or query parameter
     username = session.get('username') or request.args.get('username')
-    
+
+    form = SendMessageForm()
+
+    if form.validate_on_submit():
+        chat_name = form.chat_name.data
+        message = form.message.data
+        timestamp = datetime.now()
+        
+        sender_info = User.query.filter_by(username=username).first()
+        receiver_info = User.query.filter_by(username=chat_name).first()
+        chat = Chats.query.filter_by(chat_name=chat_name).first()
+        
+        if chat is None:
+            chat = Chats.query.filter_by(receiver_chat_name=chat_name).first()
+
+        if chat:
+            # Create a new Message object
+            new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, msg_text=message, timestamp=timestamp)
+
+            # Insert message into the messages table
+            db.session.add(new_message)
+            db.session.commit()
+        
     # Retrieve chats for logged in user
     user_chats = (Chats.query
                   .join(UserChat, Chats.chat_id == UserChat.chat_id)
                   .join(User, UserChat.user_id == User.id)
                   .filter(User.username == username)
                   .all())
-    
-    return render_template('chatroom.html', user_chats=user_chats, username=username)
 
-# Route to recieve file uploaded by users
-UPLOAD_FOLDER = os.path.join(app.root_path, 'uploads')
+    # Fetch messages for each chatroom
+    chat_messages = {}
+    for chat in user_chats:
+        messages = Message.query.filter_by(chat_id=chat.chat_id).all()
+        chat_messages[chat.chat_name] = messages
 
-# Check if the folder exists
-if not os.path.exists(UPLOAD_FOLDER):
-    # Create file if it does not exist
-    os.makedirs(UPLOAD_FOLDER)
+    return render_template('chatroom.html', user_chats=user_chats, username=username, chat_messages=chat_messages, form=form)
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Chatroom mobile
+@app.route('/chatroom-m')
+@login_required
+def chatroom_m():
+    if 'username' not in session:
+        return render_template('login.html', alert_message="Oops.. You need to log in before accessing the chatroom.") # Redirect user if not authenticated
+
+    # Get the username from the session or query parameter
+    username = session.get('username') or request.args.get('username')
+
+    form = SendMessageForm()
+
+    if form.validate_on_submit():
+        chat_name = form.chat_name.data
+        message = form.message.data
+        timestamp = datetime.now()
+        
+        sender_info = User.query.filter_by(username=username).first()
+        receiver_info = User.query.filter_by(username=chat_name).first()
+        chat = Chats.query.filter_by(chat_name=chat_name).first()
+        
+        if chat is None:
+            chat = Chats.query.filter_by(receiver_chat_name=chat_name).first()
+
+        if chat:
+            # Create a new Message object
+            new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, msg_text=message, timestamp=timestamp)
+
+            # Insert message into the messages table
+            db.session.add(new_message)
+            db.session.commit()
+        
+    # Retrieve chats for logged in user
+    user_chats = (Chats.query
+                  .join(UserChat, Chats.chat_id == UserChat.chat_id)
+                  .join(User, UserChat.user_id == User.id)
+                  .filter(User.username == username)
+                  .all())
+
+    # Fetch messages for each chatroom
+    chat_messages = {}
+    for chat in user_chats:
+        messages = Message.query.filter_by(chat_id=chat.chat_id).all()
+        chat_messages[chat.chat_name] = messages
+
+    return render_template('chatroom.html', user_chats=user_chats, username=username, chat_messages=chat_messages, form=form)
 
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -184,33 +272,34 @@ def upload_file():
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
 
-# Route to handle sending the message 
-@app.route('/send_message', methods=['POST'])
-@login_required
-def send_message():
-    if request.method == 'POST':
-        message = request.json['message']
-        username = session['username']
-        chat_name = request.json['chat_name']
-        timestamp = datetime.now()
+# Checking the socketio connetion 
+@socketio.on("connect")
+def handle_connect():
+    print("Client connected!")
 
+# Sending the message in real-time using flask-socketio
+@socketio.on('message')
+def handle_message(data):
+    chatroom = session.get('chatroom')
+    
+    if isinstance(data, dict):
+        message = data.get('msg')
+        username = session['username']
+        chat_name = data.get('chatName')
+        timestamp = datetime.now()
+        formatted_message = f"{username}: {message} ({timestamp.strftime('%Y-%m-%d %H:%M')})"
+        
+        print("Received message data:", data)
+        
         sender_info = User.query.filter_by(username=username).first()
         receiver_info = User.query.filter_by(username=chat_name).first()
+        chat = Chats.query.filter_by(chat_name=chat_name).first()
         
-        # Retrieve chats for logged-in user
-        user_chats = (Chats.query
-                      .join(UserChat, Chats.chat_id == UserChat.chat_id)
-                      .join(User, UserChat.user_id == User.id)
-                      .filter(User.username == username)
-                      .all())
-        print(user_chats)
-
-        chat = next((chat for chat in user_chats if chat.chat_name == chat_name), None)
-
-        if chat == None:
-            chat = next((chat for chat in user_chats if chat.receiver_chat_name == chat_name), None)
         print(chat)
-
+        
+        if chat is None:
+            chat = Chats.query.filter_by(receiver_chat_name=chat_name).first()
+                
         if chat:
             # Create a new Message object
             new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, msg_text=message, timestamp=timestamp)
@@ -219,11 +308,48 @@ def send_message():
             db.session.add(new_message)
             db.session.commit()
 
-            return jsonify({"message": "Message sent successfully"})
-        else:
-            return jsonify({"error": "Chat not found"}), 404
+            # Emit the message to all clients in the chat room
+            socketio.emit('message', {'msg': formatted_message, 'username': username, 'time_stamp': timestamp.isoformat()}, room=chatroom)
+
+# # Route to handle sending the message 
+# @app.route('/send_message', methods=['POST'])
+# @login_required
+# def send_message():
+#     if request.method == 'POST':
+#         message = request.json['message']
+#         username = session['username']
+#         chat_name = request.json['chat_name']
+#         timestamp = datetime.now()
+
+#         sender_info = User.query.filter_by(username=username).first()
+#         receiver_info = User.query.filter_by(username=chat_name).first()
         
-        
+#         # Retrieve chats for logged-in user
+#         user_chats = (Chats.query
+#                       .join(UserChat, Chats.chat_id == UserChat.chat_id)
+#                       .join(User, UserChat.user_id == User.id)
+#                       .filter(User.username == username)
+#                       .all())
+#         print(user_chats)
+
+#         chat = next((chat for chat in user_chats if chat.chat_name == chat_name), None)
+
+#         if chat == None:
+#             chat = next((chat for chat in user_chats if chat.receiver_chat_name == chat_name), None)
+#         print(chat)
+
+#         if chat:
+#             # Create a new Message object
+#             new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, msg_text=message, timestamp=timestamp)
+                    
+#             # Insert message into the messages table
+#             db.session.add(new_message)
+#             db.session.commit()
+
+#             return jsonify({"message": "Message sent successfully"})
+#         else:
+#             return jsonify({"error": "Chat not found"}), 404
+                
 # Route to retrieve chatId based on chatName
 @app.route('/get_chat_id/<chatName>')
 @login_required
@@ -260,7 +386,7 @@ def get_chat_id(chatName):
             return jsonify({"error": "User not found"}), 404
     else:
         return jsonify({"error": "User not logged in"}), 401
-
+    
 # Route to display messages
 @app.route('/get_messages/<int:chat_id>', methods=['GET'])
 @login_required
@@ -311,7 +437,7 @@ def create_chat():
             # Get the user ID of the current user
             sender_username = current_user.username
 
-             # User who is creating the chat
+            # User who is creating the chat
             created_by = User.query.filter_by(username = sender_username).first()
             
             # Check if the chat already exists
@@ -442,4 +568,4 @@ def data():
     return jsonify(users = user_data, msgs = msgs_data, chats = chats_data, user_chats = user_chats_data)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    socketio.run(debug=True)
