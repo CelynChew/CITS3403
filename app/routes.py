@@ -180,7 +180,7 @@ def chatroom():
 @login_required
 def chatroom_m():
     if 'username' not in session:
-        return render_template('login.html', alert_message="Oops.. You need to log in before accessing the chatroom.") # Redirect user if not authenticated
+        return render_template('login-m.html', alert_message="Oops.. You need to log in before accessing the chatroom.") # Redirect user if not authenticated
 
     # Get the username from the session or query parameter
     username = session.get('username') or request.args.get('username')
@@ -220,7 +220,7 @@ def chatroom_m():
         messages = Message.query.filter_by(chat_id=chat.chat_id).all()
         chat_messages[chat.chat_name] = messages
 
-    return render_template('chatroom.html', user_chats=user_chats, username=username, chat_messages=chat_messages, form=form)
+    return render_template('chatroom-m.html', user_chats=user_chats, username=username, chat_messages=chat_messages, form=form)
 
 @app.route('/upload', methods=['POST'])
 def upload_file():

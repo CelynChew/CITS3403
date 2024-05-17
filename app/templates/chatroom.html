@@ -9,18 +9,20 @@
     <!-- Bootstrap Icons -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
     <!-- chatroom.css -->
-    <link rel="stylesheet" href="../static/css/chatroom-m.css">
+    <link rel="stylesheet" href="../static/css/chatroom.css">
 </head>
 <body>
     <nav class="navbar navbar-expand-md navbar-dark bg-dark">
         <div class="container-fluid">
-            <!-- Button to toggle sidebar -->
-            <button id="toggle-sidebar-btn" class="btn btn-secondary" onclick="openNav()"><i class="bi bi-chat"></i></button>
             <!-- Navbar brand -->
             <!-- Display logged-in username -->
             {% if username %}
                 <p class="navbar-brand" style="color: white; margin: 0;">Welcome, {{ username }}!</p>
             {% endif %}
+            <!-- Collapsible Button when screen size becomes small -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
             <!-- Navbar links -->
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
@@ -33,23 +35,30 @@
                     </li>
                     <!-- Logout Button -->
                     <li class="nav-item">
-                        <button class="btn btn-danger" style="margin-top: 3px;" id="logout" onclick="LoggingOut()">Logout</button>
+
+                     <button class="btn btn-danger" style="margin-top: 3px;" id="logout" onclick="LoggingOut()">Logout</button>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-    <!-- Side Navigation Overlay -->
-    <div id="chats" class="sidenav">
-        <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-        <button id="new-chat-btn" data-bs-toggle="modal" data-bs-target="#new-chat-form">+</button>
-        <input type="text" class="form-control mb-3" id="search-chat" placeholder="Search chats...">
-        <ul id="chat-list"></ul>
-    </div>
-
     <div class="container">
         <div class="row">
+            <div class="col-md-3">
+                <div class="chat-sidebar">
+                    <div class="row">
+                        <div class="col">
+                            <!-- Button to open modal -->
+                            <button id="new-chat-btn" data-bs-toggle="modal" data-bs-target="#new-chat-form">+</button>
+                        </div>
+                    </div>
+                    <!-- Search input -->
+                    <input type="text" class="form-control mb-3" id="search-chat" placeholder="Search chats...">
+                    <!-- Chat list display area -->
+                    <ul id="chat-list"></ul>
+                </div>
+            </div>
             <div class="col-md-9">
                 <div class="chat-display">
                     <!-- Group name display area -->
@@ -96,13 +105,8 @@
 
                         <!-- input for members -->
                         <div class="mb-3">
-                            <label for="members-input" class="form-label">Member(s)</label>
-                            <input type="text" class="form-control" id="members-input" name="members" placeholder="Enter member(s)" required>
-                        </div>
-                        <!-- input for group name -->
-                        <div class="mb-3">
-                            <label for="group-name-input" class="form-label">Group Name (optional)</label>
-                            <input type="text" class="form-control" id="group-name-input" name="group-name" placeholder="Enter group name">
+                            <label for="members-input" class="form-label">New Chat With:</label>
+                            <input type="text" class="form-control" id="members-input" name="members" placeholder="Enter Username" required>
                         </div>
                         <button type="submit" class="btn btn-primary" onclick="createChat()">Create Chat</button>
                     </form>
