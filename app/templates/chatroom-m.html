@@ -12,24 +12,34 @@
     <link rel="stylesheet" href="../static/css/chatroom-m.css">
 </head>
 <body>
-    <!-- Dropdown Menu for Buttons -->
-    <nav class ="navbar navbar-expand-lg navbar-dark bg-dark">]
-        
-        <div class ="container-fluid">
-            <p class="navbar-brand" style="color: white; margin: 0;">Tutorial Page</p>
-
-            <div class="btn-group dropstart">
-                <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="bi bi-list"></i>
-                </button>
-                <ul class="dropdown-menu">
-                    <li><a class="dropdown-item" onclick="showTutorial()">Tutorial</a></li>
-                    <li><a class="dropdown-item" href="{{ url_for('edit_profile', username=current_user.username) }}">Profile</a></li>
-                    <li><a class="dropdown-item" onclick="LoggingOut()">Login / Logout</a></li>
-                </ul>
-              </div>
-      </div>
-      </nav>
+    <nav class="navbar navbar-expand-md navbar-dark bg-dark">
+        <div class="container-fluid">
+            <!-- Button to toggle sidebar -->
+            <button id="toggle-sidebar-btn" class="btn btn-secondary" onclick="openNav()"><i class="bi bi-chat"></i></button>
+            <!-- Navbar brand -->
+            <!-- Display logged-in username -->
+                <p class="navbar-brand" style="color: white; margin: 0;">Welcome, {{ username }}!</p>
+            <!-- Navbar links -->
+            <ul class="navbar-nav ms-auto flex-row">
+                <!-- Tutorial Page Link -->
+                <li class="nav-item">
+                    <button class="btn" onclick="showTutorial()">Tutorial
+                        <!-- Question circle icon -->
+                        <i class="bi bi-question-circle" style="color: white; font-size: 20px;"></i>
+                    </button>
+                </li>
+                <!-- Logout Button -->
+                <li class="nav-item">
+                    <button class="btn btn-danger" style="margin-top: 3px;" onclick="LoggingOut()">Logout</button>
+                </li>
+                <li class="nav-item">
+                <a href="{{ url_for('edit_profile-m', username=current_user.username) }}">
+                <i class="bi bi-person-circle" style="color: white; font-size: 30px; padding: 20px; top: 3px;"></i></a>
+                    </li>
+                
+            </ul>
+        </div>
+    </nav>
 
     <div class="container">
         <div class="row">
