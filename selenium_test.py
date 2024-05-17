@@ -25,7 +25,8 @@ class TestSelenium(unittest.TestCase):
 
     # Test for redirection from base page to registration page.
     # Test for valid registration and login
-    def test_for_registration_redirection_and_login(self):
+    # Test for creating chats
+    def test_login_and_chat_functionality(self):
         driver = self.driver
 
         # Test for redirection from login to register page
@@ -53,6 +54,24 @@ class TestSelenium(unittest.TestCase):
         # Wait for successful entry into the chat room
         WebDriverWait(driver, 10).until(EC.title_contains("Chatroom"))
         self.assertIn("Chatroom", driver.title)
+
+        # Test new chat button
+        new_chat_btn = driver.find_element(By.ID, "new-chat-btn")
+        new_chat_btn.click()
+
+        # Wait for the new chat modal to appear
+        WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.ID, "new-chat-form")))
+
+        # Enter username to start a new chat
+        driver.find_element(By.ID, "members-input").send_keys("test_user")
+        driver.find_element(By.CSS_SELECTOR, "#new-chat-form .btn-primary").click()
+
+        # Wait for the new chat to be added to the chat list
+        WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.XPATH, "//li[contains(text(), 'test_user')]")))
+
+         # Check that new chat has been added to the chat list
+        new_chat = driver.find_element(By.XPATH, "//li[contains(text(), 'test_user')]")
+        self.assertIsNotNone(new_chat)
 
     # Test for redirection to tutorial page (from landing)
     def test_landing_to_tutorial(self):
