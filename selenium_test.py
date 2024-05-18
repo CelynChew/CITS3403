@@ -51,9 +51,19 @@ class TestSelenium(unittest.TestCase):
         self.assertIn("Login", driver.title)
 
         # Test for valid login after registration
-        driver.find_element(By.ID, "username").send_keys("test_user")
-        driver.find_element(By.ID, "password").send_keys("password")
-        driver.find_element(By.ID, "login-btn").click()
+        # Fill in the login form
+        user = "test_user"
+        password ="password"
+        driver.execute_script("document.getElementById('username').value = arguments[0];", user)
+        driver.execute_script("document.getElementById('password').value = arguments[0];", password)
+
+        # Submit the form
+        login_button = driver.find_element(By.ID, "login-btn")
+        driver.execute_script("arguments[0].click();", login_button)
+
+        # Wait for successful entry into the chat room
+        WebDriverWait(driver, 10).until(EC.title_contains("Chatroom"))
+        self.assertIn("Chatroom", driver.title)
 
         # Wait for successful entry into the chat room
         WebDriverWait(driver, 10).until(EC.title_contains("Chatroom"))
