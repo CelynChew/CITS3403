@@ -56,6 +56,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    // Socket.IO event listener for file upload
+    socket.on('file-upload', function(data) {
+        // Update UI to display that a file has been uploaded
+        console.log('File uploaded:', data.file_name);
+        // You can update UI elements here to notify the user about the uploaded file
+        const chatMessagesDiv = document.getElementById('chat-messages');
+        const fileElement = document.createElement('p');
+
+        // Create a download link for the uploaded file
+        const downloadLink = document.createElement('a');
+        downloadLink.href = data.download_link;
+        downloadLink.textContent = `Download ${data.file_name}`;
+        downloadLink.download = data.file_name;
+    
+        // Format the message
+        const formattedMessage = `${data.username}: ${downloadLink.outerHTML} (${data.timestamp})`;
+        fileElement.innerHTML = formattedMessage;
+        chatMessagesDiv.appendChild(fileElement);
+
+        // Scroll to the bottom of the chat messages div to show the latest messages
+        chatMessagesDiv.scrollTop = chatMessagesDiv.scrollHeight;
+    });
+
 })
 
 // Function to fetch messages and update the chat display

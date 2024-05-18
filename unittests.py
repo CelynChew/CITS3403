@@ -16,6 +16,7 @@ class TestUserModel(unittest.TestCase):
         self.app = app.test_client()
         self.app_context = app.app_context()
         self.app_context.push()
+        self.app.application.config['WTF_CSRF_ENABLED'] = False  # Disable CSRF protection for testing
         db.create_all() # Create tables in the test database
 
     def tearDown(self):
@@ -68,49 +69,33 @@ class TestUserModel(unittest.TestCase):
         db.session.delete(test_user)
         db.session.commit()
 
-    # Tests for registration
-    def test_registration_success(self):
-        # Get registration form to extract CSRF token
-        response = self.app.get('/register')
-
-        # Extract CSRF token using a raw string literal for the regular expression pattern
-        csrf_token_match = re.search(r'<input\s+type="hidden"\s+name="csrf_token"\s+value="([^"]+)"\s*/?>', response.data.decode('utf-8'))
-        csrf_token = csrf_token_match.group(1) if csrf_token_match else None
-
-        # Simulate registration form submission with matching passwords and CSRF token
-        response = self.app.post('/register', data={
-            'username': 'test_user',
-            'password': 'password',
-            'confirm_password': 'password',
-            'csrf_token': csrf_token
-        }, follow_redirects=True)
+    # Test for registration
+    def test_registration_with_matching_passwords(self):
+        # Simulate form submission with matching passwords
+        response = self.app.post('/register', data={'username': 'test_user', 'password': 'password', 'confirm_password': 'password'}, follow_redirects=True)
         
-        # Check if redirected to the login page after successful registration
+        # Check if redirected to Login page
         self.assertEqual(response.status_code, 200)
         self.assertIn(b'Login', response.data)
-
-        # Check if the user is added to the database
-        user = User.query.all()
-        self.assertIsNotNone(user)
-
-    def test_registration_password_mismatch(self):
-        # Get registration form to extract CSRF token
-        response = self.app.get('/register')
-
-        # Extract CSRF token using a raw string literal for the regular expression pattern
-        csrf_token_match = re.search(r'<input\s+type="hidden"\s+name="csrf_token"\s+value="([^"]+)"\s*/?>', response.data.decode('utf-8'))
-        csrf_token = csrf_token_match.group(1) if csrf_token_match else None
-
-        # Simulate registration form submission with non-matching passwords
-        response = self.app.post('/register', data={
-            'username': 'test_user',
-            'password': 'password',
-            'confirm_password': 'wrong_password',
-            'csrf_token': csrf_token
-        }, follow_redirects=True)
         
-        # Check if the error message for password mismatch is displayed
+        # Check if test_user is added to the database
+        self.assertIsNotNone(User.query.filter_by(username='test_user').first())
+
+        # Delete test
+        db.session.delete(User.query.filter_by(username='test_user').first())
+        db.session.commit()   
+
+    # Test for registration
+    def test_registration_with_mismatching_passwords(self):
+        # Simulate form submission with mismatching passwords
+        response = self.app.post('/register', data={'username': 'test_user', 'password': 'password', 'confirm_password': 'password2'}, follow_redirects=True)
+        
+        # Check if request is sucessful but stays on register page
         self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Register', response.data)
+        
+        # Check that test user is not added to database
+        self.assertIsNone(User.query.filter_by(username='test_user').first()) 
 
     # Testing access to chatroom
     def test_chatroom_redirect_if_not_logged_in(self):
