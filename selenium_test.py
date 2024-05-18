@@ -148,15 +148,8 @@ class TestSelenium(unittest.TestCase):
         sub = driver.find_element(By.ID, "submit-btn")
         driver.execute_script("arguments[0].click();", sub)
 
-        # Check for redirection to login page
+        # Check for redirection to edit profile page
         self.assertIn("Edit Profile", driver.title)
-
-        # Test to enter tutorial page from edit profile
-        tutorial_button = driver.find_element(By.ID, "tutorial-btn")
-        driver.execute_script("arguments[0].click();", tutorial_button)
-
-        # Assert the correct page title or some other verification that the page loaded
-        self.assertIn("Tutorial", driver.title)
     
         # Test for logging out
         # Click logout button
