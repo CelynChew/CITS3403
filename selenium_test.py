@@ -35,7 +35,8 @@ class TestSelenium(unittest.TestCase):
         # Test for redirection from login to register page
         driver.get(self.base_url)
         register_link = driver.find_element(By.CSS_SELECTOR, "a[href='../register']")
-        register_link.click()
+        # Execute JavaScript to navigate to the registration page
+        driver.execute_script("arguments[0].click();", register_link)
         WebDriverWait(driver, 10).until(EC.title_contains("Registration"))
         self.assertIn("Registration", driver.title)
 
