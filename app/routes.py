@@ -115,12 +115,6 @@ def registration():
 
     # Render the registration form when the request method is GET
     return render_template('registration.html', form=form)
-    
-# Route to serve the introduction page
-@app.route('/intro/<username>')
-@login_required
-def intro(username):
-    return render_template('intro.html', username=username)
 
 # Defining route for using chatroom features
 @app.route('/tutorial')

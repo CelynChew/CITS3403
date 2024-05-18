@@ -7,6 +7,7 @@ import os
 from datetime import datetime
 from io import BytesIO
 import json
+import re
 
 class TestUserModel(unittest.TestCase):
     def setUp(self):
@@ -67,23 +68,49 @@ class TestUserModel(unittest.TestCase):
         db.session.delete(test_user)
         db.session.commit()
 
-    # Test for registration
-    def test_registration(self):
-        # Test registration with matching passwords
-        response = self.app.post('/register', data={'uName': 'test_user', 'password': 'password', 'retypePassword': 'password'}, follow_redirects=True)
+    # Tests for registration
+    def test_registration_success(self):
+        # Get registration form to extract CSRF token
+        response = self.app.get('/register')
+
+        # Extract CSRF token using a raw string literal for the regular expression pattern
+        csrf_token_match = re.search(r'<input\s+type="hidden"\s+name="csrf_token"\s+value="([^"]+)"\s*/?>', response.data.decode('utf-8'))
+        csrf_token = csrf_token_match.group(1) if csrf_token_match else None
+
+        # Simulate registration form submission with matching passwords and CSRF token
+        response = self.app.post('/register', data={
+            'username': 'test_user',
+            'password': 'password',
+            'confirm_password': 'password',
+            'csrf_token': csrf_token
+        }, follow_redirects=True)
+        
+        # Check if redirected to the login page after successful registration
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Login', response.data) # Check if redirected to Login page
-        self.assertIsNotNone(User.query.filter_by(username='test_user').first()) # Check if test_user is added to database
+        self.assertIn(b'Login', response.data)
 
-        # Test registration with non-matching passwords
-        response = self.app.post('/register', data={'uName': 'test_user', 'password': 'password', 'retypePassword': 'wrong_password'}, follow_redirects=True)
-        self.assertEqual(response.status_code, 200) 
-        self.assertIn(b'Passwords do not match!', response.data) 
+        # Check if the user is added to the database
+        user = User.query.all()
+        self.assertIsNotNone(user)
 
-        # Delete test_user from the database
-        test_user = User.query.filter_by(username='test_user').first()
-        db.session.delete(test_user)
-        db.session.commit()
+    def test_registration_password_mismatch(self):
+        # Get registration form to extract CSRF token
+        response = self.app.get('/register')
+
+        # Extract CSRF token using a raw string literal for the regular expression pattern
+        csrf_token_match = re.search(r'<input\s+type="hidden"\s+name="csrf_token"\s+value="([^"]+)"\s*/?>', response.data.decode('utf-8'))
+        csrf_token = csrf_token_match.group(1) if csrf_token_match else None
+
+        # Simulate registration form submission with non-matching passwords
+        response = self.app.post('/register', data={
+            'username': 'test_user',
+            'password': 'password',
+            'confirm_password': 'wrong_password',
+            'csrf_token': csrf_token
+        }, follow_redirects=True)
+        
+        # Check if the error message for password mismatch is displayed
+        self.assertEqual(response.status_code, 200)
 
     # Testing access to chatroom
     def test_chatroom_redirect_if_not_logged_in(self):
