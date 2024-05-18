@@ -222,6 +222,8 @@ def chatroom_m():
 
     return render_template('chatroom-m.html', user_chats=user_chats, username=username, chat_messages=chat_messages, form=form)
 
+app.config['UPLOAD_FOLDER'] = os.path.abspath(os.environ.get('UPLOAD_FOLDER', './uploads'))
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     file = request.files['file']
@@ -247,6 +249,9 @@ def upload_file():
     if file and chat:
         # Reset file handle position to the beginning of the file
         file.seek(0)
+
+        if not os.path.exists(app.config['UPLOAD_FOLDER']):
+            os.makedirs(app.config['UPLOAD_FOLDER'])
 
         # Save the file to the upload folder
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], (file.filename))
