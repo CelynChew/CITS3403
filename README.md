@@ -11,7 +11,7 @@
 | 22848932 | Celyn Chew | CelynChew |
 | 23641633  | Chuen Yui Lam  | Roy-Lam  |
 | 23251142  | Benjamin Cooper | bc163836 |
-|  |  |  |
+| 23237969 | Felicia Sindhu | sindhufelicia |
 
 ## Architecture of the application
 
@@ -28,7 +28,9 @@ Windows ``` .venv/Scripts/activate```     IF ERROR ```Set-ExecutionPolicy -Execu
 
 Install Requirements (if needed):
 
-```pip install -r requirements.txt```
+1. Update pip: ```pip install --upgrade pip```
+
+2. Requirements: ```pip install -r requirements.txt```
 
 Initialise Database: 
 
