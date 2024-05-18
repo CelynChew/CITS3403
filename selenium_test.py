@@ -148,8 +148,14 @@ class TestSelenium(unittest.TestCase):
         sub = driver.find_element(By.ID, "submit-btn")
         driver.execute_script("arguments[0].click();", sub)
 
-        # Check for redirection to edit profile page
+        # Check that is stays on edit profile page
         self.assertIn("Edit Profile", driver.title)
+        success_message = WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((By.XPATH, "//p[contains(text(), 'Password Successfully Changed')]"))
+        )
+        
+        # Check for success message text
+        self.assertIn("Password Successfully Changed", success_message.text)
     
         # Test for logging out
         # Click logout button
