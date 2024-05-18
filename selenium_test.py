@@ -50,6 +50,11 @@ class TestSelenium(unittest.TestCase):
         WebDriverWait(driver, 10).until(EC.title_contains("Login"))
         self.assertIn("Login", driver.title)
 
+        # Wait for the login form to be present
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "loginForm"))
+        )
+
         # Test for valid login after registration
         # Fill in the login form
         user = "test_user"
@@ -60,10 +65,6 @@ class TestSelenium(unittest.TestCase):
         # Submit the form
         login_button = driver.find_element(By.ID, "login-btn")
         driver.execute_script("arguments[0].click();", login_button)
-
-        # Wait for successful entry into the chat room
-        WebDriverWait(driver, 10).until(EC.title_contains("Chatroom"))
-        self.assertIn("Chatroom", driver.title)
 
         # Wait for successful entry into the chat room
         WebDriverWait(driver, 10).until(EC.title_contains("Chatroom"))
@@ -144,8 +145,8 @@ class TestSelenium(unittest.TestCase):
         
         # Test for redirection from login to register page
         driver.get(self.base_url)
-        register_link = driver.find_element(By.CSS_SELECTOR, "a[href='/tutorial']")
-        register_link.click()
+        tutorial_button = driver.find_element(By.ID, "tutorial-btn")
+        driver.execute_script("arguments[0].click();", tutorial_button)
         WebDriverWait(driver, 10).until(EC.title_contains("Tutorial"))
         self.assertIn("Tutorial", driver.title)
 
