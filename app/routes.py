@@ -570,5 +570,34 @@ def data():
 
     return jsonify(users = user_data, msgs = msgs_data, chats = chats_data, user_chats = user_chats_data)
 
+# Route to Serve the Edit Profile Page
+@app.route("/edit_profile", methods=['POST', 'GET'])
+@login_required
+def edit_profile():
+    user = User.query.filter_by(username=current_user.username).first()
+    username = user.username
+    error_message = None
+    success = None
+    if request.method == 'POST':
+        oldpword = request.form['currentpword'] 
+        newpword = request.form['newpword']
+        retype = request.form['retypenewPword']
+
+        user = User.query.filter_by(username=current_user.username, password=oldpword).first()
+
+        if user == None:
+            return render_template('edit_profile.html', error_message='Incorrect Password for User')
+        
+        elif newpword != retype:
+            return render_template('edit_profile.html', error_message='New Passwords Do Not Match')
+
+        else:
+
+            user = User.query.filter_by(username=username, password=oldpword).first()
+            user.password = newpword
+            db.session.commit()
+            return render_template('edit_profile.html', success = "Password Successfully Changed")
+    return render_template('edit_profile.html')
+
 if __name__ == '__main__':
     socketio.run(debug=True)

@@ -478,6 +478,18 @@ function showTutorial() {
     }
 }
 
+// Listener to switch content on screen resizing
+window.addEventListener('resize', switchContent);
+
+// Functions to open and close sidenav bar
+function openNav() {
+    document.getElementById("chats").style.width = "250px";
+}
+
+function closeNav() {
+    document.getElementById("chats").style.width = "0";
+}
+
 // Function to check if the screen size is small 
 function isMobile() {
     return window.innerWidth <= 900; 
@@ -499,14 +511,3 @@ function switchContent() {
     }
 }
 
-// Listener to switch content on screen resizing
-window.addEventListener('resize', switchContent);
-
-// Functions to open and close sidenav bar
-function openNav() {
-    document.getElementById("chats").style.width = "250px";
-}
-
-function closeNav() {
-    document.getElementById("chats").style.width = "0";
-}
