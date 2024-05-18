@@ -45,18 +45,21 @@ class TestUserModel(unittest.TestCase):
         db.session.add(test_user)
         db.session.commit()
 
+        # Retrieve the CSRF token
+        csrf_token = r'<input\s+type="hidden"\s+id="csrf_token"\s+name="csrf_token"\s+value="(\S+)"\s*/?>'
+
         # Test login with correct login details
-        response = self.app.post('/', data={'username': 'test_user', 'password': 'password'}, follow_redirects=True)
+        response = self.app.post('/', data={'csrf_token': csrf_token, 'username': 'test_user', 'password': 'password'}, follow_redirects=True)
         # Verify that the response is a successful login
         self.assertEqual(response.status_code, 200)
 
         # Test login with wrong username
-        response = self.app.post('/', data={'username': 'wrong_username', 'password': 'password'}, follow_redirects=True)
+        response = self.app.post('/', data={'csrf_token': csrf_token, 'username': 'wrong_username', 'password': 'password'}, follow_redirects=True)
         # Verify that the response is a failed login
         self.assertEqual(response.status_code, 200)  
 
         # Test login with wrong password
-        response = self.app.post('/', data={'username': 'test_user', 'password': 'wrong_password'}, follow_redirects=True)
+        response = self.app.post('/', data={'csrf_token': csrf_token, 'username': 'test_user', 'password': 'wrong_password'}, follow_redirects=True)
         # Verify that the response is a successful login
         self.assertEqual(response.status_code, 200)  
 
