@@ -97,36 +97,21 @@
 </div>
 </form>
 
-<script>
-function showTutorial() {
-    window.location.href = "/tutorial"
-    
+<script> function showChatroom() {
+    mobile = isMobile()
+    if (mobile) {
+        window.location.href = "/chatroom-m"
+    }
+    else {
+        window.location.href = "/chatroom"
+    }
 }
 
-// Function for logging out
-function LoggingOut() {
-    window.location.href = "/";
-    fetch('/logout', {
-        method: 'GET',
-        credentials: 'same-origin' // Include cookies in the request
-    })
-    .then(response => {
-        // Handle successful logout
-        window.location.href = "/";
-    })
-    .catch(error => {
-        // Handle errors
-        console.error('Logout error:', error);
-    });
-}
-
-function showChatroom() {
-    window.location.href = "/chatroom"
-
-}
 </script>
+
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="../static/js/chatroom.js"></script>
 
 </body>
