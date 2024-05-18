@@ -127,6 +127,11 @@ def intro(username):
 def tutorial():
     return render_template('tutorial.html')
 
+# Defining route for using tutorial mobile
+@app.route('/tutorial-m')
+def tutorial_m():
+    return render_template('tutorial-m.html')
+
 # Route to serve the chatroom
 @app.route('/chatroom', methods=['GET', 'POST'])
 @login_required
