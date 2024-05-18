@@ -18,37 +18,31 @@
         <div class="container-fluid">
             <p class="navbar-brand" style="color: white; margin: 0;">{{ current_user.username }}'s Profile </p>
             <!-- Navbar links -->
-            <!--<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button> -->
-                
-                <!--<div class="collapse navbar-collapse" id="navbarNav">-->
-                <ul class="navbar-nav ms-auto flex-row">
+            <!--<div class="collapse navbar-collapse" id="navbarNav">-->
+            <ul class="navbar-nav ms-auto flex-row">
 
-                    <!-- Tutorial Page Link -->
-                    <li class="nav-item">
-                        <button id="tutorial-btn" class="btn" onclick="showTutorial()">Tutorial
-                            <!-- Question circle icon -->
-                            <i class="bi bi-question-circle" style="color: white; font-size: 20px;"></i>
-                        </button>
-                    </li>
-                    <!-- Chatroom Page Link-->
-                    <li class="nav-item">
-                        <button class="btn btn-primary" onclick="showChatroom()" style = "margin-top: 3px; margin-right: 30px;">Chatroom
-                        </button>
-                    </li>
-                    <!-- Logout Button -->
-                    <li class="nav-item">
-                        <button id="logout" class="btn btn-danger" style="margin-top: 3px;" onclick="LoggingOut()">Logout</button>
-                    </li>
-                    <!-- Link to Profile Change Page -->
-                    <li class="nav-item">
-                        <a id="edit-profile-btn" href="{{ url_for('edit_profile', username=current_user.username) }}">
-                        <i class="bi bi-person-circle" style="color: white; font-size: 30px; padding: 20px; top: 3px;"></i></a>
-                    </li>
-                </ul>
-        </div>
-        </div>
+                <!-- Tutorial Page Link -->
+                <li class="nav-item">
+                    <button id="tutorial-btn" class="btn" onclick="showTutorial()">Tutorial
+                        <!-- Question circle icon -->
+                        <i class="bi bi-question-circle" style="color: white; font-size: 20px;"></i>
+                    </button>
+                </li>
+                <!-- Chatroom Page Link-->
+                <li class="nav-item">
+                    <button class="btn btn-primary" onclick="showChatroom()" style = "margin-top: 3px; margin-right: 30px;">Chatroom
+                    </button>
+                </li>
+                <!-- Logout Button -->
+                <li class="nav-item">
+                    <button id="logout" class="btn btn-danger" style="margin-top: 3px;" onclick="LoggingOut()">Logout</button>
+                </li>
+                <!-- Link to Profile Change Page -->
+                <li class="nav-item">
+                    <a id="edit-profile-btn" href="{{ url_for('edit_profile', username=current_user.username) }}">
+                    <i class="bi bi-person-circle" style="color: white; font-size: 30px; padding: 20px; top: 3px;"></i></a>
+                </li>
+            </ul>
         </div>
     </nav>
 
