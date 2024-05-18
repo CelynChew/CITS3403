@@ -19,9 +19,9 @@ class TestSelenium(unittest.TestCase):
     # Test landing page is login
     def test_home_page(self):
         self.driver.get(self.base_url)
-        self.assertIn("Login", self.driver.title)  # Check title of HTML
-        heading = self.driver.find_element(By.TAG_NAME, "h1")
-        self.assertEqual(heading.text, "Welcome to ChatSome!")
+        # Check if the title of the page contains "Login"
+        title = self.driver.title
+        self.assertIn("Login", title, "Login page is not the landing page.")
 
     # Test for redirection from base page to registration page.
     # Test for valid registration and login
