@@ -78,3 +78,7 @@ input[type="text"] {
     height: 60vh;
     margin-right: 20px;
 }
+
+.product-description ~ p {
+    text-align: right;
+}

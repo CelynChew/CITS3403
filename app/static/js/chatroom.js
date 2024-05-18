@@ -472,7 +472,7 @@ function LoggingOut() {
 // Function for going to tutotial page
 function showTutorial() {
     if (window.innerWidth <= 1000) {
-    window.location.href = "/tutorial-m"; }
+        window.location.href = "/tutorial-m"; }
     else {
         window.location.href = "/tutorial";
     }
