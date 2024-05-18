@@ -77,9 +77,11 @@ Initialise Database:
 
 ```flask db migrate -m "Initial migration"```  
 
-If error occurs (start from ```flask db init```  after making new directory in migration)
-```Remove-Item -Recurse -Force migrations```
-```mkdir migrations```
+- If error occurs (start from ```flask db init```  after making new directory in migration)
+
+- ```Remove-Item -Recurse -Force migrations```
+
+- ```mkdir migrations```
 
 Create tables:
 

@@ -1,3 +1,7 @@
+h1 {
+    text-align: center;
+}
+
 body {
     background-color: white;
     font-family: Arial, sans-serif;
@@ -5,34 +9,36 @@ body {
 
 h5 {
     border: 2px solid grey;
-    padding-bottom: 30px;
+    padding-bottom: 20px;
 
 }
-
 
 img {
     border: 2px solid grey;
     border-radius: 5px;
     height: auto;
-    }
+}
 
 .carousel {
-    background-color: rgb(33, 37, 41, 1) ; 
-    border: 1px solid gray; 
+    background-color: rgb(33, 37, 41, 1);
+    border: 1px solid gray;
     margin: auto;
-    margin-bottom: 100px; /* center the carousel horizontally */
-    margin-top: 100px; /* center the carousel vertically */
+    margin-top: 30px;
     border-radius: 7px;
-    text-align: center; 
+    text-align: center;
     width: 60%;
-    box-shadow: 0 0 10px rgb(17, 17, 17); 
+    box-shadow: 0 0 10px rgb(17, 17, 17);
+    width: 50%; 
 }
 
 .carousel-item {
     color: whitesmoke;
-    padding: 20px;
+    padding-left: 60px;
+    padding-top: 15px;
     margin-bottom: 5px;
     text-align: center;
+    width: 600px;
+    height: 600px;
 }
 
 .carousel-indicators button{
@@ -43,6 +49,18 @@ img {
     background-color: white !important; /* ensures active indicator is black */
 }
 
-.carousel-control-prev, .carousel-control-next{
-    filter: invert(); /* makes prev and next arrows visible */
+.carousel-control-prev, .carousel-control-next {
+    color: white; 
+}
+
+.carousel-control-prev:hover, .carousel-control-next:hover {
+    color: whitesmoke; 
+}
+
+.carousel-control-prev {
+    left: -20px; 
+}
+
+.carousel-control-next {
+    right: -20px; 
 }
