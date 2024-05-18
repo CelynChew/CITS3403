@@ -15,6 +15,7 @@ class TestUserModel(unittest.TestCase):
         self.app = app.test_client()
         self.app_context = app.app_context()
         self.app_context.push()
+        self.app.application.config['WTF_CSRF_ENABLED'] = False  # Disable CSRF protection for testing
         db.create_all() # Create tables in the test database
 
     def tearDown(self):

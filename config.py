@@ -10,3 +10,5 @@ class Config(object):
 class TestConfig(object):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory'
     TESTING = True
+    TESTING = True
+    TF_CSRF_ENABLED = False  # Disable CSRF protection in tests
