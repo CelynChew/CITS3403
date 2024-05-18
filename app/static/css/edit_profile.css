@@ -1,0 +1,27 @@
+body {
+    background-color: whitesmoke;
+    font-family: Arial, sans-serif;
+}
+
+
+.container {
+    width: 90%;
+    margin: 100px auto;
+    background: white;
+    padding: 5%; 
+    padding-top: 1%;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+}
+
+h1, h3 {
+    font-weight: bold;
+    text-align: center;
+}
+@media only screen and (min-width: 900px) {
+    .container {
+        width: 60%; 
+        max-width: 40%; 
+        padding-bottom: 5%;
+    }
+}
