@@ -77,6 +77,22 @@ class TestUserModel(unittest.TestCase):
         # Check if test_user is added to the database
         self.assertIsNotNone(User.query.filter_by(username='test_user').first())
 
+        # Delete test
+        db.session.delete(User.query.filter_by(username='test_user').first())
+        db.session.commit()   
+
+    # Test for registration
+    def test_registration_with_mismatching_passwords(self):
+        # Simulate form submission with mismatching passwords
+        response = self.app.post('/register', data={'username': 'test_user', 'password': 'password', 'confirm_password': 'password2'}, follow_redirects=True)
+        
+        # Check if request is sucessful but stays on register page
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Register', response.data)
+        
+        # Check that test user is not added to database
+        self.assertIsNone(User.query.filter_by(username='test_user').first()) 
+
     # Testing access to chatroom
     def test_chatroom_redirect_if_not_logged_in(self):
         response = self.app.get('/chatroom')
