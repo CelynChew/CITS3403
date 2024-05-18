@@ -262,11 +262,29 @@ def upload_file():
         
         db.session.add(new_message)
         db.session.commit()
-       
+
+        # Generate the download link for the uploaded file
+        download_link = url_for('download_file', filename=file.filename)
+        
+        # Emit the formatted file via Socket.IO
+        socketio.emit('file-upload', {
+            'file_name': file.filename,
+            'download_link': download_link,
+            'username': username,
+            'timestamp': timestamp.strftime('%Y-%m-%d %H:%M')
+        })
+        
         return jsonify({"message": "File uploaded successfully"})
     else:
         return 'No file uploaded'
 
+@app.route('/download/<filename>', methods=['GET'])
+def download_file(filename):
+    # Generate the path to the uploaded file
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    # Return the file as an attachment
+    return send_file(file_path, as_attachment=True)
+   
 # Route to serve uploaded files
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
