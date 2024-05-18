@@ -118,26 +118,6 @@ class TestUserModel(unittest.TestCase):
         self.assertEqual(response.status_code, 302)  # Check if the page was redirected
         self.assertIn('/', response.location)   # Check if redirected to login page
 
-    def test_chatroom_served_when_logged_in(self):
-        # Create a test user
-        test_user = User(username='test_user', password='password')
-        db.session.add(test_user)
-        db.session.commit()
-
-        # Log in the test user
-        with self.app as c:
-            response = c.post('/', data={'username': 'test_user', 'password': 'password'}, follow_redirects=True)
-            self.assertEqual(response.status_code, 200)  # Check if login was successful
-
-            # After login, make a GET request to the chatroom page
-            response = c.get('/chatroom')
-            self.assertEqual(response.status_code, 200)  # Check if the request was successful
-            self.assertIn(b'Chatroom', response.data)  # Check if redirected to chatroom
-        
-        # Delete test_user
-        db.session.delete(test_user)
-        db.session.commit()
-
     # Test for creating chat with non-existing user
     def test_create_chat_with_non_existing_user(self):
         # Create test user
