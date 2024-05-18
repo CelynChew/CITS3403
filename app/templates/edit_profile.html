@@ -27,7 +27,7 @@
 
                     <!-- Tutorial Page Link -->
                     <li class="nav-item">
-                        <button class="btn" onclick="showTutorial()">Tutorial
+                        <button id="tutorial-btn" class="btn" onclick="showTutorial()">Tutorial
                             <!-- Question circle icon -->
                             <i class="bi bi-question-circle" style="color: white; font-size: 20px;"></i>
                         </button>
@@ -43,7 +43,7 @@
                     </li>
                     <!-- Link to Profile Change Page -->
                     <li class="nav-item">
-                    <a href="{{ url_for('edit_profile', username=current_user.username) }}">
+                        <a href="{{ url_for('edit_profile', username=current_user.username) }}">
                         <i class="bi bi-person-circle" style="color: white; font-size: 30px; padding: 20px; top: 3px;"></i></a>
                     </li>
                 </ul>
@@ -53,49 +53,47 @@
     </nav>
 
 
-<div class = 'container'>
-    <br><br>
-<h1> Welcome User: {{ current_user.username }}</h1>
-<br><br><br>
-<h3>Password Change Form</h3>
-<br><br><br>
-<form id="edit-profile" action="/edit_profile" method="POST">
-    <div class="login-section">
-    <div class="mb-3">
-        <!-- Current Password input-->
-        <label for="currentpword" class="form-label">Current Password:</label>
-        <input type="text" class="form-control" id="currentpword" name="currentpword" required>
-    </div>
-    <div class="mb-3">
-        <!-- Password input -->
-        <label for="newpword" class="form-label">New Password:</label>
-        <input type="password" class="form-control" id="newpword" name="newpword" required>
-    </div>
-    <div class="mb-3">
-        <!-- Retyped Password input -->
-        <label for="retypenewPword" class="form-label">Retype New Password:</label>
-        <input type="password" class="form-control" id="retypenewPword" name="retypenewPword" required>
-    </div>
-    <div class="mb-3">
-        <!-- Submit Button -->
-        <button type="submit" class="btn btn-primary" id="submit-btn">Submit Changes</button>
-    </div>
-    
-    <!-- Error message if passwords do not match -->
-    {% if password_error %}
-        <p style="color: red;">{{ password_error }}</p>
-    {% endif %}
-    <!-- Error message if username already exists -->
-    {% if error_message %}
-        <p style="color: red;">{{ error_message }}</p>
-    {% endif %}
+    <div class = 'container'>
+        <br>
+        <h3>Create a new password</h3>
+        <br>
+        <form id="edit-profile" action="/edit_profile" method="POST">
+            <div class="login-section">
+                <div class="mb-3">
+                    <!-- Current Password input-->
+                    <label for="currentpword" class="form-label">Current Password:</label>
+                    <input type="text" class="form-control" id="currentpword" name="currentpword" required>
+                </div>
+                <div class="mb-3">
+                    <!-- Password input -->
+                    <label for="newpword" class="form-label">New Password:</label>
+                    <input type="password" class="form-control" id="newpword" name="newpword" required>
+                </div>
+                <div class="mb-3">
+                    <!-- Retyped Password input -->
+                    <label for="retypenewPword" class="form-label">Retype New Password:</label>
+                    <input type="password" class="form-control" id="retypenewPword" name="retypenewPword" required>
+                </div>
+                <div class="mb-3">
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary" id="submit-btn">Submit Changes</button>
+                </div>
+            
+                <!-- Error message if passwords do not match -->
+                {% if password_error %}
+                    <p style="color: red;">{{ password_error }}</p>
+                {% endif %}
+                <!-- Error message if username already exists -->
+                {% if error_message %}
+                    <p style="color: red;">{{ error_message }}</p>
+                {% endif %}
 
-    {% if success %}
-        <p style="color: green;">{{ success }}</p>
-    {% endif %}
+                {% if success %}
+                    <p style="color: green;">{{ success }}</p>
+                {% endif %}
+            </div>
+        </form>
     </div>
-</div>
-</form>
 
 <script>
 function showTutorial() {

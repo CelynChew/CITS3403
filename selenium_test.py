@@ -129,6 +129,39 @@ class TestSelenium(unittest.TestCase):
         # Check that the chat item has been deleted
         chat_items = driver.find_elements(By.XPATH, "//ul[@id='chat-list']/li")
         self.assertEqual(len(chat_items), 0)
+
+        # Test for access to edit profile page
+        edit_profile_button = driver.find_element(By.ID, "edit-profile-btn")
+        driver.execute_script("arguments[0].click();", edit_profile_button)
+
+        # Assert the correct page title or some other verification that the page loaded
+        self.assertIn("Edit Profile", driver.title)
+
+        # Fill out the form fields
+        current_password = "password"
+        new_password = "new_password"
+        driver.execute_script("document.getElementById('currentpword').value = arguments[0];", current_password)
+        driver.execute_script("document.getElementById('newpword').value = arguments[0];", new_password)
+        driver.execute_script("document.getElementById('retypenewPword').value = arguments[0];", new_password)
+
+        # Click the submit button
+        sub = driver.find_element(By.ID, "submit-btn")
+        driver.execute_script("arguments[0].click();", sub)
+
+        # Check for redirection to login page
+        self.assertIn("Edit Profile", driver.title)
+
+        # Test to enter tutorial page from edit profile
+        tutorial_button = driver.find_element(By.ID, "tutorial-btn")
+        driver.execute_script("arguments[0].click();", tutorial_button)
+
+        # Assert the correct page title or some other verification that the page loaded
+        self.assertIn("Tutorial", driver.title)
+
+        # Test to re-enter chatroom
+        chat_button = driver.find_element(By.ID, "chat-btn")
+        driver.execute_script("arguments[0].click();", chat_button)
+        self.assertIn("Chatroom", driver.title)
     
         # Test for logging out
         # Click logout button
