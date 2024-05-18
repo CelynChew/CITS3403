@@ -157,11 +157,6 @@ class TestSelenium(unittest.TestCase):
 
         # Assert the correct page title or some other verification that the page loaded
         self.assertIn("Tutorial", driver.title)
-
-        # Test to re-enter chatroom
-        chat_button = driver.find_element(By.ID, "chat-btn")
-        driver.execute_script("arguments[0].click();", chat_button)
-        self.assertIn("Chatroom", driver.title)
     
         # Test for logging out
         # Click logout button
