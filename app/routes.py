@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, jsonify, session, send_from_directory
+from flask import Flask, render_template, request, redirect, url_for, jsonify, session, send_from_directory, current_app
 from datetime import datetime, timedelta
 from flask_sqlalchemy import SQLAlchemy
 from .models import User, Message, Chats, UserChat
@@ -297,11 +297,16 @@ def handle_connect():
 # Sending the message in real-time using flask-socketio
 @socketio.on('message')
 def handle_message(data):
+    # Check if the 'username' key is present in the session
+    if 'username' not in session:
+        print("User is not authenticated.")
+        return
+    
+    username = session['username']
     chatroom = session.get('chatroom')
     
     if isinstance(data, dict):
         message = data.get('msg')
-        username = session['username']
         chat_name = data.get('chatName')
         timestamp = datetime.now()
         formatted_message = f"{username}: {message} ({timestamp.strftime('%Y-%m-%d %H:%M')})"
@@ -333,46 +338,52 @@ def handle_message(data):
             db.session.commit()
 
             # Emit the message to all clients in the chat room
-            socketio.emit('message', {'msg': formatted_message, 'username': username, 'time_stamp': timestamp.isoformat()}, room=chatroom)
+            socketio.emit('message', {'msg': formatted_message, 'username': username, 'time_stamp': timestamp.isoformat(), 'message_sent': True}, room=chatroom)
+        else:
+            socketio.emit('message', {'error': 'Chat not found', 'message_sent': False}, room=chatroom)
 
-# # Route to handle sending the message 
-# @app.route('/send_message', methods=['POST'])
-# @login_required
-# def send_message():
-#     if request.method == 'POST':
-#         message = request.json['message']
-#         username = session['username']
-#         chat_name = request.json['chat_name']
-#         timestamp = datetime.now()
+# Route to handle sending the message 
+@app.route('/send_message', methods=['POST'])
+@login_required
+def send_message():
+    if not current_app.config.get('TESTING'):
+        return jsonify({"error": "Route disabled in production"}), 403
+    
+    else:    
+        if request.method == 'POST':
+            message = request.json['message']
+            username = session['username']
+            chat_name = request.json['chat_name']
+            timestamp = datetime.now()
 
-#         sender_info = User.query.filter_by(username=username).first()
-#         receiver_info = User.query.filter_by(username=chat_name).first()
-        
-#         # Retrieve chats for logged-in user
-#         user_chats = (Chats.query
-#                       .join(UserChat, Chats.chat_id == UserChat.chat_id)
-#                       .join(User, UserChat.user_id == User.id)
-#                       .filter(User.username == username)
-#                       .all())
-#         print(user_chats)
+            sender_info = User.query.filter_by(username=username).first()
+            receiver_info = User.query.filter_by(username=chat_name).first()
+            
+            # Retrieve chats for logged-in user
+            user_chats = (Chats.query
+                        .join(UserChat, Chats.chat_id == UserChat.chat_id)
+                        .join(User, UserChat.user_id == User.id)
+                        .filter(User.username == username)
+                        .all())
+            print(user_chats)
 
-#         chat = next((chat for chat in user_chats if chat.chat_name == chat_name), None)
+            chat = next((chat for chat in user_chats if chat.chat_name == chat_name), None)
 
-#         if chat == None:
-#             chat = next((chat for chat in user_chats if chat.receiver_chat_name == chat_name), None)
-#         print(chat)
+            if chat == None:
+                chat = next((chat for chat in user_chats if chat.receiver_chat_name == chat_name), None)
+            print(chat)
 
-#         if chat:
-#             # Create a new Message object
-#             new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, msg_text=message, timestamp=timestamp)
-                    
-#             # Insert message into the messages table
-#             db.session.add(new_message)
-#             db.session.commit()
+            if chat:
+                # Create a new Message object
+                new_message = Message(sender_id=sender_info.id, receiver_id=receiver_info.id, chat_id=chat.chat_id, msg_text=message, timestamp=timestamp)
+                        
+                # Insert message into the messages table
+                db.session.add(new_message)
+                db.session.commit()
 
-#             return jsonify({"message": "Message sent successfully"})
-#         else:
-#             return jsonify({"error": "Chat not found"}), 404
+                return jsonify({"message": "Message sent successfully"})
+            else:
+                return jsonify({"error": "Chat not found"}), 404
                 
 # Route to retrieve chatId based on chatName
 @app.route('/get_chat_id/<chatName>')
