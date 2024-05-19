@@ -118,9 +118,13 @@ Hipp, D. (n.d.). SQLite. Retrieved from https://www.sqlite.org
 
 Otto, M., & Thornton, J. (n.d.). Bootstrap. Retrieved from https://getbootstrap.com
 
+Python. (2019). os — Miscellaneous operating system interfaces — Python 3.8.0 documentation. Python.org. https://docs.python.org/3/library/os.html
+
 Roy, M., & Grinberg, M. (n.d.). Flask-Login. Retrieved from https://flask-login.readthedocs.io/en/latest/
 
 SeleniumHQ. (n.d.). Selenium WebDriver. Retrieved from https://www.selenium.dev
+
+Server Installation | Socket.IO. (2024, April 10). Socket.io. https://socket.io/docs/v3/server-installation/
 
 W3C. (1999). HTML 4.01 Specification. Retrieved from https://www.w3.org/TR/html401/
 
