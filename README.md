@@ -108,6 +108,9 @@ Selenium Test:
 
 
 ## Resource Reference (APA)
+Bayer, M. (2012). SQLAlchemy: The Database Toolkit for Python. Retrieved from https://www.sqlalchemy.org
+
+Ecma International. (2011). ECMAScript Language Specification (ECMA-262). Retrieved from https://www.ecma-international.org/publications/standards/Ecma-262.htm
 
 Grinberg, M. (2018). Flask web development: Developing web applications with Python (2nd ed.). O'Reilly Media.
 
@@ -124,7 +127,3 @@ W3C. (1999). HTML 4.01 Specification. Retrieved from https://www.w3.org/TR/html4
 W3C. (2011). Cascading Style Sheets (CSS) Snapshot 2010. Retrieved from https://www.w3.org/TR/css-2010/
 
 WTForms. (n.d.). WTForms Documentation. Retrieved from https://wtforms.readthedocs.io/en/stable/
-
-Bayer, M. (2012). SQLAlchemy: The Database Toolkit for Python. Retrieved from https://www.sqlalchemy.org
-
-Ecma International. (2011). ECMAScript Language Specification (ECMA-262). Retrieved from https://www.ecma-international.org/publications/standards/Ecma-262.htm

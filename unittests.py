@@ -7,7 +7,6 @@ import os
 from datetime import datetime
 from io import BytesIO
 import json
-import re
 
 class TestUserModel(unittest.TestCase):
     def setUp(self):
