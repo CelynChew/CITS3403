@@ -103,5 +103,4 @@ Unit Test:
 
 Selenium Test:
 1. Run Flask application in a virtual environment
-2. In a seperate terminal, create and activate virtual environment
-3. ```python selenium_test.py```
+2. In a seperate terminal, create and activate virtual environment. Install the requirements and ```python selenium_test.py```
