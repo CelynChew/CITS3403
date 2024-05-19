@@ -34,3 +34,29 @@ function register() {
         return true; // Add this line to allow form submission
     }
 }
+
+// Listener for typing animation
+document.addEventListener('DOMContentLoaded', function() {
+    const text = "Welcome to ChatSome!";
+    const element = document.getElementById('welcome-text');
+    let index = 0;
+
+    // Create the typing icon element
+    const typingIcons = document.createElement('span');
+    typingIcons.id = 'typing-icons';
+    element.parentNode.insertBefore(typingIcons, element.nextSibling);
+
+    function type() {
+        if (index < text.length) {
+            element.innerHTML += text.charAt(index);
+            index++;
+            setTimeout(type, 100);
+        } else {
+            // Remove the typing icon once typing is done
+            typingIcons.style.display = 'none';
+            element.style.borderRight = 'none'; // Stop the cursor after typing
+        }
+    }
+
+    type();
+});

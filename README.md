@@ -54,8 +54,6 @@ users on getting started with ChatSome.
 | 23251142  | Benjamin Cooper | bc163836 |
 | 23237969 | Felicia Sindhu | sindhufelicia |
 
-## Architecture of the application
-
 ## How to launch the application
 Create Virtual Environment:
 
@@ -79,9 +77,11 @@ Initialise Database:
 
 ```flask db migrate -m "Initial migration"```  
 
-If error occurs (start from ```flask db init```  after making new directory in migration)
-```Remove-Item -Recurse -Force migrations```
-```mkdir migrations```
+- If error occurs (start from ```flask db init```  after making new directory in migration)
+
+- ```Remove-Item -Recurse -Force migrations```
+
+- ```mkdir migrations```
 
 Create tables:
 
@@ -96,3 +96,11 @@ For mobile:
 1. Connect your laptop to your phone's mobile hotspot
 2. Run ```flask run --host=0.0.0.0``` and use the second link. 
 ## How to run the tests for the application
+Unit Test:
+
+```python unittests.py```
+
+Selenium Test:
+1. Run Flask application in a virtual environment
+2. In a seperate terminal, create and activate virtual environment
+3. ```python selenium_test.py```
