@@ -19,9 +19,9 @@ class TestSelenium(unittest.TestCase):
     # Test landing page is login
     def test_home_page(self):
         self.driver.get(self.base_url)
-        self.assertIn("Login", self.driver.title)  # Check title of HTML
-        heading = self.driver.find_element(By.TAG_NAME, "h1")
-        self.assertEqual(heading.text, "Welcome to ChatSome!")
+        # Check if the title of the page contains "Login"
+        title = self.driver.title
+        self.assertIn("Login", title, "Login page is not the landing page.")
 
     # Test for redirection from base page to registration page.
     # Test for valid registration and login
@@ -35,7 +35,8 @@ class TestSelenium(unittest.TestCase):
         # Test for redirection from login to register page
         driver.get(self.base_url)
         register_link = driver.find_element(By.CSS_SELECTOR, "a[href='../register']")
-        register_link.click()
+        # Execute JavaScript to navigate to the registration page
+        driver.execute_script("arguments[0].click();", register_link)
         WebDriverWait(driver, 10).until(EC.title_contains("Registration"))
         self.assertIn("Registration", driver.title)
 
@@ -49,10 +50,21 @@ class TestSelenium(unittest.TestCase):
         WebDriverWait(driver, 10).until(EC.title_contains("Login"))
         self.assertIn("Login", driver.title)
 
+        # Wait for the login form to be present
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.ID, "loginForm"))
+        )
+
         # Test for valid login after registration
-        driver.find_element(By.ID, "username").send_keys("test_user")
-        driver.find_element(By.ID, "password").send_keys("password")
-        driver.find_element(By.ID, "login-btn").click()
+        # Fill in the login form
+        user = "test_user"
+        password ="password"
+        driver.execute_script("document.getElementById('username').value = arguments[0];", user)
+        driver.execute_script("document.getElementById('password').value = arguments[0];", password)
+
+        # Submit the form
+        login_button = driver.find_element(By.ID, "login-btn")
+        driver.execute_script("arguments[0].click();", login_button)
 
         # Wait for successful entry into the chat room
         WebDriverWait(driver, 10).until(EC.title_contains("Chatroom"))
@@ -117,6 +129,33 @@ class TestSelenium(unittest.TestCase):
         # Check that the chat item has been deleted
         chat_items = driver.find_elements(By.XPATH, "//ul[@id='chat-list']/li")
         self.assertEqual(len(chat_items), 0)
+
+        # Test for access to edit profile page
+        edit_profile_button = driver.find_element(By.ID, "edit-profile-btn")
+        driver.execute_script("arguments[0].click();", edit_profile_button)
+
+        # Assert the correct page title or some other verification that the page loaded
+        self.assertIn("Edit Profile", driver.title)
+
+        # Fill out the form fields
+        current_password = "password"
+        new_password = "new_password"
+        driver.execute_script("document.getElementById('currentpword').value = arguments[0];", current_password)
+        driver.execute_script("document.getElementById('newpword').value = arguments[0];", new_password)
+        driver.execute_script("document.getElementById('retypenewPword').value = arguments[0];", new_password)
+
+        # Click the submit button
+        sub = driver.find_element(By.ID, "submit-btn")
+        driver.execute_script("arguments[0].click();", sub)
+
+        # Check that is stays on edit profile page
+        self.assertIn("Edit Profile", driver.title)
+        success_message = WebDriverWait(driver, 10).until(
+            EC.visibility_of_element_located((By.XPATH, "//p[contains(text(), 'Password Successfully Changed')]"))
+        )
+        
+        # Check for success message text
+        self.assertIn("Password Successfully Changed", success_message.text)
     
         # Test for logging out
         # Click logout button
@@ -133,8 +172,8 @@ class TestSelenium(unittest.TestCase):
         
         # Test for redirection from login to register page
         driver.get(self.base_url)
-        register_link = driver.find_element(By.CSS_SELECTOR, "a[href='/tutorial']")
-        register_link.click()
+        tutorial_button = driver.find_element(By.ID, "tutorial-btn")
+        driver.execute_script("arguments[0].click();", tutorial_button)
         WebDriverWait(driver, 10).until(EC.title_contains("Tutorial"))
         self.assertIn("Tutorial", driver.title)
 

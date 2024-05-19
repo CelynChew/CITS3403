@@ -118,9 +118,6 @@ function updateChatDisplay(chatId, chatName) {
         .catch(error => console.error('Error fetching messages:', error));
 }
 
-// Call the updateChatDisplay function when the page loads
-window.addEventListener('load', updateChatDisplay);
-
 var chatList = document.getElementById('chat-list');
 // Listener for displaying messages
 chatList.addEventListener('click', function(event) {

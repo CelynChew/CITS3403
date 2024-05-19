@@ -115,12 +115,6 @@ def registration():
 
     # Render the registration form when the request method is GET
     return render_template('registration.html', form=form)
-    
-# Route to serve the introduction page
-@app.route('/intro/<username>')
-@login_required
-def intro(username):
-    return render_template('intro.html', username=username)
 
 # Defining route for using chatroom features
 @app.route('/tutorial')
@@ -227,6 +221,8 @@ def chatroom_m():
 
     return render_template('chatroom-m.html', user_chats=user_chats, username=username, chat_messages=chat_messages, form=form)
 
+app.config['UPLOAD_FOLDER'] = os.path.abspath(os.environ.get('UPLOAD_FOLDER', './uploads'))
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     file = request.files['file']
@@ -252,6 +248,9 @@ def upload_file():
     if file and chat:
         # Reset file handle position to the beginning of the file
         file.seek(0)
+
+        if not os.path.exists(app.config['UPLOAD_FOLDER']):
+            os.makedirs(app.config['UPLOAD_FOLDER'])
 
         # Save the file to the upload folder
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], (file.filename))
@@ -604,9 +603,9 @@ def data():
 @login_required
 def edit_profile():
     user = User.query.filter_by(username=current_user.username).first()
-    username = user.username
-    error_message = None
-    success = None
+    if not user:
+        return render_template('edit_profile.html', error_message='User not found')
+
     if request.method == 'POST':
         oldpword = request.form['currentpword'] 
         newpword = request.form['newpword']
@@ -614,18 +613,16 @@ def edit_profile():
 
         user = User.query.filter_by(username=current_user.username, password=oldpword).first()
 
-        if user == None:
+        if user is None:
             return render_template('edit_profile.html', error_message='Incorrect Password for User')
         
-        elif newpword != retype:
+        if newpword != retype:
             return render_template('edit_profile.html', error_message='New Passwords Do Not Match')
 
-        else:
-
-            user = User.query.filter_by(username=username, password=oldpword).first()
-            user.password = newpword
-            db.session.commit()
-            return render_template('edit_profile.html', success = "Password Successfully Changed")
+        user.password = newpword
+        db.session.commit()
+        return render_template('edit_profile.html', success='Password Successfully Changed')
+    
     return render_template('edit_profile.html')
 
 if __name__ == '__main__':
