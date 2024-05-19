@@ -103,5 +103,27 @@ Unit Test:
 
 Selenium Test:
 1. Run Flask application in a virtual environment
-2. In a seperate terminal, create and activate virtual environment
-3. ```python selenium_test.py```
+2. In a seperate terminal, create and activate virtual environment. Install the requirements and ```python selenium_test.py```
+3. 
+
+
+## Resource Reference (APA)
+Bayer, M. (2012). SQLAlchemy: The Database Toolkit for Python. Retrieved from https://www.sqlalchemy.org
+
+Ecma International. (2011). ECMAScript Language Specification (ECMA-262). Retrieved from https://www.ecma-international.org/publications/standards/Ecma-262.htm
+
+Ronacher, A. (n.d.). Flask. Retrieved from https://flask.palletsprojects.com
+
+Hipp, D. (n.d.). SQLite. Retrieved from https://www.sqlite.org
+
+Otto, M., & Thornton, J. (n.d.). Bootstrap. Retrieved from https://getbootstrap.com
+
+Roy, M., & Grinberg, M. (n.d.). Flask-Login. Retrieved from https://flask-login.readthedocs.io/en/latest/
+
+SeleniumHQ. (n.d.). Selenium WebDriver. Retrieved from https://www.selenium.dev
+
+W3C. (1999). HTML 4.01 Specification. Retrieved from https://www.w3.org/TR/html401/
+
+W3C. (2011). Cascading Style Sheets (CSS) Snapshot 2010. Retrieved from https://www.w3.org/TR/css-2010/
+
+WTForms. (n.d.). WTForms Documentation. Retrieved from https://wtforms.readthedocs.io/en/stable/
