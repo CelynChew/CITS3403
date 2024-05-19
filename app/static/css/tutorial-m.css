@@ -15,6 +15,10 @@ h5 {
 
 }
 
+.navbar {
+    padding-top: 0;
+}
+
 
 img {
 
@@ -27,19 +31,21 @@ img {
     background-color: rgb(33, 37, 41, 1) ; 
     border: 1px solid gray; 
     margin: auto;
-    margin-bottom: 100px; /* center the carousel horizontally */
-    margin-top: 100px; /* center the carousel vertically */
+    margin-top: 40px; /* center the carousel vertically */
     border-radius: 7px;
     text-align: center; 
-    width: 60%;
+    width: 80%;
     box-shadow: 0 0 10px rgb(17, 17, 17); 
 }
 
 .carousel-item {
     color: whitesmoke;
     padding: 20px;
+    padding-left: 90px;
     margin-bottom: 5px;
     text-align: center;
+    width: 400px;
+    height: 550px;
 }
 
 .carousel-indicators button{
@@ -50,6 +56,18 @@ img {
     background-color: white !important; /* ensures active indicator is black */
 }
 
-.carousel-control-prev, .carousel-control-next{
-    filter: invert(); /* makes prev and next arrows visible */
+.carousel-control-prev, .carousel-control-next {
+    color: white; 
+}
+
+.carousel-control-prev:hover, .carousel-control-next:hover {
+    color: whitesmoke; 
+}
+
+.carousel-control-prev {
+    left: -10px; 
+}
+
+.carousel-control-next {
+    right: -10px; 
 }
