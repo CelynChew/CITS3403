@@ -592,9 +592,9 @@ def data():
 @login_required
 def edit_profile():
     user = User.query.filter_by(username=current_user.username).first()
-    username = user.username
-    error_message = None
-    success = None
+    if not user:
+        return render_template('edit_profile.html', error_message='User not found')
+
     if request.method == 'POST':
         oldpword = request.form['currentpword'] 
         newpword = request.form['newpword']
@@ -602,18 +602,16 @@ def edit_profile():
 
         user = User.query.filter_by(username=current_user.username, password=oldpword).first()
 
-        if user == None:
+        if user is None:
             return render_template('edit_profile.html', error_message='Incorrect Password for User')
         
-        elif newpword != retype:
+        if newpword != retype:
             return render_template('edit_profile.html', error_message='New Passwords Do Not Match')
 
-        else:
-
-            user = User.query.filter_by(username=username, password=oldpword).first()
-            user.password = newpword
-            db.session.commit()
-            return render_template('edit_profile.html', success = "Password Successfully Changed")
+        user.password = newpword
+        db.session.commit()
+        return render_template('edit_profile.html', success='Password Successfully Changed')
+    
     return render_template('edit_profile.html')
 
 if __name__ == '__main__':

@@ -11,7 +11,7 @@ import re
 
 class TestUserModel(unittest.TestCase):
     def setUp(self):
-        os.environ['FLASK_ENV'] = 'test'
+        app.config.from_object(TestConfig)
         
         self.app = app.test_client()
         self.app_context = app.app_context()
