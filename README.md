@@ -109,7 +109,7 @@ Selenium Test:
 
 ## Resource Reference (APA)
 
-Grinberg, M. (2018). Flask web development: Developing web applications with Python (2nd ed.). O'Reilly Media.
+Ronacher, A. (n.d.). Flask. Retrieved from https://flask.palletsprojects.com
 
 Hipp, D. (n.d.). SQLite. Retrieved from https://www.sqlite.org
 
