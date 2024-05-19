@@ -112,7 +112,7 @@ Bayer, M. (2012). SQLAlchemy: The Database Toolkit for Python. Retrieved from ht
 
 Ecma International. (2011). ECMAScript Language Specification (ECMA-262). Retrieved from https://www.ecma-international.org/publications/standards/Ecma-262.htm
 
-Grinberg, M. (2018). Flask web development: Developing web applications with Python (2nd ed.). O'Reilly Media.
+Ronacher, A. (n.d.). Flask. Retrieved from https://flask.palletsprojects.com
 
 Hipp, D. (n.d.). SQLite. Retrieved from https://www.sqlite.org
 
