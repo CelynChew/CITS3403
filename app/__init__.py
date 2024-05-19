@@ -6,13 +6,13 @@ from flask_login import LoginManager
 from .extensions import socketio
 
 app = Flask(__name__)
+app.config['TESTING'] = True
 
 if app.config['TESTING']:
     app.config.from_object(TestConfig)
 else:
     app.config.from_object(Config)   
 
-socketio.init_app(app)
 app.config.from_object(Config)
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
@@ -20,6 +20,8 @@ migrate = Migrate(app, db)
 login_manager = LoginManager()
 login_manager.login_view = 'login'
 login_manager.init_app(app)
+
+socketio.init_app(app)
 
 from app import routes, models
 
