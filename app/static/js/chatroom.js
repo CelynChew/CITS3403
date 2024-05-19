@@ -247,24 +247,25 @@ function sendMessage(chatName) {
     }
 }
 
-// Trigger send button on enter
-var input = document.getElementById('message-input')
-// Event listener for when user presses enter
-input.addEventListener("keypress", function(event) {
-    if (event.key === "Enter") {
-        // Cancel the default action, if needed
-        event.preventDefault();
-        // Retrieve selected chat name
-        var currentChatName = document.getElementById('group-name').textContent.trim();
-        sendMessage(currentChatName); // Call the sendMessage function when Enter is pressed
-    }
-});
-var sendButton = document.getElementById('send-button')
-sendButton.addEventListener("click", function(event) {
-    // Retrieve selected chat name
-    var currentChatName = document.getElementById('group-name').textContent.trim();
-    sendMessage(currentChatName); // Send Message
-});
+// // Trigger send button on enter
+// var input = document.getElementById('message-input')
+// // Event listener for when user presses enter
+// input.addEventListener("keypress", function(event) {
+//     if (event.key === "Enter") {
+//         // Cancel the default action, if needed
+//         event.preventDefault();
+//         // Retrieve selected chat name
+//         var currentChatName = document.getElementById('group-name').textContent.trim();
+//         sendMessage(currentChatName); // Call the sendMessage function when Enter is pressed
+//     }
+// });
+
+// var sendButton = document.getElementById('send-button')
+// sendButton.addEventListener("click", function(event) {
+//     // Retrieve selected chat name
+//     var currentChatName = document.getElementById('group-name').textContent.trim();
+//     sendMessage(currentChatName); // Send Message
+// });
 
 // Function to add new chats to chat list 
 var chatList = document.getElementById('chat-list');
@@ -530,4 +531,3 @@ function switchContent() {
         }
     }
 }
-

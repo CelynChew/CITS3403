@@ -51,19 +51,35 @@ class TestUserModel(unittest.TestCase):
         csrf_token = r'<input\s+type="hidden"\s+id="csrf_token"\s+name="csrf_token"\s+value="(\S+)"\s*/?>'
 
         # Test login with correct login details
-        response = self.app.post('/', data={'csrf_token': csrf_token, 'username': 'test_user', 'password': 'password'}, follow_redirects=True)
+        # Log in as the test user by sending a POST request to the login route
+        login_data = {
+            'username': 'test_user',
+            'password': 'password'
+        }
+        response = self.app.post('/', data=login_data, follow_redirects=True)
         # Verify that the response is a successful login
         self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Chatroom', response.data)
 
         # Test login with wrong username
-        response = self.app.post('/', data={'csrf_token': csrf_token, 'username': 'wrong_username', 'password': 'password'}, follow_redirects=True)
-        # Verify that the response is a failed login
-        self.assertEqual(response.status_code, 200)  
+        wrong_username = {
+            'username': 'wrong_username',
+            'password': 'password'
+        }
+        response2 = self.app.post('/', data=wrong_username, follow_redirects=True)
+        # Verify that the response is a failed login and stays on login page
+        self.assertEqual(response2.status_code, 200)  
+        self.assertIn(b'Login', response2.data)
 
         # Test login with wrong password
-        response = self.app.post('/', data={'csrf_token': csrf_token, 'username': 'test_user', 'password': 'wrong_password'}, follow_redirects=True)
-        # Verify that the response is a successful login
-        self.assertEqual(response.status_code, 200)  
+        wrong_password = {
+            'username': 'test_user',
+            'password': 'wrong_password'
+        }
+        response3 = self.app.post('/', data=wrong_password, follow_redirects=True)
+        # Verify that the response is a failed login and stays on login page
+        self.assertEqual(response3.status_code, 200)  
+        self.assertIn(b'Login', response3.data)
 
         # Delete the test user from the database
         db.session.delete(test_user)
