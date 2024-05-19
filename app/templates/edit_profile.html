@@ -18,83 +18,103 @@
         <div class="container-fluid">
             <p class="navbar-brand" style="color: white; margin: 0;">{{ current_user.username }}'s Profile </p>
             <!-- Navbar links -->
-                <ul class="navbar-nav ms-auto flex-row">
+            <!--<div class="collapse navbar-collapse" id="navbarNav">-->
+            <ul class="navbar-nav ms-auto flex-row">
 
-                    <!-- Tutorial Page Link -->
-                    <li class="nav-item">
-                        <button class="btn" onclick="showTutorial()">Tutorial
-                            <!-- Question circle icon -->
-                            <i class="bi bi-question-circle" style="color: white; font-size: 20px;"></i>
-                        </button>
-                    </li>
-                    <!-- Chatroom Page Link-->
-                    <li class="nav-item">
-                        <button class="btn btn-primary" onclick="showChatroom()" style = "margin-top: 3px; margin-right: 30px;">Chatroom
-                        </button>
-                    </li>
-                    <!-- Logout Button -->
-                    <li class="nav-item">
-                        <button class="btn btn-danger" style="margin-top: 3px;" onclick="LoggingOut()">Logout</button>
-                    </li>
-                </ul>
-        </div>
-        </div>
+                <!-- Tutorial Page Link -->
+                <li class="nav-item">
+                    <button id="tutorial-btn" class="btn" onclick="showTutorial()">Tutorial
+                        <!-- Question circle icon -->
+                        <i class="bi bi-question-circle" style="color: white; font-size: 20px;"></i>
+                    </button>
+                </li>
+                <!-- Chatroom Page Link-->
+                <li class="nav-item">
+                    <button class="btn btn-primary" onclick="showChatroom()" style = "margin-top: 3px; margin-right: 30px;">Chatroom
+                    </button>
+                </li>
+                <!-- Logout Button -->
+                <li class="nav-item">
+                    <button id="logout" class="btn btn-danger" style="margin-top: 3px;" onclick="LoggingOut()">Logout</button>
+                </li>
+                <!-- Link to Profile Change Page -->
+                <li class="nav-item">
+                    <a id="edit-profile-btn" href="/edit_profile">
+                    <i class="bi bi-person-circle" style="color: white; font-size: 30px; padding: 20px; top: 3px;"></i></a>
+                </li>
+            </ul>
         </div>
     </nav>
 
 
-<div class = 'container'>
-    <br><br>
-<h1> Welcome User: {{ current_user.username }}</h1>
-<br><br><br>
-<h3>Password Change Form</h3>
-<br><br><br>
-<form id="edit-profile" action="/edit_profile" method="POST">
-    <div class="login-section">
-    <div class="mb-3">
-        <!-- Current Password input-->
-        <label for="currentpword" class="form-label">Current Password:</label>
-        <input type="text" class="form-control" id="currentpword" name="currentpword" required>
+    <div class = 'container'>
+        <br>
+        <h3>Create a new password</h3>
+        <br>
+        <form id="edit-profile" action="/edit_profile" method="POST">
+            <div class="login-section">
+                <div class="mb-3">
+                    <!-- Current Password input-->
+                    <label for="currentpword" class="form-label">Current Password:</label>
+                    <input type="text" class="form-control" id="currentpword" name="currentpword" required>
+                </div>
+                <div class="mb-3">
+                    <!-- Password input -->
+                    <label for="newpword" class="form-label">New Password:</label>
+                    <input type="password" class="form-control" id="newpword" name="newpword" required>
+                </div>
+                <div class="mb-3">
+                    <!-- Retyped Password input -->
+                    <label for="retypenewPword" class="form-label">Retype New Password:</label>
+                    <input type="password" class="form-control" id="retypenewPword" name="retypenewPword" required>
+                </div>
+                <div class="mb-3">
+                    <!-- Submit Button -->
+                    <button type="submit" class="btn btn-primary" id="submit-btn">Submit Changes</button>
+                </div>
+            
+                <!-- Error message if passwords do not match -->
+                {% if password_error %}
+                    <p style="color: red;">{{ password_error }}</p>
+                {% endif %}
+                <!-- Error message if username already exists -->
+                {% if error_message %}
+                    <p style="color: red;">{{ error_message }}</p>
+                {% endif %}
+
+                {% if success %}
+                    <p style="color: green;">{{ success }}</p>
+                {% endif %}
+            </div>
+        </form>
     </div>
-    <div class="mb-3">
-        <!-- Password input -->
-        <label for="newpword" class="form-label">New Password:</label>
-        <input type="password" class="form-control" id="newpword" name="newpword" required>
-    </div>
-    <div class="mb-3">
-        <!-- Retyped Password input -->
-        <label for="retypenewPword" class="form-label">Retype New Password:</label>
-        <input type="password" class="form-control" id="retypenewPword" name="retypenewPword" required>
-    </div>
-    <div class="mb-3">
-        <!-- Submit Button -->
-        <button type="submit" class="btn btn-primary" id="submit-btn">Submit Changes</button>
-    </div>
+
+<script>
+function showTutorial() {
+    window.location.href = "/tutorial"
     
-    <!-- Error message if passwords do not match -->
-    {% if password_error %}
-        <p style="color: red;">{{ password_error }}</p>
-    {% endif %}
-    <!-- Error message if username already exists -->
-    {% if error_message %}
-        <p style="color: red;">{{ error_message }}</p>
-    {% endif %}
+}
 
-    {% if success %}
-        <p style="color: green;">{{ success }}</p>
-    {% endif %}
-    </div>
-</div>
-</form>
+// Function for logging out
+function LoggingOut() {
+    window.location.href = "/";
+    fetch('/logout', {
+        method: 'GET',
+        credentials: 'same-origin' // Include cookies in the request
+    })
+    .then(response => {
+        // Handle successful logout
+        window.location.href = "/";
+    })
+    .catch(error => {
+        // Handle errors
+        console.error('Logout error:', error);
+    });
+}
 
-<script> function showChatroom() {
-    mobile = isMobile()
-    if (mobile) {
-        window.location.href = "/chatroom-m"
-    }
-    else {
-        window.location.href = "/chatroom"
-    }
+function showChatroom() {
+    window.location.href = "/chatroom"
+
 }
 
 </script>

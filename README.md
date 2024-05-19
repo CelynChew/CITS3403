@@ -1,9 +1,50 @@
 # CITS3403
+
+## Name of the application
+ChatSome
+
 ## Purpose of the application
+The aim of ChatSome is to provide personalised learning and professional development
+by leveraging the power of one-on-one communication. With today's evolution on digital world, ChatSome brings back the human touch to education and mentorship, fostering meaningful connections that drive success for the users. 
 
-### Design
+Some key objectives that highlights the ChatSome: 
 
-### Use
+1.Personalized Learning Experience - provide customized feedback and guidance that adapts to each other's pace and progress and empowering students to achieve their
+academic goals through personalized interaction with expert tutors.
+
+2.Effective Mentorship - facilitate our users in exchanging their knowledge and skills in flexible environment, support career growth through meaningful mentor-
+mentee relationships by connecting with them in their field of interest.
+
+3.Enhanced Engagement - encouraging active participation and dialogue, and provide
+a supportive, welcoming community where learners and professionals feel valued and
+motivated. 
+
+### Design and Use
+The focus on the ChatSome's design is on simplicity, user-friendliness, and robust
+functionality, to ensure a seamless experience for both tutors and students. 
+
+The design features on this application consists of:
+
+1.Private Chatrooms - users can create their own private chatrooms for one-on-one
+interactions, ensuring a focused and personalized communication envirionment. Also,
+this facilitates a real-time messaging in their own chatrooms, enabling instant 
+feedback and continuous dialogue between users. 
+
+2.File Sharing - provide the capabilities for file sharing, which allow users to 
+exchange documents, assignments, resources and feedbacks directly within the 
+chatroom. Our application supports various file formarts, which accomodate different
+types of educational and mentoring materials.
+
+3.User Profiles - Each user has their own profile, which provides them the capability
+to change their password of their account if required to do so. 
+
+4.Account Management - this includes secure login and logout processes and password
+change options, which ensures that user data is protected and accessible only by
+authorized individuals.
+
+5.Tutorial page - a detailed tutorial is to guide new users through the features
+and functionalities of the application, providing step-by-step instructions to assist
+users on getting started with ChatSome. 
 
 ## Team Members
 | UWA ID | Name | Github Username |
@@ -12,8 +53,6 @@
 | 23641633  | Chuen Yui Lam  | Roy-Lam  |
 | 23251142  | Benjamin Cooper | bc163836 |
 | 23237969 | Felicia Sindhu | sindhufelicia |
-
-## Architecture of the application
 
 ## How to launch the application
 Create Virtual Environment:
@@ -38,9 +77,11 @@ Initialise Database:
 
 ```flask db migrate -m "Initial migration"```  
 
-If error occurs (start from ```flask db init```  after making new directory in migration)
-```Remove-Item -Recurse -Force migrations```
-```mkdir migrations```
+- If error occurs (start from ```flask db init```  after making new directory in migration)
+
+- ```Remove-Item -Recurse -Force migrations```
+
+- ```mkdir migrations```
 
 Create tables:
 
@@ -55,3 +96,11 @@ For mobile:
 1. Connect your laptop to your phone's mobile hotspot
 2. Run ```flask run --host=0.0.0.0``` and use the second link. 
 ## How to run the tests for the application
+Unit Test:
+
+```python unittests.py```
+
+Selenium Test:
+1. Run Flask application in a virtual environment
+2. In a seperate terminal, create and activate virtual environment
+3. ```python selenium_test.py```

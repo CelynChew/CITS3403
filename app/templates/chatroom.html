@@ -35,12 +35,12 @@
                     </li>
                     <!-- Logout Button -->
                     <li class="nav-item">
-
                      <button class="btn btn-danger" style="margin-top: 3px;" id="logout" onclick="LoggingOut()">Logout</button>
                     </li>
+                    <!-- Edit profile button -->
                     <li class="nav-item">
-                <a href="{{ url_for('edit_profile', username=current_user.username) }}">
-                <i class="bi bi-person-circle" style="color: white; font-size: 30px; padding: 20px; top: 3px;"></i></a>
+                        <a id="edit-profile-btn" href="/edit_profile">
+                        <i class="bi bi-person-circle" style="color: white; font-size: 30px; padding: 20px; top: 3px;"></i></a>
                     </li>
                 </ul>
             </div>
@@ -74,7 +74,7 @@
                     <!-- Chat input area -->
                     <div class="chat-input">
                         <!-- WTForms generated form -->
-                        <form action="{{ url_for('chatroom') }}" method="post" enctype="multipart/form-data">
+                        <form action="/chatroom" method="post" enctype="multipart/form-data">
                             <!-- Include hidden CSRF token field -->
                             {{ form.hidden_tag() }}
                             <div class="input-group">
@@ -92,7 +92,7 @@
             </div>
         </div>
     </div>
-    </div>
+ 
     <!-- New Chat modal -->
     <div class="modal fade" id="new-chat-form">
         <div class="modal-dialog">

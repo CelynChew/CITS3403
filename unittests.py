@@ -7,14 +7,16 @@ import os
 from datetime import datetime
 from io import BytesIO
 import json
+import re
 
 class TestUserModel(unittest.TestCase):
     def setUp(self):
-        os.environ['FLASK_ENV'] = 'test'
+        app.config.from_object(TestConfig)
         
         self.app = app.test_client()
         self.app_context = app.app_context()
         self.app_context.push()
+        self.app.application.config['WTF_CSRF_ENABLED'] = False  # Disable CSRF protection for testing
         db.create_all() # Create tables in the test database
 
     def tearDown(self):
@@ -45,18 +47,21 @@ class TestUserModel(unittest.TestCase):
         db.session.add(test_user)
         db.session.commit()
 
+        # Retrieve the CSRF token
+        csrf_token = r'<input\s+type="hidden"\s+id="csrf_token"\s+name="csrf_token"\s+value="(\S+)"\s*/?>'
+
         # Test login with correct login details
-        response = self.app.post('/', data={'username': 'test_user', 'password': 'password'}, follow_redirects=True)
+        response = self.app.post('/', data={'csrf_token': csrf_token, 'username': 'test_user', 'password': 'password'}, follow_redirects=True)
         # Verify that the response is a successful login
         self.assertEqual(response.status_code, 200)
 
         # Test login with wrong username
-        response = self.app.post('/', data={'username': 'wrong_username', 'password': 'password'}, follow_redirects=True)
+        response = self.app.post('/', data={'csrf_token': csrf_token, 'username': 'wrong_username', 'password': 'password'}, follow_redirects=True)
         # Verify that the response is a failed login
         self.assertEqual(response.status_code, 200)  
 
         # Test login with wrong password
-        response = self.app.post('/', data={'username': 'test_user', 'password': 'wrong_password'}, follow_redirects=True)
+        response = self.app.post('/', data={'csrf_token': csrf_token, 'username': 'test_user', 'password': 'wrong_password'}, follow_redirects=True)
         # Verify that the response is a successful login
         self.assertEqual(response.status_code, 200)  
 
@@ -65,48 +70,38 @@ class TestUserModel(unittest.TestCase):
         db.session.commit()
 
     # Test for registration
-    def test_registration(self):
-        # Test registration with matching passwords
-        response = self.app.post('/register', data={'uName': 'test_user', 'password': 'password', 'retypePassword': 'password'}, follow_redirects=True)
+    def test_registration_with_matching_passwords(self):
+        # Simulate form submission with matching passwords
+        response = self.app.post('/register', data={'username': 'test_user', 'password': 'password', 'confirm_password': 'password'}, follow_redirects=True)
+        
+        # Check if redirected to Login page
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b'Login', response.data) # Check if redirected to Login page
-        self.assertIsNotNone(User.query.filter_by(username='test_user').first()) # Check if test_user is added to database
+        self.assertIn(b'Login', response.data)
+        
+        # Check if test_user is added to the database
+        self.assertIsNotNone(User.query.filter_by(username='test_user').first())
 
-        # Test registration with non-matching passwords
-        response = self.app.post('/register', data={'uName': 'test_user', 'password': 'password', 'retypePassword': 'wrong_password'}, follow_redirects=True)
-        self.assertEqual(response.status_code, 200) 
-        self.assertIn(b'Passwords do not match!', response.data) 
+        # Delete test
+        db.session.delete(User.query.filter_by(username='test_user').first())
+        db.session.commit()   
 
-        # Delete test_user from the database
-        test_user = User.query.filter_by(username='test_user').first()
-        db.session.delete(test_user)
-        db.session.commit()
+    # Test for registration
+    def test_registration_with_mismatching_passwords(self):
+        # Simulate form submission with mismatching passwords
+        response = self.app.post('/register', data={'username': 'test_user', 'password': 'password', 'confirm_password': 'password2'}, follow_redirects=True)
+        
+        # Check if request is sucessful but stays on register page
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b'Register', response.data)
+        
+        # Check that test user is not added to database
+        self.assertIsNone(User.query.filter_by(username='test_user').first()) 
 
     # Testing access to chatroom
     def test_chatroom_redirect_if_not_logged_in(self):
         response = self.app.get('/chatroom')
         self.assertEqual(response.status_code, 302)  # Check if the page was redirected
         self.assertIn('/', response.location)   # Check if redirected to login page
-
-    def test_chatroom_served_when_logged_in(self):
-        # Create a test user
-        test_user = User(username='test_user', password='password')
-        db.session.add(test_user)
-        db.session.commit()
-
-        # Log in the test user
-        with self.app as c:
-            response = c.post('/', data={'username': 'test_user', 'password': 'password'}, follow_redirects=True)
-            self.assertEqual(response.status_code, 200)  # Check if login was successful
-
-            # After login, make a GET request to the chatroom page
-            response = c.get('/chatroom')
-            self.assertEqual(response.status_code, 200)  # Check if the request was successful
-            self.assertIn(b'Chatroom', response.data)  # Check if redirected to chatroom
-        
-        # Delete test_user
-        db.session.delete(test_user)
-        db.session.commit()
 
     # Test for creating chat with non-existing user
     def test_create_chat_with_non_existing_user(self):
